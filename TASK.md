@@ -11,7 +11,7 @@
 - [x] Step 2 — Prisma Schema + Migration + Seed
 - [x] Step 3 — 基礎設施（lib/）
 - [x] Step 4 — API Routes
-- [ ] Step 5 — CRM 看板頁
+- [x] Step 5 — CRM 看板頁
 - [ ] Step 6 — 新增客戶表單
 - [ ] Step 7 — 客戶詳情頁
 - [ ] Step 8 — 儀表板
@@ -105,27 +105,27 @@
 
 ## Step 5｜CRM 看板頁 `/`（~60 min）
 
-- [ ] `app/page.tsx` — fetch `/api/clients`，按 stage 分組，傳入看板
-- [ ] `components/board/KanbanBoard.tsx`
-  - [ ] `DragDropContext` 包覆整體（`@hello-pangea/dnd`）
-  - [ ] 7 欄水平排列，水平捲動
-  - [ ] `onDragEnd` 邏輯：
-    - [ ] 前端 KYC 鎖定檢查（快速 toast）
-    - [ ] Optimistic UI 更新
-    - [ ] PATCH `/api/clients/[id]`
-    - [ ] API 失敗時 rollback + toast
-  - [ ] 右上角「+ 新增客戶」按鈕
-- [ ] `components/board/KanbanColumn.tsx`
-  - [ ] `Droppable` 欄位
-  - [ ] 欄位標題 + 客戶數 badge
-- [ ] `components/board/ClientCard.tsx`
-  - [ ] `Draggable` 卡片
-  - [ ] 紅旗標記（hover tooltip 顯示原因）
-  - [ ] 公司名稱、聯絡人、服務類型
-  - [ ] 跟進日期（含顏色 + 天數文字）
-  - [ ] 月費顯示
-  - [ ] 逾期收款 `💰逾期` 標記
-  - [ ] 點擊導向 `/clients/[id]`
+- [x] `app/page.tsx` — fetch `/api/clients`，按 stage 分組，傳入看板
+- [x] `components/board/KanbanBoard.tsx`
+  - [x] `DragDropContext` 包覆整體（`@hello-pangea/dnd`）
+  - [x] 7 欄水平排列，水平捲動
+  - [x] `onDragEnd` 邏輯：
+    - [x] 前端 KYC 鎖定檢查（快速 toast）
+    - [x] Optimistic UI 更新
+    - [x] PATCH `/api/clients/[id]`
+    - [x] API 失敗時 rollback + toast
+  - [x] 右上角「+ 新增客戶」按鈕
+- [x] `components/board/KanbanColumn.tsx`
+  - [x] `Droppable` 欄位
+  - [x] 欄位標題 + 客戶數 badge
+- [x] `components/board/ClientCard.tsx`
+  - [x] `Draggable` 卡片
+  - [x] 紅旗標記（hover tooltip 顯示原因）
+  - [x] 公司名稱、聯絡人、服務類型
+  - [x] 跟進日期（含顏色 + 天數文字）
+  - [x] 月費顯示
+  - [x] 逾期收款 `💰逾期` 標記
+  - [x] 點擊導向 `/clients/[id]`
 
 ---
 
