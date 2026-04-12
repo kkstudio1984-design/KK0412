@@ -10,7 +10,7 @@
 - [x] Step 1 — 環境建置
 - [x] Step 2 — Prisma Schema + Migration + Seed
 - [x] Step 3 — 基礎設施（lib/）
-- [ ] Step 4 — API Routes
+- [x] Step 4 — API Routes
 - [ ] Step 5 — CRM 看板頁
 - [ ] Step 6 — 新增客戶表單
 - [ ] Step 7 — 客戶詳情頁
@@ -76,27 +76,27 @@
 
 ## Step 4｜API Routes（~30 min）
 
-- [ ] `GET /api/clients`
+- [x] `GET /api/clients`
   - 回傳所有 space_clients + organization
   - 含 `hasOverduePayment` 計算欄位（看板用）
   - 含各客戶 kycChecks（用於拖拉前端驗證）
-- [ ] `POST /api/clients`
+- [x] `POST /api/clients`
   - Prisma transaction：建 org → 建 space_client → 若借址登記自動建 5 筆 KYC
-- [ ] `GET /api/clients/[id]`
+- [x] `GET /api/clients/[id]`
   - 完整資料：organization + space_client + kycChecks + payments
-- [ ] `PATCH /api/clients/[id]`
+- [x] `PATCH /api/clients/[id]`
   - 更新 stage 時伺服器端驗證 KYC 鎖定規則（回 422）
   - 更新其他欄位（nextAction, followUpDate, redFlags, notes 等）
-- [ ] `PATCH /api/clients/[id]/kyc`
+- [x] `PATCH /api/clients/[id]/kyc`
   - 更新單筆 KYC 狀態（checkType + status）
-- [ ] `GET /api/clients/[id]/payments`
-- [ ] `POST /api/clients/[id]/payments`
+- [x] `GET /api/clients/[id]/payments`
+- [x] `POST /api/clients/[id]/payments`
   - 新增收款（dueDate, amount）
-- [ ] `PATCH /api/clients/[id]/payments/[pid]`
+- [x] `PATCH /api/clients/[id]/payments/[pid]`
   - 切換收款狀態
   - 切換為「已收」自動填 `paidAt = now()`
   - 離開「已收」自動清空 `paidAt`
-- [ ] `GET /api/dashboard`
+- [x] `GET /api/dashboard`
   - 服務中客戶數
   - 本月應收 / 本月實收 / 缺口
   - 逾期清單（JOIN organizations）
