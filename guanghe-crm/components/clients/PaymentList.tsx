@@ -78,7 +78,7 @@ export default function PaymentList({ clientId, initialPayments }: Props) {
         <h2 className="font-semibold text-gray-800">收款紀錄</h2>
         <button
           onClick={() => setShowModal(true)}
-          className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg"
+          className="text-sm bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-semibold px-3 py-1.5 rounded-lg shadow-sm"
         >
           + 新增收款
         </button>
@@ -126,7 +126,7 @@ export default function PaymentList({ clientId, initialPayments }: Props) {
                   type="date"
                   value={newDueDate}
                   onChange={(e) => setNewDueDate(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
                 />
               </div>
               <div>
@@ -136,7 +136,7 @@ export default function PaymentList({ clientId, initialPayments }: Props) {
                   min="0"
                   value={newAmount}
                   onChange={(e) => setNewAmount(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
                   placeholder="2500"
                 />
               </div>
@@ -145,7 +145,7 @@ export default function PaymentList({ clientId, initialPayments }: Props) {
               <button
                 onClick={handleAdd}
                 disabled={adding}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-medium py-2 rounded-lg"
+                className="flex-1 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 disabled:opacity-60 text-slate-900 text-sm font-semibold py-2 rounded-lg shadow-sm"
               >
                 {adding ? '新增中...' : '確認新增'}
               </button>

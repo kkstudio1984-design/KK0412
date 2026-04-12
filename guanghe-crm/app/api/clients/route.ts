@@ -14,7 +14,7 @@ export async function GET() {
       orderBy: { createdAt: 'asc' },
     })
 
-    const result = clients.map((c) => ({
+    const result = clients.map((c: any) => ({
       ...c,
       followUpDate: c.followUpDate?.toISOString().split('T')[0] ?? null,
       createdAt: c.createdAt.toISOString(),
@@ -24,11 +24,11 @@ export async function GET() {
         createdAt: c.organization.createdAt.toISOString(),
         updatedAt: c.organization.updatedAt.toISOString(),
       },
-      kycChecks: c.kycChecks.map((k) => ({
+      kycChecks: c.kycChecks.map((k: any) => ({
         ...k,
         checkedAt: k.checkedAt.toISOString(),
       })),
-      hasOverduePayment: c.payments.some((p) => p.status === '逾期'),
+      hasOverduePayment: c.payments.some((p: any) => p.status === '逾期'),
       payments: undefined,
     }))
 

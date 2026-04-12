@@ -28,7 +28,7 @@ export default async function ClientDetailPage({
         <h1 className="text-lg font-bold text-gray-900 truncate">
           {client.organization.name}
         </h1>
-        <span className="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+        <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
           {client.stage}
         </span>
       </div>

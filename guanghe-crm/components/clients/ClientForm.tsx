@@ -73,7 +73,7 @@ export default function ClientForm() {
               type="text"
               value={form.name}
               onChange={(e) => set('name', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               placeholder="光合創學有限公司"
             />
           </div>
@@ -84,7 +84,7 @@ export default function ClientForm() {
               type="text"
               value={form.taxId}
               onChange={(e) => set('taxId', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               placeholder="12345678"
             />
           </div>
@@ -97,7 +97,7 @@ export default function ClientForm() {
               type="text"
               value={form.contactName}
               onChange={(e) => set('contactName', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               placeholder="王小明"
             />
           </div>
@@ -108,7 +108,7 @@ export default function ClientForm() {
               type="text"
               value={form.contactPhone}
               onChange={(e) => set('contactPhone', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               placeholder="0912-345-678"
             />
           </div>
@@ -119,7 +119,7 @@ export default function ClientForm() {
               type="email"
               value={form.contactEmail}
               onChange={(e) => set('contactEmail', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               placeholder="example@mail.com"
             />
           </div>
@@ -130,7 +130,7 @@ export default function ClientForm() {
               type="text"
               value={form.contactLine}
               onChange={(e) => set('contactLine', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               placeholder="@lineaccount"
             />
           </div>
@@ -140,7 +140,7 @@ export default function ClientForm() {
             <select
               value={form.source}
               onChange={(e) => set('source', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
             >
               {SOURCES.map((s) => (
                 <option key={s} value={s}>{s}</option>
@@ -163,7 +163,7 @@ export default function ClientForm() {
             <select
               value={form.serviceType}
               onChange={(e) => set('serviceType', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
             >
               <option value="借址登記">借址登記</option>
               <option value="共享工位">共享工位</option>
@@ -177,7 +177,7 @@ export default function ClientForm() {
               type="text"
               value={form.plan}
               onChange={(e) => set('plan', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               placeholder="標準方案"
             />
           </div>
@@ -191,7 +191,7 @@ export default function ClientForm() {
               min="0"
               value={form.monthlyFee}
               onChange={(e) => set('monthlyFee', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               placeholder="2500"
             />
           </div>
@@ -202,14 +202,14 @@ export default function ClientForm() {
               value={form.notes}
               onChange={(e) => set('notes', e.target.value)}
               rows={3}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
               placeholder="補充說明..."
             />
           </div>
         </div>
 
         {form.serviceType === '借址登記' && (
-          <p className="mt-3 text-xs text-blue-600 bg-blue-50 px-3 py-2 rounded-lg">
+          <p className="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-100 px-3 py-2 rounded-lg">
             借址登記客戶將自動建立 5 項 KYC 查核（預設「待查」）
           </p>
         )}
@@ -220,7 +220,7 @@ export default function ClientForm() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors"
+          className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 disabled:opacity-60 disabled:cursor-not-allowed text-slate-900 text-sm font-semibold px-6 py-2.5 rounded-lg transition-all shadow-sm hover:shadow-md"
         >
           {loading ? '新增中...' : '新增客戶'}
         </button>

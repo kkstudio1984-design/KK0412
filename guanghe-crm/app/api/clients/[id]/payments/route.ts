@@ -13,7 +13,7 @@ export async function GET(
       orderBy: { dueDate: 'asc' },
     })
 
-    const result = payments.map((p) => ({
+    const result = payments.map((p: any) => ({
       ...p,
       dueDate: p.dueDate.toISOString().split('T')[0],
       paidAt: p.paidAt?.toISOString() ?? null,

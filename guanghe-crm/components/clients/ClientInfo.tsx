@@ -63,7 +63,7 @@ export default function ClientInfo({ client }: Props) {
     }
   }
 
-  const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
+  const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400'
   const labelCls = 'text-xs text-gray-500 mb-0.5 block'
 
   return (
@@ -75,7 +75,7 @@ export default function ClientInfo({ client }: Props) {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="text-sm bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white px-4 py-1.5 rounded-lg"
+              className="text-sm bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 disabled:opacity-60 text-slate-900 font-semibold px-4 py-1.5 rounded-lg shadow-sm"
             >
               {saving ? '儲存中...' : '儲存'}
             </button>
@@ -89,7 +89,7 @@ export default function ClientInfo({ client }: Props) {
         ) : (
           <button
             onClick={() => setEditing(true)}
-            className="text-sm text-blue-600 hover:text-blue-800 px-3 py-1.5 rounded-lg hover:bg-blue-50"
+            className="text-sm text-amber-600 hover:text-amber-800 px-3 py-1.5 rounded-lg hover:bg-amber-50 font-medium"
           >
             編輯
           </button>

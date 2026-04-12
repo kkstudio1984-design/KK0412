@@ -40,7 +40,7 @@ export async function GET() {
     const monthlyDue = monthlyDueAgg._sum.amount ?? 0
     const monthlyCollected = monthlyCollectedAgg._sum.amount ?? 0
 
-    const overdueList = overduePayments.map((p) => ({
+    const overdueList = overduePayments.map((p: any) => ({
       paymentId: p.id,
       orgName: p.spaceClient.organization.name,
       dueDate: p.dueDate.toISOString().split('T')[0],

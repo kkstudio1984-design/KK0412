@@ -31,11 +31,11 @@ export async function GET(
         createdAt: client.organization.createdAt.toISOString(),
         updatedAt: client.organization.updatedAt.toISOString(),
       },
-      kycChecks: client.kycChecks.map((k) => ({
+      kycChecks: client.kycChecks.map((k: any) => ({
         ...k,
         checkedAt: k.checkedAt.toISOString(),
       })),
-      payments: client.payments.map((p) => ({
+      payments: client.payments.map((p: any) => ({
         ...p,
         dueDate: p.dueDate.toISOString().split('T')[0],
         paidAt: p.paidAt?.toISOString() ?? null,
@@ -66,7 +66,7 @@ export async function PATCH(
         include: { kycChecks: true },
       })
       if (client?.serviceType === '借址登記') {
-        const allPassed = client.kycChecks.every((k) => k.status === '通過')
+        const allPassed = client.kycChecks.every((k: any) => k.status === '通過')
         if (!allPassed) {
           return NextResponse.json(
             { error: 'KYC 尚未全部通過，無法推進到已簽約' },

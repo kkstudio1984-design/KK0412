@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { formatNTD } from '@/lib/utils'
 import MetricCard from '@/components/dashboard/MetricCard'
 import OverdueTable from '@/components/dashboard/OverdueTable'

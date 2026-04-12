@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import Link from 'next/link'
 import KanbanBoard from '@/components/board/KanbanBoard'
 import { fetchClients } from '@/lib/queries'
@@ -15,7 +17,7 @@ export default async function BoardPage() {
         </div>
         <Link
           href="/clients/new"
-          className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 text-sm font-semibold px-4 py-2 rounded-lg transition-all shadow-sm hover:shadow-md"
         >
           <span className="text-base leading-none">+</span>
           新增客戶
