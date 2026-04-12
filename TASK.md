@@ -12,7 +12,7 @@
 - [x] Step 3 — 基礎設施（lib/）
 - [x] Step 4 — API Routes
 - [x] Step 5 — CRM 看板頁
-- [ ] Step 6 — 新增客戶表單
+- [x] Step 6 — 新增客戶表單
 - [ ] Step 7 — 客戶詳情頁
 - [ ] Step 8 — 儀表板
 - [ ] Step 9 — UI 細節收尾
@@ -131,14 +131,14 @@
 
 ## Step 6｜新增客戶表單 `/clients/new`（~45 min）
 
-- [ ] `app/clients/new/page.tsx`
-- [ ] `components/clients/ClientForm.tsx`
-  - [ ] 組織資料區塊：公司名稱\*、統一編號、聯絡人\*、電話、Email、LINE、來源
-  - [ ] 空間服務區塊：服務類型\*、方案名稱、月費、備註
-  - [ ] Submit 邏輯：POST `/api/clients`
-  - [ ] 成功後導回 `/`
-  - [ ] 錯誤時顯示 toast
-  - [ ] 送出中顯示 loading 狀態
+- [x] `app/clients/new/page.tsx`
+- [x] `components/clients/ClientForm.tsx`
+  - [x] 組織資料區塊：公司名稱\*、統一編號、聯絡人\*、電話、Email、LINE、來源
+  - [x] 空間服務區塊：服務類型\*、方案名稱、月費、備註
+  - [x] Submit 邏輯：POST `/api/clients`
+  - [x] 成功後導回 `/`
+  - [x] 錯誤時顯示 toast
+  - [x] 送出中顯示 loading 狀態
 
 ---
 
