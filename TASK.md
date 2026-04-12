@@ -14,7 +14,7 @@
 - [x] Step 5 — CRM 看板頁
 - [x] Step 6 — 新增客戶表單
 - [x] Step 7 — 客戶詳情頁
-- [ ] Step 8 — 儀表板
+- [x] Step 8 — 儀表板
 - [ ] Step 9 — UI 細節收尾
 
 ---
@@ -164,14 +164,14 @@
 
 ## Step 8｜儀表板 `/dashboard`（~30 min）
 
-- [ ] `app/dashboard/page.tsx` — fetch `/api/dashboard`
-- [ ] `components/dashboard/MetricCard.tsx`
-  - [ ] 服務中客戶數
-  - [ ] 本月應收
-  - [ ] 本月實收（含缺口）
-- [ ] `components/dashboard/OverdueTable.tsx`
-  - [ ] 欄位：公司名稱、應繳日期、金額、逾期天數
-  - [ ] 按逾期天數降序排列
+- [x] `app/dashboard/page.tsx` — fetch `/api/dashboard`
+- [x] `components/dashboard/MetricCard.tsx`
+  - [x] 服務中客戶數
+  - [x] 本月應收
+  - [x] 本月實收（含缺口）
+- [x] `components/dashboard/OverdueTable.tsx`
+  - [x] 欄位：公司名稱、應繳日期、金額、逾期天數
+  - [x] 按逾期天數降序排列
 
 ---
 
