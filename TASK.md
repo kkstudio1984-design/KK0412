@@ -9,7 +9,7 @@
 
 - [x] Step 1 — 環境建置
 - [x] Step 2 — Prisma Schema + Migration + Seed
-- [ ] Step 3 — 基礎設施（lib/）
+- [x] Step 3 — 基礎設施（lib/）
 - [ ] Step 4 — API Routes
 - [ ] Step 5 — CRM 看板頁
 - [ ] Step 6 — 新增客戶表單
@@ -56,21 +56,21 @@
 
 ## Step 3｜基礎設施（~15 min）
 
-- [ ] `lib/prisma.ts` — Prisma Client singleton
-- [ ] `lib/types.ts` — 所有 TypeScript 型別
-  - [ ] `ClientWithOrg`
-  - [ ] `KycCheck`
-  - [ ] `Payment`
-  - [ ] `DashboardData`
-  - [ ] `OverdueItem`
-  - [ ] Stage / ServiceType / KycStatus / PaymentStatus enum 型別
-- [ ] `lib/utils.ts` — 工具函式
-  - [ ] `getFollowUpColor(date)`
-  - [ ] `getFollowUpLabel(date)`
-  - [ ] `getMonthRange()`
-  - [ ] `formatNTD(amount)`
-  - [ ] `getOverdueDays(dueDate)`
-- [ ] `app/layout.tsx` — Root layout（含側邊 Nav：看板 / 儀表板）
+- [x] `lib/prisma.ts` — Prisma Client singleton
+- [x] `lib/types.ts` — 所有 TypeScript 型別
+  - [x] `ClientWithOrg`
+  - [x] `KycCheck`
+  - [x] `Payment`
+  - [x] `DashboardData`
+  - [x] `OverdueItem`
+  - [x] Stage / ServiceType / KycStatus / PaymentStatus enum 型別
+- [x] `lib/utils.ts` — 工具函式
+  - [x] `getFollowUpColor(date)`
+  - [x] `getFollowUpLabel(date)`
+  - [x] `getMonthRange()`
+  - [x] `formatNTD(amount)`
+  - [x] `getOverdueDays(dueDate)`
+- [x] `app/layout.tsx` — Root layout（含側邊 Nav：看板 / 儀表板）
 
 ---
 
