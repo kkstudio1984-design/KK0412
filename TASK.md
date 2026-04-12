@@ -7,7 +7,7 @@
 
 ## 進度總覽
 
-- [ ] Step 1 — 環境建置
+- [x] Step 1 — 環境建置
 - [ ] Step 2 — Prisma Schema + Migration + Seed
 - [ ] Step 3 — 基礎設施（lib/）
 - [ ] Step 4 — API Routes
@@ -21,19 +21,19 @@
 
 ## Step 1｜環境建置（~15 min）
 
-- [ ] 建立 PostgreSQL 資料庫：`createdb guanghe_crm`
-- [ ] 初始化 Next.js 14 專案（App Router + TypeScript）
+- [x] 建立 PostgreSQL 資料庫：`createdb guanghe_crm`
+- [x] 初始化 Next.js 14 專案（App Router + TypeScript）
   ```bash
   npx create-next-app@14 guanghe-crm --typescript --tailwind --app --no-src-dir
   ```
-- [ ] 安裝依賴套件
+- [x] 安裝依賴套件
   ```bash
   npm install prisma @prisma/client @hello-pangea/dnd react-hot-toast date-fns
   npm install -D @types/node
   ```
-- [ ] 建立 `.env.local`，填入 `DATABASE_URL`
-- [ ] 建立 `.env.example`（不含真實密碼）
-- [ ] 確認 `.gitignore` 包含 `.env.local`
+- [x] 建立 `.env.local`，填入 `DATABASE_URL`
+- [x] 建立 `.env.example`（不含真實密碼）
+- [x] 確認 `.gitignore` 包含 `.env.local`
 
 ---
 
