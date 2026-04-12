@@ -8,7 +8,7 @@
 ## 進度總覽
 
 - [x] Step 1 — 環境建置
-- [ ] Step 2 — Prisma Schema + Migration + Seed
+- [x] Step 2 — Prisma Schema + Migration + Seed
 - [ ] Step 3 — 基礎設施（lib/）
 - [ ] Step 4 — API Routes
 - [ ] Step 5 — CRM 看板頁
@@ -39,18 +39,18 @@
 
 ## Step 2｜Prisma Schema + Migration + Seed（~15 min）
 
-- [ ] 初始化 Prisma：`npx prisma init`
-- [ ] 撰寫 `prisma/schema.prisma`
-  - [ ] Model: `Organization`
-  - [ ] Model: `SpaceClient`
-  - [ ] Model: `KycCheck`
-  - [ ] Model: `Payment`
-  - [ ] Enum: `Source`, `ServiceType`, `Stage`, `CheckType`, `KycStatus`, `PaymentStatus`
-- [ ] 執行 migration：`npx prisma migrate dev --name init`
-- [ ] 撰寫 `prisma/seed.ts`（5 間公司、5 個客戶、各階段分佈）
-- [ ] 設定 `package.json` seed 指令：`"prisma": { "seed": "ts-node prisma/seed.ts" }`
-- [ ] 執行 seed：`npx prisma db seed`
-- [ ] 用 Prisma Studio 確認資料：`npx prisma studio`
+- [x] 初始化 Prisma：`npx prisma init`
+- [x] 撰寫 `prisma/schema.prisma`
+  - [x] Model: `Organization`
+  - [x] Model: `SpaceClient`
+  - [x] Model: `KycCheck`
+  - [x] Model: `Payment`
+  - [x] Enum: `Source`, `ServiceType`, `Stage`, `CheckType`, `KycStatus`, `PaymentStatus`
+- [x] 執行 migration：`npx prisma migrate dev --name init`
+- [x] 撰寫 `prisma/seed.ts`（5 間公司、5 個客戶、各階段分佈）
+- [x] 設定 seed 指令（`prisma.config.ts`）
+- [x] 執行 seed：`npx prisma db seed`
+- [x] DB 資料確認（5 筆 space_clients 各階段正確）
 
 ---
 
