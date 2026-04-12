@@ -15,7 +15,7 @@
 - [x] Step 6 — 新增客戶表單
 - [x] Step 7 — 客戶詳情頁
 - [x] Step 8 — 儀表板
-- [ ] Step 9 — UI 細節收尾
+- [x] Step 9 — UI 細節收尾
 
 ---
 
@@ -177,13 +177,14 @@
 
 ## Step 9｜UI 細節收尾（~15 min）
 
-- [ ] `components/ui/Skeleton.tsx` — 共用 loading skeleton
-  - [ ] 看板頁 skeleton（7 欄）
-  - [ ] 詳情頁 skeleton
-  - [ ] 儀表板 skeleton
-- [ ] `components/ui/Badge.tsx` — 狀態標籤元件
-- [ ] 全站 Toast 設定（`<Toaster />` 在 layout.tsx）
-- [ ] 確認所有 AC 通過（AC-1 ~ AC-10）
+- [x] `components/ui/Skeleton.tsx` — 共用 loading skeleton
+  - [x] 看板頁 skeleton（7 欄）
+  - [x] 詳情頁 skeleton
+  - [x] 儀表板 skeleton
+- [x] `components/ui/Badge.tsx` — 狀態標籤元件
+- [x] 全站 Toast 設定（`<Toaster />` 在 layout.tsx）
+- [x] `app/loading.tsx` / `app/clients/[id]/loading.tsx` / `app/dashboard/loading.tsx`
+- [x] 確認所有 AC 通過（AC-1 ~ AC-10）
 
 ---
 
@@ -191,13 +192,13 @@
 
 | AC | 項目 | 通過 |
 |----|------|------|
-| AC-1 | 看板 7 欄，各有客戶卡片 | [ ] |
-| AC-2 | 拖拉更新 DB | [ ] |
-| AC-3 | KYC 未通過阻擋「已簽約」並顯示提示 | [ ] |
-| AC-4 | 點卡片進入詳情頁 | [ ] |
-| AC-5 | KYC 5 項可切換狀態 | [ ] |
-| AC-6 | 可新增收款、切換收款狀態 | [ ] |
-| AC-7 | 儀表板 3 個數字卡片 | [ ] |
-| AC-8 | 儀表板逾期清單 | [ ] |
-| AC-9 | 新增借址客戶自動建 5 筆 KYC | [ ] |
-| AC-10 | 所有頁面 loading 狀態 + toast 回饋 | [ ] |
+| AC-1 | 看板 7 欄，各有客戶卡片 | [x] |
+| AC-2 | 拖拉更新 DB | [x] |
+| AC-3 | KYC 未通過阻擋「已簽約」並顯示提示 | [x] |
+| AC-4 | 點卡片進入詳情頁 | [x] |
+| AC-5 | KYC 5 項可切換狀態 | [x] |
+| AC-6 | 可新增收款、切換收款狀態 | [x] |
+| AC-7 | 儀表板 3 個數字卡片 | [x] |
+| AC-8 | 儀表板逾期清單 | [x] |
+| AC-9 | 新增借址客戶自動建 5 筆 KYC | [x] |
+| AC-10 | 所有頁面 loading 狀態 + toast 回饋 | [x] |
