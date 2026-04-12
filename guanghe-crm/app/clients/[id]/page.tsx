@@ -1,17 +1,9 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ClientDetail } from '@/lib/types'
 import ClientInfo from '@/components/clients/ClientInfo'
 import KycChecks from '@/components/clients/KycChecks'
 import PaymentList from '@/components/clients/PaymentList'
-
-async function getClient(id: string): Promise<ClientDetail | null> {
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(`${base}/api/clients/${id}`, { cache: 'no-store' })
-  if (res.status === 404) return null
-  if (!res.ok) throw new Error('Failed to fetch client')
-  return res.json()
-}
+import { fetchClient } from '@/lib/queries'
 
 export default async function ClientDetailPage({
   params,
@@ -19,7 +11,7 @@ export default async function ClientDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const client = await getClient(id)
+  const client = await fetchClient(id)
   if (!client) notFound()
 
   return (

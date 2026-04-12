@@ -1,17 +1,10 @@
-import { DashboardData } from '@/lib/types'
 import { formatNTD } from '@/lib/utils'
 import MetricCard from '@/components/dashboard/MetricCard'
 import OverdueTable from '@/components/dashboard/OverdueTable'
-
-async function getDashboard(): Promise<DashboardData> {
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(`${base}/api/dashboard`, { cache: 'no-store' })
-  if (!res.ok) throw new Error('Failed to fetch dashboard')
-  return res.json()
-}
+import { fetchDashboard } from '@/lib/queries'
 
 export default async function DashboardPage() {
-  const data = await getDashboard()
+  const data = await fetchDashboard()
 
   return (
     <div className="px-6 py-8 max-w-4xl mx-auto">

@@ -1,16 +1,9 @@
 import Link from 'next/link'
 import KanbanBoard from '@/components/board/KanbanBoard'
-import { ClientWithOrg } from '@/lib/types'
-
-async function getClients(): Promise<ClientWithOrg[]> {
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(`${base}/api/clients`, { cache: 'no-store' })
-  if (!res.ok) throw new Error('Failed to fetch clients')
-  return res.json()
-}
+import { fetchClients } from '@/lib/queries'
 
 export default async function BoardPage() {
-  const clients = await getClients()
+  const clients = await fetchClients()
 
   return (
     <div className="flex flex-col h-full">
