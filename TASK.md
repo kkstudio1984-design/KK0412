@@ -13,7 +13,7 @@
 - [x] Step 4 — API Routes
 - [x] Step 5 — CRM 看板頁
 - [x] Step 6 — 新增客戶表單
-- [ ] Step 7 — 客戶詳情頁
+- [x] Step 7 — 客戶詳情頁
 - [ ] Step 8 — 儀表板
 - [ ] Step 9 — UI 細節收尾
 
@@ -144,21 +144,21 @@
 
 ## Step 7｜客戶詳情頁 `/clients/[id]`（~45 min）
 
-- [ ] `app/clients/[id]/page.tsx` — fetch `/api/clients/[id]`
-- [ ] `components/clients/ClientInfo.tsx`（區塊 A）
-  - [ ] 顯示 organization + space_client 所有欄位
-  - [ ] 可 inline 編輯並儲存（PATCH `/api/clients/[id]`）
-  - [ ] `nextAction`、`followUpDate`、`redFlags` 可編輯
-- [ ] `components/clients/KycChecks.tsx`（區塊 B，僅借址登記顯示）
-  - [ ] 5 項查核，每項 select 切換狀態
-  - [ ] 切換後立即 PATCH
-  - [ ] 顯示通過進度（X/5 通過）
-  - [ ] 狀態圖示：✅ 通過 / ❌ 異常 / ⏳ 待查
-- [ ] `components/clients/PaymentList.tsx`（區塊 C）
-  - [ ] 收款列表（due_date, amount, status）
-  - [ ] 狀態顏色：綠/紅/灰
-  - [ ] 點狀態 inline toggle
-  - [ ] 「+ 新增收款」Modal（due_date, amount）
+- [x] `app/clients/[id]/page.tsx` — fetch `/api/clients/[id]`
+- [x] `components/clients/ClientInfo.tsx`（區塊 A）
+  - [x] 顯示 organization + space_client 所有欄位
+  - [x] 可 inline 編輯並儲存（PATCH `/api/clients/[id]`）
+  - [x] `nextAction`、`followUpDate`、`redFlags` 可編輯
+- [x] `components/clients/KycChecks.tsx`（區塊 B，僅借址登記顯示）
+  - [x] 5 項查核，每項 select 切換狀態
+  - [x] 切換後立即 PATCH
+  - [x] 顯示通過進度（X/5 通過）
+  - [x] 狀態圖示：✅ 通過 / ❌ 異常 / ⏳ 待查
+- [x] `components/clients/PaymentList.tsx`（區塊 C）
+  - [x] 收款列表（due_date, amount, status）
+  - [x] 狀態顏色：綠/紅/灰
+  - [x] 點狀態 inline toggle
+  - [x] 「+ 新增收款」Modal（due_date, amount）
 
 ---
 
