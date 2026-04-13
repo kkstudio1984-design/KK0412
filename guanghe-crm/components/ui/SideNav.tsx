@@ -1,15 +1,48 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
 
 const navItems = [
   { href: '/', label: 'CRM 看板', icon: '⊞' },
   { href: '/dashboard', label: '儀表板', icon: '◈' },
+  { href: '/address-risk', label: '地址風險', icon: '⚠' },
 ]
 
 export default function SideNav() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [userName, setUserName] = useState('')
+  const [userRole, setUserRole] = useState('')
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (user) {
+        setUserName(user.user_metadata?.full_name || user.email || '')
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        if (profile) setUserRole(profile.role)
+      }
+    })
+  }, [])
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
+
+  const roleLabel: Record<string, string> = {
+    admin: '管理員',
+    operator: '行政人員',
+    viewer: '股東',
+  }
 
   return (
     <aside className="w-52 bg-slate-900 flex flex-col shrink-0 shadow-xl">
@@ -21,7 +54,7 @@ export default function SideNav() {
           </div>
           <div>
             <p className="text-[10px] text-slate-500 font-medium tracking-widest uppercase">Guanghe</p>
-            <p className="text-sm font-semibold text-white leading-tight">空間營運 CRM</p>
+            <p className="text-sm font-semibold text-white leading-tight">營運管理系統</p>
           </div>
         </div>
       </div>
@@ -50,9 +83,20 @@ export default function SideNav() {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="px-5 py-4 border-t border-slate-700/50">
-        <p className="text-[10px] text-slate-600 font-medium tracking-wide">光合創學空間</p>
+      {/* User Footer */}
+      <div className="px-4 py-4 border-t border-slate-700/50">
+        {userName && (
+          <div className="mb-3">
+            <p className="text-xs text-slate-300 font-medium truncate">{userName}</p>
+            <p className="text-[10px] text-slate-500">{roleLabel[userRole] || userRole}</p>
+          </div>
+        )}
+        <button
+          onClick={handleLogout}
+          className="w-full text-left text-xs text-slate-500 hover:text-slate-300 transition-colors"
+        >
+          登出
+        </button>
       </div>
     </aside>
   )

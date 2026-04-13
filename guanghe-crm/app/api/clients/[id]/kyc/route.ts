@@ -10,12 +10,21 @@ export async function PATCH(
     const { id } = await params
     const supabase = await createClient()
     const body = await req.json()
-    const { checkId, status } = body
+    const { kycId, checkId, status, overrideReason } = body
+    const resolvedId = kycId || checkId
+
+    const updateData: Record<string, unknown> = {
+      status,
+      checked_at: new Date().toISOString(),
+    }
+    if (overrideReason) {
+      updateData.override_reason = overrideReason
+    }
 
     const { error } = await supabase
       .from('kyc_checks')
-      .update({ status, checked_at: new Date().toISOString() })
-      .eq('id', checkId)
+      .update(updateData)
+      .eq('id', resolvedId)
       .eq('space_client_id', id)
 
     if (error) throw error

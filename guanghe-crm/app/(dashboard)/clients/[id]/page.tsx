@@ -2,7 +2,11 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import ClientInfo from '@/components/clients/ClientInfo'
 import KycChecks from '@/components/clients/KycChecks'
+import DocumentChecklist from '@/components/clients/DocumentChecklist'
+import ContractList from '@/components/clients/ContractList'
 import PaymentList from '@/components/clients/PaymentList'
+import MailRecordList from '@/components/clients/MailRecordList'
+import OffboardingPanel from '@/components/clients/OffboardingPanel'
 import { fetchClient } from '@/lib/queries'
 
 export default async function ClientDetailPage({
@@ -42,8 +46,35 @@ export default async function ClientDetailPage({
           <KycChecks clientId={client.id} initialChecks={client.kycChecks} />
         )}
 
+        {/* 區塊 B2 — 文件檢核 */}
+        {client.documents && client.documents.length > 0 && (
+          <DocumentChecklist clientId={client.id} initialDocuments={client.documents} />
+        )}
+
+        {/* 區塊 — 合約管理 */}
+        <ContractList
+          clientId={client.id}
+          serviceType={client.serviceType}
+          monthlyFee={client.monthlyFee}
+          initialContracts={client.contracts || []}
+        />
+
         {/* 區塊 C — 收款紀錄 */}
         <PaymentList clientId={client.id} initialPayments={client.payments} />
+
+        {/* 區塊 — 信件代收（僅借址登記）*/}
+        {client.serviceType === '借址登記' && (
+          <MailRecordList clientId={client.id} initialRecords={client.mailRecords || []} />
+        )}
+
+        {/* 區塊 — 退場流程（退租中或已結案階段）*/}
+        {(client.stage === '退租中' || client.stage === '已結案' || (client.offboardingRecords && client.offboardingRecords.length > 0)) && (
+          <OffboardingPanel
+            clientId={client.id}
+            serviceType={client.serviceType}
+            initialRecords={client.offboardingRecords || []}
+          />
+        )}
       </div>
     </div>
   )

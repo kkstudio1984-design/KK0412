@@ -10,11 +10,23 @@ interface Props {
   index: number
 }
 
+function isAutoLossSuggestion(client: ClientWithOrg): boolean {
+  const earlyStages = ['初步詢問', 'KYC審核中']
+  if (!earlyStages.includes(client.stage)) return false
+  if (!client.followUpDate) return false
+  const followUp = new Date(client.followUpDate)
+  const now = new Date()
+  const diffDays = Math.floor((now.getTime() - followUp.getTime()) / (1000 * 60 * 60 * 24))
+  return diffDays > 14
+}
+
 export default function ClientCard({ client, index }: Props) {
   const router = useRouter()
   const hasRedFlags = client.redFlags.length > 0
   const followUpColor = getFollowUpColor(client.followUpDate)
   const followUpDot = getFollowUpDotColor(client.followUpDate)
+  const showHighRiskKyc = client.isHighRiskKyc || client.blacklistFlag
+  const showAutoLoss = isAutoLossSuggestion(client)
 
   return (
     <Draggable draggableId={client.id} index={index}>
@@ -30,18 +42,25 @@ export default function ClientCard({ client, index }: Props) {
               : 'border-gray-100 hover:border-amber-300 hover:shadow-lg shadow-sm'
           }`}
         >
-          {/* 紅旗 */}
-          {hasRedFlags && (
-            <div className="group relative mb-2">
-              <div className="inline-flex items-center gap-1 text-xs text-red-600 font-medium bg-red-50 px-2 py-0.5 rounded-md border border-red-100">
-                <span>🚩</span>
-                <span>紅旗</span>
+          {/* 標記區：紅旗 + 高風險KYC */}
+          <div className="flex flex-wrap items-center gap-1.5 mb-2">
+            {hasRedFlags && (
+              <div className="group relative">
+                <div className="inline-flex items-center gap-1 text-xs text-red-600 font-medium bg-red-50 px-2 py-0.5 rounded-md border border-red-100">
+                  <span>🚩</span>
+                  <span>紅旗</span>
+                </div>
+                <div className="absolute left-0 top-6 z-10 hidden group-hover:block bg-slate-800 text-white text-xs rounded-lg px-2.5 py-1.5 whitespace-nowrap shadow-xl">
+                  {client.redFlags.join('、')}
+                </div>
               </div>
-              <div className="absolute left-0 top-6 z-10 hidden group-hover:block bg-slate-800 text-white text-xs rounded-lg px-2.5 py-1.5 whitespace-nowrap shadow-xl">
-                {client.redFlags.join('、')}
-              </div>
-            </div>
-          )}
+            )}
+            {showHighRiskKyc && (
+              <span className="inline-flex items-center gap-1 text-xs text-orange-700 font-medium bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">
+                ⚠ 高風險
+              </span>
+            )}
+          </div>
 
           {/* 公司名稱 */}
           <p className="font-semibold text-gray-900 text-sm leading-snug mb-1 line-clamp-1">
@@ -65,6 +84,13 @@ export default function ClientCard({ client, index }: Props) {
               {getFollowUpLabel(client.followUpDate)}
             </span>
           </div>
+
+          {/* 建議標記流失 */}
+          {showAutoLoss && (
+            <div className="mb-1.5">
+              <span className="text-xs text-gray-400 italic">建議標記流失</span>
+            </div>
+          )}
 
           {/* 月費 + 逾期標記 */}
           <div className="flex items-center justify-between mt-1 pt-2 border-t border-gray-50">

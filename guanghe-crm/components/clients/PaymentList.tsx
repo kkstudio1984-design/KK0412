@@ -10,6 +10,13 @@ interface Props {
   initialPayments: Payment[]
 }
 
+const ESCALATION_STYLES: Record<string, string> = {
+  '提醒': 'text-yellow-700 bg-yellow-50 border-yellow-200',
+  '催告': 'text-orange-700 bg-orange-50 border-orange-200',
+  '存證信函': 'text-red-700 bg-red-50 border-red-200',
+  '退租啟動': 'text-red-900 bg-red-100 border-red-300',
+}
+
 const STATUS_STYLE: Record<PaymentStatus, string> = {
   '已收': 'text-green-700 bg-green-50 border-green-200',
   '逾期': 'text-red-700 bg-red-50 border-red-200',
@@ -109,6 +116,11 @@ export default function PaymentList({ clientId, initialPayments }: Props) {
               >
                 {payment.status}
               </button>
+              {payment.status === '逾期' && payment.escalationLevel && payment.escalationLevel !== '正常' && (
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full border shrink-0 ${ESCALATION_STYLES[payment.escalationLevel] || ''}`}>
+                  {payment.escalationLevel}
+                </span>
+              )}
             </div>
           ))}
         </div>

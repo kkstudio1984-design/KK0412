@@ -88,6 +88,39 @@ export async function POST(req: NextRequest) {
       if (kycError) throw kycError
     }
 
+    // Auto-create document checklist based on service_type
+    const docTemplates: Record<string, { document_type: string; required: boolean }[]> = {
+      '借址登記': [
+        { document_type: '負責人雙證件影本', required: true },
+        { document_type: '公司名稱預查核准函或設立/變更登記表影本', required: true },
+        { document_type: '經濟部商工登記公示資料列印本', required: true },
+        { document_type: '實質受益人聲明書/審查表', required: true },
+        { document_type: '股東名冊', required: true },
+        { document_type: '公司大小章', required: true },
+        { document_type: '蓋印合約', required: true },
+      ],
+      '共享工位': [
+        { document_type: '承租方身分證或公司變更登記表', required: true },
+        { document_type: '實際進駐人員名單', required: true },
+      ],
+    }
+
+    const templates = docTemplates[serviceType]
+    if (templates) {
+      const docRecords = templates.map((t) => ({
+        space_client_id: client.id,
+        document_type: t.document_type,
+        required: t.required,
+        status: '未繳' as const,
+      }))
+
+      const { error: docError } = await supabase
+        .from('client_documents')
+        .insert(docRecords)
+
+      if (docError) throw docError
+    }
+
     return NextResponse.json({ org, client }, { status: 201 })
   } catch (error) {
     console.error('[POST /api/clients]', error)
