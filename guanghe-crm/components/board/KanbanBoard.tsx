@@ -5,6 +5,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { ClientWithOrg, Stage, STAGES } from '@/lib/types'
 import KanbanColumn from './KanbanColumn'
+import { downloadCSV } from '@/lib/csv'
 
 interface Props {
   initialClients: ClientWithOrg[]
@@ -12,11 +13,35 @@ interface Props {
 
 export default function KanbanBoard({ initialClients }: Props) {
   const [clients, setClients] = useState<ClientWithOrg[]>(initialClients)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filtered = searchQuery
+    ? clients.filter(c =>
+        c.organization.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.organization.contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (c.organization.taxId && c.organization.taxId.includes(searchQuery))
+      )
+    : clients
 
   const grouped = STAGES.reduce<Record<Stage, ClientWithOrg[]>>((acc, stage) => {
-    acc[stage] = clients.filter((c) => c.stage === stage)
+    acc[stage] = filtered.filter((c) => c.stage === stage)
     return acc
   }, {} as Record<Stage, ClientWithOrg[]>)
+
+  const handleExport = () => {
+    const headers = ['公司名稱', '聯絡人', '統編', '服務類型', '階段', '月費', '跟進日期', '紅旗']
+    const rows = clients.map(c => [
+      c.organization.name,
+      c.organization.contactName,
+      c.organization.taxId || '',
+      c.serviceType,
+      c.stage,
+      String(c.monthlyFee),
+      c.followUpDate || '',
+      c.redFlags.join('、'),
+    ])
+    downloadCSV(`客戶清單_${new Date().toISOString().split('T')[0]}.csv`, headers, rows)
+  }
 
   const onDragEnd = async (result: DropResult) => {
     const { draggableId, destination, source } = result
@@ -64,6 +89,19 @@ export default function KanbanBoard({ initialClients }: Props) {
   }
 
   return (
+    <div>
+      <div className="mb-3 px-1 flex items-center gap-2">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="搜尋公司名稱、聯絡人、統編..."
+          className="w-full md:w-80 input-base"
+        />
+        <button onClick={handleExport} className="text-xs text-stone-500 hover:text-stone-700 px-3 py-1.5 border border-stone-200 rounded-lg hover:bg-stone-50 whitespace-nowrap">
+          匯出 CSV
+        </button>
+      </div>
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex gap-3 overflow-x-auto pb-4 pt-2 px-1">
         {STAGES.map((stage) => (
@@ -71,5 +109,6 @@ export default function KanbanBoard({ initialClients }: Props) {
         ))}
       </div>
     </DragDropContext>
+    </div>
   )
 }

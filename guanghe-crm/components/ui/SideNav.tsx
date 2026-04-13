@@ -17,7 +17,11 @@ const navItems = [
   { href: '/address-risk', label: '地址風險', icon: '⚠' },
 ]
 
-export default function SideNav() {
+interface Props {
+  onNavigate?: () => void
+}
+
+export default function SideNav({ onNavigate }: Props) {
   const pathname = usePathname()
   const router = useRouter()
   const [userName, setUserName] = useState('')
@@ -83,6 +87,7 @@ export default function SideNav() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => onNavigate?.()}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ${
                 isActive
                   ? 'bg-white/[0.08] text-amber-400 font-semibold'

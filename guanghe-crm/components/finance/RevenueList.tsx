@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { RevenueRecord, RevenueCategory, REVENUE_CATEGORIES } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
+import { downloadCSV } from '@/lib/csv'
 
 interface Props {
   initialRecords: RevenueRecord[]
@@ -63,11 +64,22 @@ export default function RevenueList({ initialRecords }: Props) {
 
   const total = records.reduce((sum, r) => sum + r.amount, 0)
 
+  const handleExport = () => {
+    const headers = ['日期', '來源', '類別', '金額', '狀態', '說明']
+    const rows = records.map(r => [
+      r.revenueDate, r.sourceModule, r.category, String(r.amount), r.status, r.description || '',
+    ])
+    downloadCSV(`營收紀錄_${new Date().toISOString().split('T')[0]}.csv`, headers, rows)
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-stone-500">共 {records.length} 筆，合計 {formatNTD(total)}</p>
-        <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增營收</button>
+        <div className="flex items-center gap-2">
+          <button onClick={handleExport} className="text-xs text-stone-500 hover:text-stone-700 px-3 py-1.5 border border-stone-200 rounded-lg hover:bg-stone-50">匯出 CSV</button>
+          <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增營收</button>
+        </div>
       </div>
 
       <div className="card overflow-hidden">

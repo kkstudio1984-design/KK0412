@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Expense, ExpenseCategory, EXPENSE_CATEGORIES } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
+import { downloadCSV } from '@/lib/csv'
 
 interface Props {
   initialExpenses: Expense[]
@@ -62,11 +63,22 @@ export default function ExpenseList({ initialExpenses }: Props) {
 
   const total = expenses.reduce((sum, e) => sum + e.amount, 0)
 
+  const handleExport = () => {
+    const headers = ['日期', '類別', '金額', '說明']
+    const rows = expenses.map(e => [
+      e.expenseDate, e.category, String(e.amount), e.description,
+    ])
+    downloadCSV(`費用紀錄_${new Date().toISOString().split('T')[0]}.csv`, headers, rows)
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-stone-500">共 {expenses.length} 筆，合計 {formatNTD(total)}</p>
-        <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增費用</button>
+        <div className="flex items-center gap-2">
+          <button onClick={handleExport} className="text-xs text-stone-500 hover:text-stone-700 px-3 py-1.5 border border-stone-200 rounded-lg hover:bg-stone-50">匯出 CSV</button>
+          <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增費用</button>
+        </div>
       </div>
 
       <div className="card overflow-hidden">

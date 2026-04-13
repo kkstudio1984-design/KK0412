@@ -23,7 +23,7 @@ export default function KanbanColumn({ stage, clients }: Props) {
   const accent = STAGE_ACCENT[stage]
 
   return (
-    <div className={`flex flex-col w-64 shrink-0 bg-stone-50/80 rounded-xl border border-stone-200/60 border-t-[3px] ${accent.border}`}>
+    <div className={`flex flex-col w-56 md:w-64 shrink-0 bg-stone-50/80 rounded-xl border border-stone-200/60 border-t-[3px] ${accent.border}`}>
       {/* Column header */}
       <div className="flex items-center justify-between px-3.5 py-3">
         <div className="flex items-center gap-2">

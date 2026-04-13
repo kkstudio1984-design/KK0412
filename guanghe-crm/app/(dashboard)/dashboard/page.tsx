@@ -176,7 +176,7 @@ export default async function DashboardPage() {
 
         {/* Target lines */}
         <div className="mt-4 bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
             <div className="flex items-center gap-3">
               <span className="w-3 h-3 rounded-full bg-red-400"></span>
               <span className="text-gray-600">損益平衡線</span>
