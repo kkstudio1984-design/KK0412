@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET /api/clients/[id]/payments
@@ -8,22 +8,19 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const payments = await prisma.payment.findMany({
-      where: { spaceClientId: id },
-      orderBy: { dueDate: 'asc' },
-    })
+    const supabase = await createClient()
 
-    const result = payments.map((p: any) => ({
-      ...p,
-      dueDate: p.dueDate.toISOString().split('T')[0],
-      paidAt: p.paidAt?.toISOString() ?? null,
-      createdAt: p.createdAt.toISOString(),
-    }))
+    const { data: payments, error } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('space_client_id', id)
+      .order('due_date', { ascending: true })
 
-    return NextResponse.json(result)
+    if (error) throw error
+    return NextResponse.json(payments)
   } catch (error) {
     console.error('[GET /api/clients/[id]/payments]', error)
-    return NextResponse.json({ error: '載入收款紀錄失敗' }, { status: 500 })
+    return NextResponse.json({ error: '載入收款失敗' }, { status: 500 })
   }
 }
 
@@ -34,27 +31,23 @@ export async function POST(
 ) {
   try {
     const { id } = await params
-    const { dueDate, amount } = await req.json()
+    const supabase = await createClient()
+    const body = await req.json()
+    const { dueDate, amount } = body
 
-    if (!dueDate || !amount) {
-      return NextResponse.json({ error: '缺少必填欄位' }, { status: 400 })
-    }
-
-    const payment = await prisma.payment.create({
-      data: {
-        spaceClientId: id,
-        dueDate: new Date(dueDate),
+    const { data, error } = await supabase
+      .from('payments')
+      .insert({
+        space_client_id: id,
+        due_date: dueDate,
         amount: parseInt(amount),
         status: '未收',
-      },
-    })
+      })
+      .select()
+      .single()
 
-    return NextResponse.json({
-      ...payment,
-      dueDate: payment.dueDate.toISOString().split('T')[0],
-      paidAt: null,
-      createdAt: payment.createdAt.toISOString(),
-    }, { status: 201 })
+    if (error) throw error
+    return NextResponse.json(data, { status: 201 })
   } catch (error) {
     console.error('[POST /api/clients/[id]/payments]', error)
     return NextResponse.json({ error: '新增收款失敗' }, { status: 500 })

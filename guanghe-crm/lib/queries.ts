@@ -1,106 +1,180 @@
-import { prisma } from './prisma'
+import { createClient } from './supabase/server'
 import { ClientWithOrg, ClientDetail, DashboardData } from './types'
 import { getMonthRange, getOverdueDays } from './utils'
+import { format } from 'date-fns'
 
 export async function fetchClients(): Promise<ClientWithOrg[]> {
-  const clients = await prisma.spaceClient.findMany({
-    include: {
-      organization: true,
-      kycChecks: true,
-      payments: { select: { status: true } },
-    },
-    orderBy: { createdAt: 'asc' },
-  })
+  const supabase = await createClient()
 
-  return clients.map((c) => ({
-    ...c,
-    followUpDate: c.followUpDate?.toISOString().split('T')[0] ?? null,
-    createdAt: c.createdAt.toISOString(),
-    updatedAt: c.updatedAt.toISOString(),
+  const { data: clients, error } = await supabase
+    .from('space_clients')
+    .select(`
+      *,
+      organization:organizations(*),
+      kyc_checks(*),
+      payments(status)
+    `)
+    .order('created_at', { ascending: true })
+
+  if (error) throw error
+  if (!clients) return []
+
+  return clients.map((c: any) => ({
+    id: c.id,
+    orgId: c.org_id,
+    serviceType: c.service_type,
+    plan: c.plan,
+    monthlyFee: c.monthly_fee,
+    stage: c.stage,
+    nextAction: c.next_action,
+    followUpDate: c.follow_up_date,
+    redFlags: c.red_flags || [],
+    notes: c.notes,
+    createdAt: c.created_at,
+    updatedAt: c.updated_at,
     organization: {
-      ...c.organization,
-      createdAt: c.organization.createdAt.toISOString(),
-      updatedAt: c.organization.updatedAt.toISOString(),
+      id: c.organization.id,
+      name: c.organization.name,
+      taxId: c.organization.tax_id,
+      contactName: c.organization.contact_name,
+      contactPhone: c.organization.contact_phone,
+      contactEmail: c.organization.contact_email,
+      contactLine: c.organization.contact_line,
+      source: c.organization.source,
+      notes: c.organization.notes,
+      createdAt: c.organization.created_at,
+      updatedAt: c.organization.updated_at,
     },
-    kycChecks: c.kycChecks.map((k) => ({
-      ...k,
-      checkedAt: k.checkedAt.toISOString(),
+    kycChecks: (c.kyc_checks || []).map((k: any) => ({
+      id: k.id,
+      spaceClientId: k.space_client_id,
+      checkType: k.check_type,
+      status: k.status,
+      checkedAt: k.checked_at,
     })),
-    hasOverduePayment: c.payments.some((p) => p.status === '逾期'),
-    payments: undefined,
-  })) as ClientWithOrg[]
+    hasOverduePayment: (c.payments || []).some((p: any) => p.status === '逾期'),
+  }))
 }
 
 export async function fetchClient(id: string): Promise<ClientDetail | null> {
-  const client = await prisma.spaceClient.findUnique({
-    where: { id },
-    include: {
-      organization: true,
-      kycChecks: { orderBy: { checkedAt: 'asc' } },
-      payments: { orderBy: { dueDate: 'asc' } },
-    },
-  })
+  const supabase = await createClient()
 
-  if (!client) return null
+  const { data: c, error } = await supabase
+    .from('space_clients')
+    .select(`
+      *,
+      organization:organizations(*),
+      kyc_checks(*),
+      payments(*)
+    `)
+    .eq('id', id)
+    .single()
+
+  if (error || !c) return null
 
   return {
-    ...client,
-    followUpDate: client.followUpDate?.toISOString().split('T')[0] ?? null,
-    createdAt: client.createdAt.toISOString(),
-    updatedAt: client.updatedAt.toISOString(),
+    id: c.id,
+    orgId: c.org_id,
+    serviceType: c.service_type,
+    plan: c.plan,
+    monthlyFee: c.monthly_fee,
+    stage: c.stage,
+    nextAction: c.next_action,
+    followUpDate: c.follow_up_date,
+    redFlags: c.red_flags || [],
+    notes: c.notes,
+    createdAt: c.created_at,
+    updatedAt: c.updated_at,
     organization: {
-      ...client.organization,
-      createdAt: client.organization.createdAt.toISOString(),
-      updatedAt: client.organization.updatedAt.toISOString(),
+      id: c.organization.id,
+      name: c.organization.name,
+      taxId: c.organization.tax_id,
+      contactName: c.organization.contact_name,
+      contactPhone: c.organization.contact_phone,
+      contactEmail: c.organization.contact_email,
+      contactLine: c.organization.contact_line,
+      source: c.organization.source,
+      notes: c.organization.notes,
+      createdAt: c.organization.created_at,
+      updatedAt: c.organization.updated_at,
     },
-    kycChecks: client.kycChecks.map((k) => ({
-      ...k,
-      checkedAt: k.checkedAt.toISOString(),
+    kycChecks: (c.kyc_checks || []).map((k: any) => ({
+      id: k.id,
+      spaceClientId: k.space_client_id,
+      checkType: k.check_type,
+      status: k.status,
+      checkedAt: k.checked_at,
     })),
-    payments: client.payments.map((p) => ({
-      ...p,
-      dueDate: p.dueDate.toISOString().split('T')[0],
-      paidAt: p.paidAt?.toISOString() ?? null,
-      createdAt: p.createdAt.toISOString(),
+    payments: (c.payments || []).map((p: any) => ({
+      id: p.id,
+      spaceClientId: p.space_client_id,
+      dueDate: p.due_date,
+      amount: p.amount,
+      status: p.status,
+      paidAt: p.paid_at,
+      createdAt: p.created_at,
     })),
-  } as ClientDetail
+  }
 }
 
 export async function fetchDashboard(): Promise<DashboardData> {
+  const supabase = await createClient()
   const { start, end } = getMonthRange()
+  const startStr = format(start, 'yyyy-MM-dd')
+  const endStr = format(end, 'yyyy-MM-dd')
 
-  const [activeCount, monthlyDueAgg, monthlyCollectedAgg, overduePayments] =
-    await Promise.all([
-      prisma.spaceClient.count({ where: { stage: '服務中' } }),
-      prisma.payment.aggregate({
-        _sum: { amount: true },
-        where: { dueDate: { gte: start, lte: end } },
-      }),
-      prisma.payment.aggregate({
-        _sum: { amount: true },
-        where: { status: '已收', paidAt: { gte: start, lte: end } },
-      }),
-      prisma.payment.findMany({
-        where: { status: '逾期' },
-        include: { spaceClient: { include: { organization: true } } },
-        orderBy: { dueDate: 'asc' },
-      }),
-    ])
+  // Active count
+  const { count: activeCount } = await supabase
+    .from('space_clients')
+    .select('*', { count: 'exact', head: true })
+    .eq('stage', '服務中')
 
-  const monthlyDue = monthlyDueAgg._sum.amount ?? 0
-  const monthlyCollected = monthlyCollectedAgg._sum.amount ?? 0
+  // Monthly due
+  const { data: dueData } = await supabase
+    .from('payments')
+    .select('amount')
+    .gte('due_date', startStr)
+    .lte('due_date', endStr)
+
+  const monthlyDue = (dueData || []).reduce((sum: number, p: any) => sum + p.amount, 0)
+
+  // Monthly collected
+  const { data: collectedData } = await supabase
+    .from('payments')
+    .select('amount')
+    .eq('status', '已收')
+    .gte('paid_at', startStr)
+    .lte('paid_at', endStr)
+
+  const monthlyCollected = (collectedData || []).reduce((sum: number, p: any) => sum + p.amount, 0)
+
+  // Overdue payments
+  const { data: overduePayments } = await supabase
+    .from('payments')
+    .select(`
+      id,
+      due_date,
+      amount,
+      space_client:space_clients(
+        organization:organizations(name)
+      )
+    `)
+    .eq('status', '逾期')
+    .order('due_date', { ascending: true })
+
+  const overdueList = (overduePayments || []).map((p: any) => ({
+    paymentId: p.id,
+    orgName: p.space_client?.organization?.name || '未知',
+    dueDate: p.due_date,
+    amount: p.amount,
+    overdueDays: getOverdueDays(p.due_date),
+  }))
 
   return {
-    activeCount,
+    activeCount: activeCount || 0,
     monthlyDue,
     monthlyCollected,
     gap: monthlyDue - monthlyCollected,
-    overdueList: overduePayments.map((p) => ({
-      paymentId: p.id,
-      orgName: p.spaceClient.organization.name,
-      dueDate: p.dueDate.toISOString().split('T')[0],
-      amount: p.amount,
-      overdueDays: getOverdueDays(p.dueDate.toISOString()),
-    })),
+    overdueList,
   }
 }

@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 // PATCH /api/clients/[id]/kyc — 更新單筆 KYC 狀態
@@ -8,16 +8,17 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params
-    const { kycId, status } = await req.json()
+    const supabase = await createClient()
+    const body = await req.json()
+    const { checkId, status } = body
 
-    if (!kycId || !status) {
-      return NextResponse.json({ error: '缺少必填欄位' }, { status: 400 })
-    }
+    const { error } = await supabase
+      .from('kyc_checks')
+      .update({ status, checked_at: new Date().toISOString() })
+      .eq('id', checkId)
+      .eq('space_client_id', id)
 
-    await prisma.kycCheck.update({
-      where: { id: kycId, spaceClientId: id },
-      data: { status, checkedAt: new Date() },
-    })
+    if (error) throw error
 
     return NextResponse.json({ ok: true })
   } catch (error) {

@@ -1,38 +1,23 @@
-import { prisma } from '@/lib/prisma'
+import { createClient } from '@/lib/supabase/server'
 import { KYC_CHECK_TYPES } from '@/lib/types'
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET /api/clients — 看板用，含 hasOverduePayment
 export async function GET() {
   try {
-    const clients = await prisma.spaceClient.findMany({
-      include: {
-        organization: true,
-        kycChecks: true,
-        payments: { select: { status: true } },
-      },
-      orderBy: { createdAt: 'asc' },
-    })
+    const supabase = await createClient()
+    const { data: clients, error } = await supabase
+      .from('space_clients')
+      .select(`
+        *,
+        organization:organizations(*),
+        kyc_checks(*),
+        payments(status)
+      `)
+      .order('created_at', { ascending: true })
 
-    const result = clients.map((c: any) => ({
-      ...c,
-      followUpDate: c.followUpDate?.toISOString().split('T')[0] ?? null,
-      createdAt: c.createdAt.toISOString(),
-      updatedAt: c.updatedAt.toISOString(),
-      organization: {
-        ...c.organization,
-        createdAt: c.organization.createdAt.toISOString(),
-        updatedAt: c.organization.updatedAt.toISOString(),
-      },
-      kycChecks: c.kycChecks.map((k: any) => ({
-        ...k,
-        checkedAt: k.checkedAt.toISOString(),
-      })),
-      hasOverduePayment: c.payments.some((p: any) => p.status === '逾期'),
-      payments: undefined,
-    }))
-
-    return NextResponse.json(result)
+    if (error) throw error
+    return NextResponse.json(clients)
   } catch (error) {
     console.error('[GET /api/clients]', error)
     return NextResponse.json({ error: '載入客戶失敗' }, { status: 500 })
@@ -42,6 +27,7 @@ export async function GET() {
 // POST /api/clients — 建立 org + space_client (+ KYC if 借址)
 export async function POST(req: NextRequest) {
   try {
+    const supabase = await createClient()
     const body = await req.json()
     const {
       name, taxId, contactName, contactPhone, contactEmail, contactLine, source, orgNotes,
@@ -52,36 +38,57 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '缺少必填欄位' }, { status: 400 })
     }
 
-    const result = await prisma.$transaction(async (tx) => {
-      const org = await tx.organization.create({
-        data: { name, taxId, contactName, contactPhone, contactEmail, contactLine, source, notes: orgNotes },
+    // Create organization
+    const { data: org, error: orgError } = await supabase
+      .from('organizations')
+      .insert({
+        name,
+        tax_id: taxId || null,
+        contact_name: contactName,
+        contact_phone: contactPhone || null,
+        contact_email: contactEmail || null,
+        contact_line: contactLine || null,
+        source: source || '其他',
+        notes: orgNotes || null,
       })
+      .select()
+      .single()
 
-      const client = await tx.spaceClient.create({
-        data: {
-          orgId: org.id,
-          serviceType,
-          plan,
-          monthlyFee: monthlyFee ? parseInt(monthlyFee) : 0,
-          stage: '初步詢問',
-          notes,
-        },
+    if (orgError) throw orgError
+
+    // Create space_client
+    const { data: client, error: clientError } = await supabase
+      .from('space_clients')
+      .insert({
+        org_id: org.id,
+        service_type: serviceType,
+        plan: plan || null,
+        monthly_fee: monthlyFee ? parseInt(monthlyFee) : 0,
+        stage: '初步詢問',
+        notes: notes || null,
+        red_flags: [],
       })
+      .select()
+      .single()
 
-      if (serviceType === '借址登記') {
-        await tx.kycCheck.createMany({
-          data: KYC_CHECK_TYPES.map((checkType) => ({
-            spaceClientId: client.id,
-            checkType,
-            status: '待查' as const,
-          })),
-        })
-      }
+    if (clientError) throw clientError
 
-      return { org, client }
-    })
+    // Create KYC checks for 借址登記
+    if (serviceType === '借址登記') {
+      const kycRecords = KYC_CHECK_TYPES.map((checkType) => ({
+        space_client_id: client.id,
+        check_type: checkType,
+        status: '待查' as const,
+      }))
 
-    return NextResponse.json(result, { status: 201 })
+      const { error: kycError } = await supabase
+        .from('kyc_checks')
+        .insert(kycRecords)
+
+      if (kycError) throw kycError
+    }
+
+    return NextResponse.json({ org, client }, { status: 201 })
   } catch (error) {
     console.error('[POST /api/clients]', error)
     return NextResponse.json({ error: '新增客戶失敗' }, { status: 500 })
