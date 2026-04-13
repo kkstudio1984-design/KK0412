@@ -1,7 +1,7 @@
 import { createClient } from './supabase/server'
-import { ClientWithOrg, ClientDetail, DashboardData, MailRecord, OffboardingRecord, Lead, Sponsorship } from './types'
+import { ClientWithOrg, ClientDetail, DashboardData, MailRecord, OffboardingRecord, Lead, Sponsorship, RevenueRecord, SubsidyTracking, Expense } from './types'
 import { getMonthRange, getOverdueDays } from './utils'
-import { addDays, differenceInDays, format } from 'date-fns'
+import { addDays, differenceInDays, format, startOfMonth, endOfMonth } from 'date-fns'
 
 export async function fetchClients(): Promise<ClientWithOrg[]> {
   const supabase = await createClient()
@@ -504,4 +504,120 @@ export async function fetchSponsorships(): Promise<Sponsorship[]> {
       updatedAt: s.organization.updated_at,
     } : undefined,
   }))
+}
+
+// ── M4 Finance Queries ────────────────────────
+
+export async function fetchRevenueRecords(): Promise<RevenueRecord[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('revenue_records')
+    .select('*')
+    .order('revenue_date', { ascending: false })
+  if (error) throw error
+  return (data || []).map((r: any) => ({
+    id: r.id,
+    sourceModule: r.source_module,
+    sourceId: r.source_id,
+    amount: r.amount,
+    revenueDate: r.revenue_date,
+    category: r.category,
+    status: r.status,
+    description: r.description,
+    createdAt: r.created_at,
+  }))
+}
+
+export async function fetchSubsidies(): Promise<SubsidyTracking[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('subsidy_tracking')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data || []).map((s: any) => ({
+    id: s.id,
+    subsidyName: s.subsidy_name,
+    agency: s.agency,
+    annualAmount: s.annual_amount,
+    applicationStatus: s.application_status,
+    disbursementStatus: s.disbursement_status,
+    relatedPartners: s.related_partners || [],
+    notes: s.notes,
+    createdAt: s.created_at,
+    updatedAt: s.updated_at,
+  }))
+}
+
+export async function fetchExpenses(): Promise<Expense[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('expenses')
+    .select('*')
+    .order('expense_date', { ascending: false })
+  if (error) throw error
+  return (data || []).map((e: any) => ({
+    id: e.id,
+    category: e.category,
+    amount: e.amount,
+    expenseDate: e.expense_date,
+    description: e.description,
+    receiptUrl: e.receipt_url,
+    createdAt: e.created_at,
+  }))
+}
+
+export async function fetchFinanceSummary() {
+  const supabase = await createClient()
+  const now = new Date()
+  const startStr = format(startOfMonth(now), 'yyyy-MM-dd')
+  const endStr = format(endOfMonth(now), 'yyyy-MM-dd')
+
+  // Monthly revenue by category
+  const { data: revenueData } = await supabase
+    .from('revenue_records')
+    .select('category, amount')
+    .eq('status', '已收')
+    .gte('revenue_date', startStr)
+    .lte('revenue_date', endStr)
+
+  const revenueByCategory: Record<string, number> = {}
+  let totalRevenue = 0
+  for (const r of (revenueData || [])) {
+    revenueByCategory[r.category] = (revenueByCategory[r.category] || 0) + r.amount
+    totalRevenue += r.amount
+  }
+
+  // Monthly expenses by category
+  const { data: expenseData } = await supabase
+    .from('expenses')
+    .select('category, amount')
+    .gte('expense_date', startStr)
+    .lte('expense_date', endStr)
+
+  const expenseByCategory: Record<string, number> = {}
+  let totalExpenses = 0
+  for (const e of (expenseData || [])) {
+    expenseByCategory[e.category] = (expenseByCategory[e.category] || 0) + e.amount
+    totalExpenses += e.amount
+  }
+
+  // Active subsidies
+  const { data: subsidyData } = await supabase
+    .from('subsidy_tracking')
+    .select('annual_amount, application_status, disbursement_status')
+    .in('application_status', ['核准'])
+
+  const totalSubsidy = (subsidyData || []).reduce((sum: number, s: any) => sum + s.annual_amount, 0)
+  const disbursed = (subsidyData || []).filter((s: any) => s.disbursement_status === '全額撥款').reduce((sum: number, s: any) => sum + s.annual_amount, 0)
+
+  return {
+    totalRevenue,
+    totalExpenses,
+    netIncome: totalRevenue - totalExpenses,
+    revenueByCategory: Object.entries(revenueByCategory).map(([category, amount]) => ({ category, amount })),
+    expenseByCategory: Object.entries(expenseByCategory).map(([category, amount]) => ({ category, amount })),
+    totalSubsidy,
+    subsidyDisbursed: disbursed,
+  }
 }

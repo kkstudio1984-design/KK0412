@@ -285,3 +285,55 @@ export type Sponsorship = {
   updatedAt: string
   organization?: Organization
 }
+
+// ── M4 Finance Enums ──────────────────────────
+
+export type RevenueModule = 'M1空間' | 'M2專案' | 'M3贊助' | 'M5培訓'
+export type RevenueCategory = '借址' | '工位' | '場地' | '專案' | '培訓' | '贊助' | '其他'
+export const REVENUE_CATEGORIES: RevenueCategory[] = ['借址', '工位', '場地', '專案', '培訓', '贊助', '其他']
+
+export type ApplicationStatus = '未申請' | '已申請' | '審核中' | '核准' | '駁回'
+export const APPLICATION_STATUSES: ApplicationStatus[] = ['未申請', '已申請', '審核中', '核准', '駁回']
+
+export type DisbursementStatus = '未撥款' | '部分撥款' | '全額撥款'
+export const DISBURSEMENT_STATUSES: DisbursementStatus[] = ['未撥款', '部分撥款', '全額撥款']
+
+export type ExpenseCategory = '租金' | '水電' | '人事' | '設備' | '行銷' | '其他'
+export const EXPENSE_CATEGORIES: ExpenseCategory[] = ['租金', '水電', '人事', '設備', '行銷', '其他']
+
+// ── M4 Models ─────────────────────────────────
+
+export type RevenueRecord = {
+  id: string
+  sourceModule: RevenueModule
+  sourceId: string | null
+  amount: number
+  revenueDate: string
+  category: RevenueCategory
+  status: string
+  description: string | null
+  createdAt: string
+}
+
+export type SubsidyTracking = {
+  id: string
+  subsidyName: string
+  agency: string
+  annualAmount: number
+  applicationStatus: ApplicationStatus
+  disbursementStatus: DisbursementStatus
+  relatedPartners: string[]
+  notes: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type Expense = {
+  id: string
+  category: ExpenseCategory
+  amount: number
+  expenseDate: string
+  description: string
+  receiptUrl: string | null
+  createdAt: string
+}

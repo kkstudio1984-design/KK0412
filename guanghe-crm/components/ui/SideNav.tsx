@@ -9,6 +9,7 @@ const navItems = [
   { href: '/', label: 'CRM 看板', icon: '⊞' },
   { href: '/sales', label: '銷售管線', icon: '◎' },
   { href: '/sales/sponsorships', label: 'ESG 贊助', icon: '♻' },
+  { href: '/finance', label: '財務總覽', icon: '¥' },
   { href: '/dashboard', label: '儀表板', icon: '◈' },
   { href: '/address-risk', label: '地址風險', icon: '⚠' },
 ]
