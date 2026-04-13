@@ -337,3 +337,57 @@ export type Expense = {
   receiptUrl: string | null
   createdAt: string
 }
+
+// ── M2 Project Enums ──────────────────────────
+
+export type ProjectType = 'AI影片' | 'SEO配圖' | '社群經營' | '手心共影'
+export const PROJECT_TYPES: ProjectType[] = ['AI影片', 'SEO配圖', '社群經營', '手心共影']
+
+export type ProjectStatus = '洽談中' | '進行中' | '待驗收' | '已結案' | '已取消'
+export const PROJECT_STATUSES: ProjectStatus[] = ['洽談中', '進行中', '待驗收', '已結案', '已取消']
+
+export type TaskStatus = '待分配' | '進行中' | '待審核' | '完成' | '退回'
+export const TASK_STATUSES: TaskStatus[] = ['待分配', '進行中', '待審核', '完成', '退回']
+
+export type EarningStatus = '待結算' | '已累積' | '已支付'
+
+// ── M2 Models ─────────────────────────────────
+
+export type Project = {
+  id: string
+  orgId: string
+  name: string
+  projectType: ProjectType
+  status: ProjectStatus
+  budget: number
+  startDate: string | null
+  deadline: string | null
+  notes: string | null
+  createdAt: string
+  updatedAt: string
+  organization?: Organization
+  tasks?: Task[]
+}
+
+export type Task = {
+  id: string
+  projectId: string
+  partnerId: string | null
+  title: string
+  status: TaskStatus
+  dueDate: string | null
+  outputUrl: string | null
+  reviewNotes: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type PartnerEarning = {
+  id: string
+  partnerId: string
+  taskId: string | null
+  amount: number
+  status: EarningStatus
+  paidAt: string | null
+  createdAt: string
+}

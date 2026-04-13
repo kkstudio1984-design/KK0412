@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 
 const navItems = [
   { href: '/', label: 'CRM 看板', icon: '⊞' },
+  { href: '/projects', label: '專案管理', icon: '▦' },
   { href: '/sales', label: '銷售管線', icon: '◎' },
   { href: '/sales/sponsorships', label: 'ESG 贊助', icon: '♻' },
   { href: '/finance', label: '財務總覽', icon: '¥' },

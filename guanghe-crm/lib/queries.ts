@@ -1,5 +1,5 @@
 import { createClient } from './supabase/server'
-import { ClientWithOrg, ClientDetail, DashboardData, MailRecord, OffboardingRecord, Lead, Sponsorship, RevenueRecord, SubsidyTracking, Expense } from './types'
+import { ClientWithOrg, ClientDetail, DashboardData, MailRecord, OffboardingRecord, Lead, Sponsorship, RevenueRecord, SubsidyTracking, Expense, Project } from './types'
 import { getMonthRange, getOverdueDays } from './utils'
 import { addDays, differenceInDays, format, startOfMonth, endOfMonth } from 'date-fns'
 
@@ -619,5 +619,83 @@ export async function fetchFinanceSummary() {
     expenseByCategory: Object.entries(expenseByCategory).map(([category, amount]) => ({ category, amount })),
     totalSubsidy,
     subsidyDisbursed: disbursed,
+  }
+}
+
+// ── M2 Project Queries ──────────────────────────
+
+export async function fetchProjects(): Promise<any[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*, organization:organizations(id, name, contact_name), tasks(id, status)')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data || []).map((p: any) => ({
+    id: p.id,
+    orgId: p.org_id,
+    name: p.name,
+    projectType: p.project_type,
+    status: p.status,
+    budget: p.budget,
+    startDate: p.start_date,
+    deadline: p.deadline,
+    notes: p.notes,
+    createdAt: p.created_at,
+    updatedAt: p.updated_at,
+    organization: p.organization ? {
+      id: p.organization.id,
+      name: p.organization.name,
+      contactName: p.organization.contact_name,
+    } : undefined,
+    tasks: (p.tasks || []).map((t: any) => ({ id: t.id, status: t.status })),
+  }))
+}
+
+export async function fetchProject(id: string): Promise<Project | null> {
+  const supabase = await createClient()
+  const { data: p, error } = await supabase
+    .from('projects')
+    .select('*, organization:organizations(*), tasks(*)')
+    .eq('id', id)
+    .single()
+  if (error || !p) return null
+  return {
+    id: p.id,
+    orgId: p.org_id,
+    name: p.name,
+    projectType: p.project_type,
+    status: p.status,
+    budget: p.budget,
+    startDate: p.start_date,
+    deadline: p.deadline,
+    notes: p.notes,
+    createdAt: p.created_at,
+    updatedAt: p.updated_at,
+    organization: p.organization ? {
+      id: p.organization.id,
+      name: p.organization.name,
+      taxId: p.organization.tax_id,
+      contactName: p.organization.contact_name,
+      contactPhone: p.organization.contact_phone,
+      contactEmail: p.organization.contact_email,
+      contactLine: p.organization.contact_line,
+      source: p.organization.source,
+      notes: p.organization.notes,
+      createdAt: p.organization.created_at,
+      updatedAt: p.organization.updated_at,
+    } : undefined,
+    tasks: (p.tasks || []).map((t: any) => ({
+      id: t.id,
+      projectId: t.project_id,
+      partnerId: t.partner_id,
+      title: t.title,
+      status: t.status,
+      dueDate: t.due_date,
+      outputUrl: t.output_url,
+      reviewNotes: t.review_notes,
+      createdAt: t.created_at,
+      updatedAt: t.updated_at,
+    })),
   }
 }
