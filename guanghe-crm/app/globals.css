@@ -3,17 +3,82 @@
 @tailwind utilities;
 
 :root {
-  --background: #faf9f7;
+  --background: #f8f6f3;
   --foreground: #1c1917;
+  --card: #ffffff;
+  --card-border: #e8e5e0;
+  --muted: #a8a29e;
+  --accent: #d97706;
+  --accent-soft: #fef3c7;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  font-size: 15px;
+}
+
+/* Refined scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+/* Smooth transitions globally */
+* {
+  transition-property: color, background-color, border-color, opacity, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Remove transition from drag elements */
+[data-rfd-draggable-id] {
+  transition: none !important;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@layer components {
+  /* Shared card style */
+  .card {
+    @apply bg-white rounded-xl border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)];
+  }
+
+  /* Section header */
+  .section-title {
+    @apply text-xs font-bold text-stone-400 uppercase tracking-[0.1em];
+  }
+
+  /* Input base */
+  .input-base {
+    @apply w-full border border-stone-300 rounded-lg px-3 py-2 text-sm bg-white
+           focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400
+           placeholder:text-stone-300;
+  }
+
+  /* Button primary */
+  .btn-primary {
+    @apply bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold
+           px-4 py-2 rounded-lg shadow-sm hover:shadow-md
+           active:scale-[0.98] transition-all;
+  }
+
+  /* Badge base */
+  .badge {
+    @apply text-xs font-semibold px-2 py-0.5 rounded-md border;
   }
 }

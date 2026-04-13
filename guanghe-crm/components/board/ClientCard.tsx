@@ -27,6 +27,7 @@ export default function ClientCard({ client, index }: Props) {
   const followUpDot = getFollowUpDotColor(client.followUpDate)
   const showHighRiskKyc = client.isHighRiskKyc || client.blacklistFlag
   const showAutoLoss = isAutoLossSuggestion(client)
+  const hasBadges = hasRedFlags || showHighRiskKyc
 
   return (
     <Draggable draggableId={client.id} index={index}>
@@ -36,69 +37,70 @@ export default function ClientCard({ client, index }: Props) {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           onClick={() => router.push(`/clients/${client.id}`)}
-          className={`bg-white border rounded-xl p-3.5 cursor-pointer select-none transition-all duration-200 ${
+          className={`bg-white border rounded-xl p-4 cursor-pointer select-none group ${
             snapshot.isDragging
               ? 'shadow-2xl border-amber-400 rotate-1 scale-[1.02]'
-              : 'border-gray-100 hover:border-amber-300 hover:shadow-lg shadow-sm'
+              : 'border-stone-200/80 hover:border-amber-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
           }`}
         >
-          {/* 標記區：紅旗 + 高風險KYC */}
-          <div className="flex flex-wrap items-center gap-1.5 mb-2">
-            {hasRedFlags && (
-              <div className="group relative">
-                <div className="inline-flex items-center gap-1 text-xs text-red-600 font-medium bg-red-50 px-2 py-0.5 rounded-md border border-red-100">
-                  <span>🚩</span>
-                  <span>紅旗</span>
+          {/* Badges row */}
+          {hasBadges && (
+            <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+              {hasRedFlags && (
+                <div className="group/flag relative">
+                  <span className="badge text-red-600 bg-red-50 border-red-100">
+                    🚩 紅旗
+                  </span>
+                  <div className="absolute left-0 top-7 z-10 hidden group-hover/flag:block bg-slate-800 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap shadow-xl">
+                    {client.redFlags.join('、')}
+                  </div>
                 </div>
-                <div className="absolute left-0 top-6 z-10 hidden group-hover:block bg-slate-800 text-white text-xs rounded-lg px-2.5 py-1.5 whitespace-nowrap shadow-xl">
-                  {client.redFlags.join('、')}
-                </div>
-              </div>
-            )}
-            {showHighRiskKyc && (
-              <span className="inline-flex items-center gap-1 text-xs text-orange-700 font-medium bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">
-                ⚠ 高風險
-              </span>
-            )}
-          </div>
+              )}
+              {showHighRiskKyc && (
+                <span className="badge text-orange-700 bg-orange-50 border-orange-200">
+                  ⚠ 高風險
+                </span>
+              )}
+            </div>
+          )}
 
-          {/* 公司名稱 */}
-          <p className="font-semibold text-gray-900 text-sm leading-snug mb-1 line-clamp-1">
+          {/* Company name */}
+          <p className="font-semibold text-stone-800 text-sm leading-snug mb-0.5 line-clamp-1 group-hover:text-amber-700">
             {client.organization.name}
           </p>
 
-          {/* 聯絡人 */}
-          <p className="text-xs text-gray-400 mb-2">
+          {/* Contact */}
+          <p className="text-xs text-stone-400 mb-3">
             {client.organization.contactName}
           </p>
 
-          {/* 服務類型 */}
-          <span className="inline-block text-xs px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-medium border border-amber-100 mb-2.5">
+          {/* Service type pill */}
+          <span className="inline-block text-xs px-2 py-0.5 rounded-md bg-stone-100 text-stone-500 font-medium mb-3">
             {client.serviceType}
           </span>
 
-          {/* 跟進日期 */}
-          <div className="flex items-center gap-1.5 mb-1.5">
+          {/* Follow-up */}
+          <div className="flex items-center gap-1.5 mb-1">
             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${followUpDot}`} />
             <span className={`text-xs ${followUpColor}`}>
               {getFollowUpLabel(client.followUpDate)}
             </span>
           </div>
 
-          {/* 建議標記流失 */}
+          {/* Auto-loss suggestion */}
           {showAutoLoss && (
-            <div className="mb-1.5">
-              <span className="text-xs text-gray-400 italic">建議標記流失</span>
+            <div className="mb-1">
+              <span className="text-xs text-stone-400 italic bg-stone-50 px-1.5 py-0.5 rounded">建議標記流失</span>
             </div>
           )}
 
-          {/* 月費 + 逾期標記 */}
-          <div className="flex items-center justify-between mt-1 pt-2 border-t border-gray-50">
-            <span className="text-xs font-medium text-gray-600">
-              {formatNTD(client.monthlyFee)}<span className="text-gray-400 font-normal">/月</span>
+          {/* Footer: price + overdue */}
+          <div className="flex items-center justify-between mt-2 pt-2.5 border-t border-stone-100">
+            <span className="text-xs font-semibold text-stone-600 tabular-nums">
+              {formatNTD(client.monthlyFee)}<span className="text-stone-300 font-normal">/月</span>
             </span>
             {client.hasOverduePayment && (
-              <span className="text-xs text-red-600 font-semibold bg-red-50 px-1.5 py-0.5 rounded-md border border-red-100">逾期</span>
+              <span className="badge text-red-600 bg-red-50 border-red-100">逾期</span>
             )}
           </div>
         </div>

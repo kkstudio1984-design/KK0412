@@ -9,35 +9,40 @@ interface Props {
   clients: ClientWithOrg[]
 }
 
-const STAGE_COLORS: Record<Stage, string> = {
-  '初步詢問':  'border-t-slate-400',
-  'KYC審核中': 'border-t-amber-400',
-  '已簽約':    'border-t-sky-400',
-  '服務中':    'border-t-emerald-500',
-  '退租中':    'border-t-orange-400',
-  '已結案':    'border-t-violet-400',
-  '已流失':    'border-t-rose-400',
+const STAGE_ACCENT: Record<Stage, { border: string; dot: string }> = {
+  '初步詢問':  { border: 'border-t-stone-400', dot: 'bg-stone-400' },
+  'KYC審核中': { border: 'border-t-amber-500', dot: 'bg-amber-500' },
+  '已簽約':    { border: 'border-t-sky-500', dot: 'bg-sky-500' },
+  '服務中':    { border: 'border-t-emerald-500', dot: 'bg-emerald-500' },
+  '退租中':    { border: 'border-t-orange-500', dot: 'bg-orange-500' },
+  '已結案':    { border: 'border-t-violet-400', dot: 'bg-violet-400' },
+  '已流失':    { border: 'border-t-rose-400', dot: 'bg-rose-400' },
 }
 
 export default function KanbanColumn({ stage, clients }: Props) {
+  const accent = STAGE_ACCENT[stage]
+
   return (
-    <div className={`flex flex-col w-60 shrink-0 bg-white/70 rounded-xl border border-gray-100 border-t-4 shadow-sm ${STAGE_COLORS[stage]}`}>
-      {/* 欄位標題 */}
-      <div className="flex items-center justify-between px-3 py-3">
-        <span className="text-sm font-semibold text-gray-700">{stage}</span>
-        <span className="text-xs bg-gray-50 border border-gray-200 text-gray-500 rounded-full px-2 py-0.5 font-medium min-w-[1.5rem] text-center">
+    <div className={`flex flex-col w-64 shrink-0 bg-stone-50/80 rounded-xl border border-stone-200/60 border-t-[3px] ${accent.border}`}>
+      {/* Column header */}
+      <div className="flex items-center justify-between px-3.5 py-3">
+        <div className="flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${accent.dot}`} />
+          <span className="text-sm font-semibold text-stone-700">{stage}</span>
+        </div>
+        <span className="text-xs bg-white border border-stone-200 text-stone-500 rounded-full px-2 py-0.5 font-semibold min-w-[1.5rem] text-center tabular-nums shadow-sm">
           {clients.length}
         </span>
       </div>
 
-      {/* 卡片列表 */}
+      {/* Cards */}
       <Droppable droppableId={stage}>
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex-1 px-2 pb-2 space-y-2 min-h-24 rounded-b-xl transition-colors ${
-              snapshot.isDraggingOver ? 'bg-amber-50/60' : ''
+            className={`flex-1 px-2 pb-2.5 space-y-2.5 min-h-28 rounded-b-xl ${
+              snapshot.isDraggingOver ? 'bg-amber-50/50' : ''
             }`}
           >
             {clients.map((client, index) => (

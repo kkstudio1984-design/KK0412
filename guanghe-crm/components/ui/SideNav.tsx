@@ -44,23 +44,29 @@ export default function SideNav() {
     viewer: '股東',
   }
 
+  const roleBadgeColor: Record<string, string> = {
+    admin: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+    operator: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+    viewer: 'bg-stone-500/20 text-stone-400 border-stone-500/30',
+  }
+
   return (
-    <aside className="w-52 bg-slate-900 flex flex-col shrink-0 shadow-xl">
-      {/* Brand Header */}
-      <div className="px-5 py-6 border-b border-slate-700/50">
+    <aside className="w-56 bg-slate-900 flex flex-col shrink-0">
+      {/* Brand */}
+      <div className="px-5 py-5 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-900 font-bold text-sm shadow-lg shadow-amber-900/30">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-900 font-bold text-sm shadow-lg shadow-amber-500/20">
             光
           </div>
           <div>
-            <p className="text-[10px] text-slate-500 font-medium tracking-widest uppercase">Guanghe</p>
+            <p className="text-xs text-slate-500 font-medium tracking-[0.15em] uppercase">Guanghe</p>
             <p className="text-sm font-semibold text-white leading-tight">營運管理系統</p>
           </div>
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 p-3 space-y-1">
+      {/* Navigation */}
+      <nav className="flex-1 p-3 space-y-0.5">
         {navItems.map((item) => {
           const isActive =
             item.href === '/'
@@ -70,32 +76,36 @@ export default function SideNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ${
                 isActive
-                  ? 'bg-amber-500/10 text-amber-400 font-semibold border border-amber-500/20'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                  ? 'bg-white/[0.08] text-amber-400 font-semibold'
+                  : 'text-slate-400 hover:bg-white/[0.04] hover:text-slate-200'
               }`}
             >
-              <span className="text-base leading-none">{item.icon}</span>
+              <span className="text-base leading-none opacity-70">{item.icon}</span>
               {item.label}
             </Link>
           )
         })}
       </nav>
 
-      {/* User Footer */}
-      <div className="px-4 py-4 border-t border-slate-700/50">
+      {/* User */}
+      <div className="px-4 py-4 border-t border-white/[0.06]">
         {userName && (
           <div className="mb-3">
-            <p className="text-xs text-slate-300 font-medium truncate">{userName}</p>
-            <p className="text-[10px] text-slate-500">{roleLabel[userRole] || userRole}</p>
+            <p className="text-sm text-slate-300 font-medium truncate">{userName}</p>
+            {userRole && (
+              <span className={`inline-block mt-1 text-xs font-semibold px-1.5 py-0.5 rounded border ${roleBadgeColor[userRole] || 'text-slate-400'}`}>
+                {roleLabel[userRole] || userRole}
+              </span>
+            )}
           </div>
         )}
         <button
           onClick={handleLogout}
-          className="w-full text-left text-xs text-slate-500 hover:text-slate-300 transition-colors"
+          className="text-xs text-slate-500 hover:text-slate-300 font-medium"
         >
-          登出
+          登出 →
         </button>
       </div>
     </aside>
