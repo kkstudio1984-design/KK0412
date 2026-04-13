@@ -440,3 +440,47 @@ export type Enrollment = {
   paymentStatus: EnrollmentPaymentStatus
   createdAt: string
 }
+
+// ── M6 AI Strategy Enums ──────────────────────
+
+export type ToolStatus = '使用中' | '評估中' | '已棄用'
+export const TOOL_STATUSES: ToolStatus[] = ['使用中', '評估中', '已棄用']
+
+export type TrainingType = '基礎班' | '進階班' | '專項培訓'
+export const TRAINING_TYPES: TrainingType[] = ['基礎班', '進階班', '專項培訓']
+
+export type TrainingRecordStatus = '未開始' | '進行中' | '已完成'
+
+// ── M6 Models ─────────────────────────────────
+
+export type AiTool = {
+  id: string
+  name: string
+  purpose: string | null
+  usedByModules: string[]
+  costMonthly: number | null
+  status: ToolStatus
+  createdAt: string
+}
+
+export type TrainingRecord = {
+  id: string
+  partnerId: string
+  trainingType: TrainingType
+  toolName: string | null
+  completedAt: string | null
+  status: TrainingRecordStatus
+  assessmentScore: number | null
+  createdAt: string
+}
+
+export type AiAgent = {
+  id: string
+  name: string
+  purpose: string | null
+  targetModule: string | null
+  promptVersion: string | null
+  lastUpdated: string | null
+  performanceNotes: string | null
+  createdAt: string
+}

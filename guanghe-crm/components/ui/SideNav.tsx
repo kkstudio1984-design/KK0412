@@ -12,6 +12,7 @@ const navItems = [
   { href: '/sales/sponsorships', label: 'ESG 贊助', icon: '♻' },
   { href: '/finance', label: '財務總覽', icon: '¥' },
   { href: '/training', label: '教育訓練', icon: '◉' },
+  { href: '/ai-strategy', label: 'AI 戰略', icon: '⚡' },
   { href: '/dashboard', label: '儀表板', icon: '◈' },
   { href: '/address-risk', label: '地址風險', icon: '⚠' },
 ]

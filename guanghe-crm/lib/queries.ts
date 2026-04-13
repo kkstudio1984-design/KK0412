@@ -743,3 +743,40 @@ export async function fetchCourse(id: string): Promise<any> {
     })),
   }
 }
+
+// ── M6 AI Strategy Queries ──────────────────────
+
+export async function fetchAiTools(): Promise<any[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.from('ai_tools').select('*').order('created_at', { ascending: false })
+  if (error) throw error
+  return (data || []).map((t: any) => ({
+    id: t.id, name: t.name, purpose: t.purpose,
+    usedByModules: t.used_by_modules || [], costMonthly: t.cost_monthly,
+    status: t.status, createdAt: t.created_at,
+  }))
+}
+
+export async function fetchAgents(): Promise<any[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.from('agents').select('*').order('created_at', { ascending: false })
+  if (error) throw error
+  return (data || []).map((a: any) => ({
+    id: a.id, name: a.name, purpose: a.purpose,
+    targetModule: a.target_module, promptVersion: a.prompt_version,
+    lastUpdated: a.last_updated, performanceNotes: a.performance_notes,
+    createdAt: a.created_at,
+  }))
+}
+
+export async function fetchTrainingRecords(): Promise<any[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase.from('training_records').select('*, partner:partners(name)').order('created_at', { ascending: false })
+  if (error) throw error
+  return (data || []).map((r: any) => ({
+    id: r.id, partnerId: r.partner_id, trainingType: r.training_type,
+    toolName: r.tool_name, completedAt: r.completed_at, status: r.status,
+    assessmentScore: r.assessment_score, createdAt: r.created_at,
+    partnerName: r.partner?.name || '未知',
+  }))
+}
