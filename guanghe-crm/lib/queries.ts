@@ -699,3 +699,47 @@ export async function fetchProject(id: string): Promise<Project | null> {
     })),
   }
 }
+
+// ── M5 Training Queries ──────────────────────────
+
+export async function fetchCourses(): Promise<any[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('courses')
+    .select('*, course_sessions(id, status)')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data || []).map((c: any) => ({
+    id: c.id, name: c.name, courseType: c.course_type,
+    durationHours: c.duration_hours, price: c.price,
+    maxParticipants: c.max_participants, description: c.description,
+    createdAt: c.created_at,
+    sessions: c.course_sessions || [],
+  }))
+}
+
+export async function fetchCourse(id: string): Promise<any> {
+  const supabase = await createClient()
+  const { data: c, error } = await supabase
+    .from('courses')
+    .select('*, course_sessions(*, enrollments(id, payment_status))')
+    .eq('id', id)
+    .single()
+  if (error || !c) return null
+  return {
+    id: c.id, name: c.name, courseType: c.course_type,
+    durationHours: c.duration_hours, price: c.price,
+    maxParticipants: c.max_participants, description: c.description,
+    createdAt: c.created_at,
+    sessions: (c.course_sessions || []).map((s: any) => ({
+      id: s.id, courseId: s.course_id, sessionDate: s.session_date,
+      startTime: s.start_time, location: s.location, orgId: s.org_id,
+      status: s.status, actualParticipants: s.actual_participants,
+      revenue: s.revenue, createdAt: s.created_at,
+      enrollmentCount: (s.enrollments || []).length,
+      enrollments: (s.enrollments || []).map((e: any) => ({
+        id: e.id, paymentStatus: e.payment_status,
+      })),
+    })),
+  }
+}

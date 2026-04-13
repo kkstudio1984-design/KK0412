@@ -391,3 +391,52 @@ export type PartnerEarning = {
   paidAt: string | null
   createdAt: string
 }
+
+// ── M5 Training Enums ─────────────────────────
+
+export type CourseType = '同理心體驗' | '企業培訓' | 'AI工具工作坊' | '夥伴內訓'
+export const COURSE_TYPES: CourseType[] = ['同理心體驗', '企業培訓', 'AI工具工作坊', '夥伴內訓']
+
+export type SessionStatus = '規劃中' | '報名中' | '已額滿' | '已結束' | '已取消'
+export const SESSION_STATUSES: SessionStatus[] = ['規劃中', '報名中', '已額滿', '已結束', '已取消']
+
+export type EnrollmentPaymentStatus = '未付' | '已付' | '已退費'
+
+// ── M5 Models ─────────────────────────────────
+
+export type Course = {
+  id: string
+  name: string
+  courseType: CourseType
+  durationHours: number
+  price: number
+  maxParticipants: number
+  description: string | null
+  createdAt: string
+  sessions?: CourseSession[]
+}
+
+export type CourseSession = {
+  id: string
+  courseId: string
+  sessionDate: string
+  startTime: string | null
+  location: string | null
+  orgId: string | null
+  status: SessionStatus
+  actualParticipants: number | null
+  revenue: number | null
+  createdAt: string
+  courseName?: string
+  enrollmentCount?: number
+}
+
+export type Enrollment = {
+  id: string
+  sessionId: string
+  participantName: string
+  participantEmail: string | null
+  orgId: string | null
+  paymentStatus: EnrollmentPaymentStatus
+  createdAt: string
+}
