@@ -1,5 +1,5 @@
 import { createClient } from './supabase/server'
-import { ClientWithOrg, ClientDetail, DashboardData, MailRecord, OffboardingRecord } from './types'
+import { ClientWithOrg, ClientDetail, DashboardData, MailRecord, OffboardingRecord, Lead, Sponsorship } from './types'
 import { getMonthRange, getOverdueDays } from './utils'
 import { addDays, differenceInDays, format } from 'date-fns'
 
@@ -389,4 +389,119 @@ export async function fetchDashboard(): Promise<DashboardData> {
     sourceAnalysis,
     seatUtilization: { sold, total: 40, rate: Math.round((sold / 40) * 100) },
   }
+}
+
+export async function fetchLeads(): Promise<Lead[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('leads')
+    .select('*, organization:organizations(*)')
+    .order('created_at', { ascending: true })
+
+  if (error) throw error
+  if (!data) return []
+
+  return data.map((l: any) => ({
+    id: l.id,
+    orgId: l.org_id,
+    contactName: l.contact_name,
+    contactInfo: l.contact_info,
+    channel: l.channel,
+    interest: l.interest,
+    stage: l.stage,
+    followUpDate: l.follow_up_date,
+    notes: l.notes,
+    convertedTo: l.converted_to,
+    createdAt: l.created_at,
+    updatedAt: l.updated_at,
+    organization: l.organization ? {
+      id: l.organization.id,
+      name: l.organization.name,
+      taxId: l.organization.tax_id,
+      contactName: l.organization.contact_name,
+      contactPhone: l.organization.contact_phone,
+      contactEmail: l.organization.contact_email,
+      contactLine: l.organization.contact_line,
+      source: l.organization.source,
+      notes: l.organization.notes,
+      createdAt: l.organization.created_at,
+      updatedAt: l.organization.updated_at,
+    } : null,
+  }))
+}
+
+export async function fetchLead(id: string): Promise<Lead | null> {
+  const supabase = await createClient()
+  const { data: l, error } = await supabase
+    .from('leads')
+    .select('*, organization:organizations(*)')
+    .eq('id', id)
+    .single()
+
+  if (error || !l) return null
+
+  return {
+    id: l.id,
+    orgId: l.org_id,
+    contactName: l.contact_name,
+    contactInfo: l.contact_info,
+    channel: l.channel,
+    interest: l.interest,
+    stage: l.stage,
+    followUpDate: l.follow_up_date,
+    notes: l.notes,
+    convertedTo: l.converted_to,
+    createdAt: l.created_at,
+    updatedAt: l.updated_at,
+    organization: l.organization ? {
+      id: l.organization.id,
+      name: l.organization.name,
+      taxId: l.organization.tax_id,
+      contactName: l.organization.contact_name,
+      contactPhone: l.organization.contact_phone,
+      contactEmail: l.organization.contact_email,
+      contactLine: l.organization.contact_line,
+      source: l.organization.source,
+      notes: l.organization.notes,
+      createdAt: l.organization.created_at,
+      updatedAt: l.organization.updated_at,
+    } : null,
+  }
+}
+
+export async function fetchSponsorships(): Promise<Sponsorship[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('sponsorships')
+    .select('*, organization:organizations(*)')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  if (!data) return []
+
+  return data.map((s: any) => ({
+    id: s.id,
+    orgId: s.org_id,
+    tier: s.tier,
+    annualAmount: s.annual_amount,
+    startDate: s.start_date,
+    endDate: s.end_date,
+    deliverables: s.deliverables,
+    status: s.status,
+    createdAt: s.created_at,
+    updatedAt: s.updated_at,
+    organization: s.organization ? {
+      id: s.organization.id,
+      name: s.organization.name,
+      taxId: s.organization.tax_id,
+      contactName: s.organization.contact_name,
+      contactPhone: s.organization.contact_phone,
+      contactEmail: s.organization.contact_email,
+      contactLine: s.organization.contact_line,
+      source: s.organization.source,
+      notes: s.organization.notes,
+      createdAt: s.organization.created_at,
+      updatedAt: s.organization.updated_at,
+    } : undefined,
+  }))
 }

@@ -236,3 +236,52 @@ export type DashboardData = {
   sourceAnalysis: { source: string; count: number }[]
   seatUtilization: { sold: number; total: number; rate: number }
 }
+
+// ── M3 Sales Enums ────────────────────────────
+
+export type LeadChannel = 'BNI' | '蒲公英' | 'ESG企業' | '線上分享會' | '自來客' | '轉介'
+export const LEAD_CHANNELS: LeadChannel[] = ['BNI', '蒲公英', 'ESG企業', '線上分享會', '自來客', '轉介']
+
+export type LeadInterest = '借址登記' | '工位' | '場地' | '專案接案' | '企業培訓' | 'ESG贊助' | '其他'
+export const LEAD_INTERESTS: LeadInterest[] = ['借址登記', '工位', '場地', '專案接案', '企業培訓', 'ESG贊助', '其他']
+
+export type LeadStage = '初步接觸' | '需求確認' | '報價中' | '成交' | '流失'
+export const LEAD_STAGES: LeadStage[] = ['初步接觸', '需求確認', '報價中', '成交', '流失']
+
+export type SponsorshipTier = '種子級' | '成長級' | '共融級'
+export const SPONSORSHIP_TIERS: SponsorshipTier[] = ['種子級', '成長級', '共融級']
+
+export type SponsorshipStatus = '洽談中' | '已簽約' | '執行中' | '已到期'
+export const SPONSORSHIP_STATUSES: SponsorshipStatus[] = ['洽談中', '已簽約', '執行中', '已到期']
+
+// ── M3 Models ─────────────────────────────────
+
+export type Lead = {
+  id: string
+  orgId: string | null
+  contactName: string
+  contactInfo: string | null
+  channel: LeadChannel
+  interest: LeadInterest
+  stage: LeadStage
+  followUpDate: string | null
+  notes: string | null
+  convertedTo: string | null
+  createdAt: string
+  updatedAt: string
+  organization?: Organization | null
+}
+
+export type Sponsorship = {
+  id: string
+  orgId: string
+  tier: SponsorshipTier
+  annualAmount: number
+  startDate: string
+  endDate: string
+  deliverables: string | null
+  status: SponsorshipStatus
+  createdAt: string
+  updatedAt: string
+  organization?: Organization
+}

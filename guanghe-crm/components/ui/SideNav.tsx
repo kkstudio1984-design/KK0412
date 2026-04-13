@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react'
 
 const navItems = [
   { href: '/', label: 'CRM 看板', icon: '⊞' },
+  { href: '/sales', label: '銷售管線', icon: '◎' },
+  { href: '/sales/sponsorships', label: 'ESG 贊助', icon: '♻' },
   { href: '/dashboard', label: '儀表板', icon: '◈' },
   { href: '/address-risk', label: '地址風險', icon: '⚠' },
 ]
@@ -68,10 +70,11 @@ export default function SideNav() {
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-0.5">
         {navItems.map((item) => {
-          const isActive =
-            item.href === '/'
+          const isActive = item.href === '/'
               ? pathname === '/'
-              : pathname.startsWith(item.href)
+              : item.href === '/sales'
+                ? pathname === '/sales' || (pathname.startsWith('/sales') && !pathname.startsWith('/sales/sponsorships'))
+                : pathname.startsWith(item.href)
           return (
             <Link
               key={item.href}
