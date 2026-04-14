@@ -10,6 +10,14 @@
   --muted: #a8a29e;
   --accent: #d97706;
   --accent-soft: #fef3c7;
+
+  /* Module identity colors */
+  --m1-color: #d97706; /* amber — 空間營運 */
+  --m2-color: #7c3aed; /* violet — 專案接案 */
+  --m3-color: #0284c7; /* sky — 業務銷售 */
+  --m4-color: #059669; /* emerald — 行政財務 */
+  --m5-color: #db2777; /* pink — 教育訓練 */
+  --m6-color: #7c3aed; /* violet — AI 戰略 */
 }
 
 body {
@@ -36,7 +44,7 @@ body {
 
 /* Smooth transitions globally */
 * {
-  transition-property: color, background-color, border-color, opacity, box-shadow;
+  transition-property: color, background-color, border-color, opacity, box-shadow, transform;
   transition-duration: 150ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -50,12 +58,18 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .font-display {
+    font-family: var(--font-serif), serif;
+  }
 }
 
 @layer components {
   /* Shared card style */
   .card {
-    @apply bg-white rounded-xl border border-stone-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)];
+    @apply bg-white rounded-xl border border-stone-200/80
+           shadow-[0_1px_3px_rgba(0,0,0,0.04)]
+           hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)]
+           hover:-translate-y-[1px];
   }
 
   /* Section header */
@@ -74,11 +88,39 @@ body {
   .btn-primary {
     @apply bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold
            px-4 py-2 rounded-lg shadow-sm hover:shadow-md
-           active:scale-[0.98] transition-all;
+           active:scale-[0.97] transition-all;
+  }
+
+  /* Button secondary */
+  .btn-secondary {
+    @apply border border-stone-300 text-stone-600 text-sm font-medium
+           px-4 py-2 rounded-lg hover:bg-stone-50
+           active:scale-[0.97] transition-all;
   }
 
   /* Badge base */
   .badge {
     @apply text-xs font-semibold px-2 py-0.5 rounded-md border;
+  }
+
+  /* Page header with module color stripe */
+  .page-header {
+    @apply mb-6 pb-4 border-b border-stone-200;
+  }
+
+  /* Module color stripe */
+  .module-stripe {
+    @apply w-1 h-6 rounded-full mr-3 shrink-0;
+  }
+
+  /* Empty state */
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-12 text-center;
+  }
+  .empty-state-icon {
+    @apply text-4xl mb-3 opacity-30;
+  }
+  .empty-state-text {
+    @apply text-sm text-stone-400 mb-4;
   }
 }

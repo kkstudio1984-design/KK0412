@@ -3,6 +3,9 @@ export const dynamic = 'force-dynamic'
 import { formatNTD } from '@/lib/utils'
 import { fetchDashboard } from '@/lib/queries'
 import Link from 'next/link'
+import PageHeader from '@/components/ui/PageHeader'
+import RevenueChart from '@/components/dashboard/RevenueChart'
+import PipelineChart from '@/components/dashboard/PipelineChart'
 
 const ESCALATION_COLORS: Record<string, string> = {
   '正常': 'text-gray-500',
@@ -18,10 +21,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-lg font-bold text-gray-900">營運儀表板</h1>
-        <p className="text-xs text-gray-400 mt-0.5">三層營運總覽</p>
-      </div>
+      <PageHeader
+        title="營運儀表板"
+        subtitle="三層營運總覽"
+      />
 
       {/* Tier 1: 救火層 */}
       <section>
@@ -164,21 +167,7 @@ export default async function DashboardPage() {
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {/* Revenue by type */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">收入分佈</p>
-            {data.revenueByType.length === 0 ? (
-              <p className="text-sm text-gray-300">尚無收入</p>
-            ) : (
-              <div className="space-y-2">
-                {data.revenueByType.map((r, i) => (
-                  <div key={i} className="flex justify-between text-sm">
-                    <span className="text-gray-600">{r.type}</span>
-                    <span className="font-medium text-gray-800">{formatNTD(r.amount)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <RevenueChart data={data.revenueByType} />
 
           {/* Cash flow */}
           <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
@@ -232,17 +221,7 @@ export default async function DashboardPage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {/* Pipeline */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm col-span-2 md:col-span-1">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Pipeline</p>
-            <div className="space-y-1.5">
-              {data.pipelineCounts.map((p, i) => (
-                <div key={i} className="flex justify-between text-sm">
-                  <span className="text-gray-600">{p.stage}</span>
-                  <span className="font-medium text-gray-800">{p.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <PipelineChart data={data.pipelineCounts} />
 
           {/* Conversion + Cycle */}
           <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">

@@ -6,15 +6,15 @@ import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 
 const navItems = [
-  { href: '/', label: 'CRM 看板', icon: '⊞' },
-  { href: '/projects', label: '專案管理', icon: '▦' },
-  { href: '/sales', label: '銷售管線', icon: '◎' },
-  { href: '/sales/sponsorships', label: 'ESG 贊助', icon: '♻' },
-  { href: '/finance', label: '財務總覽', icon: '¥' },
-  { href: '/training', label: '教育訓練', icon: '◉' },
-  { href: '/ai-strategy', label: 'AI 戰略', icon: '⚡' },
-  { href: '/dashboard', label: '儀表板', icon: '◈' },
-  { href: '/address-risk', label: '地址風險', icon: '⚠' },
+  { href: '/', label: 'CRM 看板', icon: '⊞', color: 'bg-amber-500' },
+  { href: '/projects', label: '專案管理', icon: '▦', color: 'bg-violet-500' },
+  { href: '/sales', label: '銷售管線', icon: '◎', color: 'bg-sky-500' },
+  { href: '/sales/sponsorships', label: 'ESG 贊助', icon: '♻', color: 'bg-sky-400' },
+  { href: '/finance', label: '財務總覽', icon: '¥', color: 'bg-emerald-500' },
+  { href: '/training', label: '教育訓練', icon: '◉', color: 'bg-pink-500' },
+  { href: '/ai-strategy', label: 'AI 戰略', icon: '⚡', color: 'bg-violet-500' },
+  { href: '/dashboard', label: '儀表板', icon: '◈', color: 'bg-stone-400' },
+  { href: '/address-risk', label: '地址風險', icon: '⚠', color: 'bg-amber-500' },
 ]
 
 interface Props {
@@ -94,6 +94,7 @@ export default function SideNav({ onNavigate }: Props) {
                   : 'text-slate-400 hover:bg-white/[0.04] hover:text-slate-200'
               }`}
             >
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.color}`} />
               <span className="text-base leading-none opacity-70">{item.icon}</span>
               {item.label}
             </Link>

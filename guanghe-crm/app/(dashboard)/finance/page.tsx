@@ -3,16 +3,18 @@ export const dynamic = 'force-dynamic'
 import { fetchFinanceSummary } from '@/lib/queries'
 import { formatNTD } from '@/lib/utils'
 import Link from 'next/link'
+import PageHeader from '@/components/ui/PageHeader'
 
 export default async function FinancePage() {
   const summary = await fetchFinanceSummary()
 
   return (
     <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-lg font-bold text-stone-800">財務總覽</h1>
-        <p className="text-xs text-stone-400 mt-0.5">本月營收、支出與補助狀態</p>
-      </div>
+      <PageHeader
+        title="財務總覽"
+        subtitle="本月營收、支出與補助狀態"
+        moduleColor="bg-emerald-500"
+      />
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

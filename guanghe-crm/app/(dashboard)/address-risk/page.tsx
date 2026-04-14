@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { createClient } from '@/lib/supabase/server'
 import AddressRiskTable from '@/components/address-risk/AddressRiskTable'
+import PageHeader from '@/components/ui/PageHeader'
 
 export default async function AddressRiskPage() {
   const supabase = await createClient()
@@ -34,20 +35,21 @@ export default async function AddressRiskPage() {
 
   return (
     <div className="px-6 py-8 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-lg font-bold text-gray-900">地址風險總覽</h1>
-          <p className="text-xs text-gray-400 mt-0.5">三院地址所有登記公司一覽</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-600">共 {allClients.length} 家</span>
-          {highRiskCount > 0 && (
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-50 text-red-600 border border-red-200">
-              {highRiskCount} 高風險
-            </span>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title="地址風險總覽"
+        subtitle="三院地址所有登記公司一覽"
+        moduleColor="bg-amber-500"
+        action={
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-600">共 {allClients.length} 家</span>
+            {highRiskCount > 0 && (
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-50 text-red-600 border border-red-200">
+                {highRiskCount} 高風險
+              </span>
+            )}
+          </div>
+        }
+      />
 
       <AddressRiskTable clients={allClients} />
     </div>
