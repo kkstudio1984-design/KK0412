@@ -9,7 +9,7 @@ interface Props {
 const COLORS = ['#d97706', '#0284c7', '#059669', '#7c3aed', '#db2777', '#a8a29e']
 
 export default function RevenueChart({ data }: Props) {
-  if (data.length === 0) return null
+  if (!data || data.length === 0) return null
 
   return (
     <div className="card p-5">
@@ -28,16 +28,16 @@ export default function RevenueChart({ data }: Props) {
               paddingAngle={3}
               strokeWidth={0}
             >
-              {data.map((_, i) => (
+              {data.map((_: any, i: number) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
               ))}
             </Pie>
             <Tooltip
-              formatter={(value) => `NT$${Number(value).toLocaleString()}`}
+              formatter={(value: any) => `NT$${Number(value).toLocaleString()}`}
               contentStyle={{ borderRadius: '8px', border: '1px solid #e8e5e0', fontSize: '12px' }}
             />
             <Legend
-              formatter={(value) => <span className="text-xs text-stone-600">{value}</span>}
+              formatter={(value: any) => <span className="text-xs text-stone-600">{value}</span>}
               iconSize={8}
             />
           </PieChart>

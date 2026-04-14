@@ -4,8 +4,9 @@ import { formatNTD } from '@/lib/utils'
 import { fetchDashboard } from '@/lib/queries'
 import Link from 'next/link'
 import PageHeader from '@/components/ui/PageHeader'
-import RevenueChart from '@/components/dashboard/RevenueChart'
-import PipelineChart from '@/components/dashboard/PipelineChart'
+import nextDynamic from 'next/dynamic'
+const RevenueChart = nextDynamic(() => import('@/components/dashboard/RevenueChart'), { ssr: false })
+const PipelineChart = nextDynamic(() => import('@/components/dashboard/PipelineChart'), { ssr: false })
 
 const ESCALATION_COLORS: Record<string, string> = {
   '正常': 'text-gray-500',
