@@ -1,29 +1,36 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export function useRealtimeRefresh(tables: string[]) {
   const router = useRouter()
+  const tablesRef = useRef(tables)
 
   useEffect(() => {
-    const supabase = createClient()
-    const channels = tables.map((table) =>
-      supabase
-        .channel(`refresh_${table}`)
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table },
-          () => {
-            router.refresh()
-          }
-        )
-        .subscribe()
-    )
+    try {
+      const supabase = createClient()
+      const channels = tablesRef.current.map((table) =>
+        supabase
+          .channel(`refresh_${table}_${Date.now()}`)
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table },
+            () => {
+              router.refresh()
+            }
+          )
+          .subscribe()
+      )
 
-    return () => {
-      channels.forEach((ch) => supabase.removeChannel(ch))
+      return () => {
+        channels.forEach((ch) => {
+          try { supabase.removeChannel(ch) } catch {}
+        })
+      }
+    } catch {
+      // Silently fail if realtime is not available
     }
-  }, [tables, router])
+  }, [router])
 }

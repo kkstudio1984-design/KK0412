@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
 
 interface Notification {
   id: string
@@ -33,16 +32,27 @@ export default function NotificationBell() {
       .then(data => { if (Array.isArray(data)) setNotifications(data) })
       .catch(() => {})
 
-    // Subscribe to realtime
-    const supabase = createClient()
-    const channel = supabase
-      .channel('notifications_realtime')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload) => {
-        setNotifications(prev => [payload.new as Notification, ...prev])
-      })
-      .subscribe()
+    // Subscribe to realtime (best-effort)
+    let channel: any = null
+    try {
+      const { createClient } = require('@/lib/supabase/client')
+      const supabase = createClient()
+      channel = supabase
+        .channel('notifications_realtime')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload: any) => {
+          setNotifications(prev => [payload.new as Notification, ...prev])
+        })
+        .subscribe()
+    } catch {}
 
-    return () => { supabase.removeChannel(channel) }
+    return () => {
+      if (channel) {
+        try {
+          const { createClient } = require('@/lib/supabase/client')
+          createClient().removeChannel(channel)
+        } catch {}
+      }
+    }
   }, [])
 
   // Close on outside click
@@ -64,12 +74,16 @@ export default function NotificationBell() {
   }
 
   const timeAgo = (dateStr: string) => {
-    const mins = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000)
-    if (mins < 1) return '剛剛'
-    if (mins < 60) return `${mins} 分鐘前`
-    const hours = Math.floor(mins / 60)
-    if (hours < 24) return `${hours} 小時前`
-    return `${Math.floor(hours / 24)} 天前`
+    try {
+      const mins = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000)
+      if (mins < 1) return '剛剛'
+      if (mins < 60) return `${mins} 分鐘前`
+      const hours = Math.floor(mins / 60)
+      if (hours < 24) return `${hours} 小時前`
+      return `${Math.floor(hours / 24)} 天前`
+    } catch {
+      return ''
+    }
   }
 
   return (
