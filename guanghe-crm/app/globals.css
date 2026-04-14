@@ -7,17 +7,33 @@
   --foreground: #1c1917;
   --card: #ffffff;
   --card-border: #e8e5e0;
+  --card-hover-shadow: rgba(0,0,0,0.06);
   --muted: #a8a29e;
   --accent: #d97706;
   --accent-soft: #fef3c7;
+  --input-bg: #ffffff;
+  --input-border: #d6d3d1;
 
   /* Module identity colors */
-  --m1-color: #d97706; /* amber — 空間營運 */
-  --m2-color: #7c3aed; /* violet — 專案接案 */
-  --m3-color: #0284c7; /* sky — 業務銷售 */
-  --m4-color: #059669; /* emerald — 行政財務 */
-  --m5-color: #db2777; /* pink — 教育訓練 */
-  --m6-color: #7c3aed; /* violet — AI 戰略 */
+  --m1-color: #d97706;
+  --m2-color: #7c3aed;
+  --m3-color: #0284c7;
+  --m4-color: #059669;
+  --m5-color: #db2777;
+  --m6-color: #7c3aed;
+}
+
+.dark {
+  --background: #0f0f0f;
+  --foreground: #e7e5e4;
+  --card: #1a1a1a;
+  --card-border: #2a2a2a;
+  --card-hover-shadow: rgba(0,0,0,0.3);
+  --muted: #78716c;
+  --accent: #f59e0b;
+  --accent-soft: #422006;
+  --input-bg: #1a1a1a;
+  --input-border: #333333;
 }
 
 body {
@@ -37,6 +53,9 @@ body {
 ::-webkit-scrollbar-thumb {
   background: #d6d3d1;
   border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #444;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a29e;
@@ -64,56 +83,56 @@ body {
 }
 
 @layer components {
-  /* Shared card style */
   .card {
-    @apply bg-white rounded-xl border border-stone-200/80
+    background: var(--card);
+    border-color: var(--card-border);
+    @apply rounded-xl border
            shadow-[0_1px_3px_rgba(0,0,0,0.04)]
-           hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)]
+           hover:shadow-[0_4px_12px_var(--card-hover-shadow)]
            hover:-translate-y-[1px];
   }
 
-  /* Section header */
   .section-title {
-    @apply text-xs font-bold text-stone-400 uppercase tracking-[0.1em];
+    color: var(--muted);
+    @apply text-xs font-bold uppercase tracking-[0.1em];
   }
 
-  /* Input base */
   .input-base {
-    @apply w-full border border-stone-300 rounded-lg px-3 py-2 text-sm bg-white
+    background: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--foreground);
+    @apply w-full border rounded-lg px-3 py-2 text-sm
            focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400
-           placeholder:text-stone-300;
+           placeholder:text-stone-400;
   }
 
-  /* Button primary */
   .btn-primary {
     @apply bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold
            px-4 py-2 rounded-lg shadow-sm hover:shadow-md
            active:scale-[0.97] transition-all;
   }
 
-  /* Button secondary */
   .btn-secondary {
-    @apply border border-stone-300 text-stone-600 text-sm font-medium
-           px-4 py-2 rounded-lg hover:bg-stone-50
+    border-color: var(--card-border);
+    color: var(--foreground);
+    @apply border text-sm font-medium
+           px-4 py-2 rounded-lg hover:opacity-80
            active:scale-[0.97] transition-all;
   }
 
-  /* Badge base */
   .badge {
     @apply text-xs font-semibold px-2 py-0.5 rounded-md border;
   }
 
-  /* Page header with module color stripe */
   .page-header {
-    @apply mb-6 pb-4 border-b border-stone-200;
+    border-color: var(--card-border);
+    @apply mb-6 pb-4 border-b;
   }
 
-  /* Module color stripe */
   .module-stripe {
     @apply w-1 h-6 rounded-full mr-3 shrink-0;
   }
 
-  /* Empty state */
   .empty-state {
     @apply flex flex-col items-center justify-center py-12 text-center;
   }
@@ -121,6 +140,22 @@ body {
     @apply text-4xl mb-3 opacity-30;
   }
   .empty-state-text {
-    @apply text-sm text-stone-400 mb-4;
+    color: var(--muted);
+    @apply text-sm mb-4;
   }
+
+  /* Dark mode overrides for common patterns */
+  .dark .bg-white { background: var(--card) !important; }
+  .dark .bg-stone-50 { background: #141414 !important; }
+  .dark .border-gray-100, .dark .border-stone-100, .dark .border-stone-200 { border-color: var(--card-border) !important; }
+  .dark .text-gray-900, .dark .text-stone-800, .dark .text-stone-900 { color: #e7e5e4 !important; }
+  .dark .text-gray-700, .dark .text-stone-700, .dark .text-gray-800, .dark .text-stone-800 { color: #d6d3d1 !important; }
+  .dark .text-gray-600, .dark .text-stone-600 { color: #a8a29e !important; }
+  .dark .text-gray-500, .dark .text-stone-500 { color: #78716c !important; }
+  .dark .text-gray-400, .dark .text-stone-400 { color: #57534e !important; }
+  .dark .text-gray-300, .dark .text-stone-300 { color: #44403c !important; }
+  .dark .bg-gray-50, .dark .bg-stone-50\/80 { background: #141414 !important; }
+  .dark .bg-gray-100, .dark .bg-stone-100 { background: #1f1f1f !important; }
+  .dark table thead tr { background: #141414 !important; }
+  .dark .hover\:bg-stone-50:hover { background: #1f1f1f !important; }
 }

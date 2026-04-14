@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import SideNav from './SideNav'
 import NotificationBell from './NotificationBell'
+import DarkModeToggle from './DarkModeToggle'
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -39,11 +40,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <span className="text-sm font-semibold text-white">光合創學</span>
             </div>
           </div>
-          <NotificationBell />
+          <div className="flex items-center">
+            <DarkModeToggle />
+            <NotificationBell />
+          </div>
         </div>
 
         {/* Desktop notification bar */}
-        <div className="hidden md:flex items-center justify-end px-4 py-2 border-b border-stone-100 bg-white">
+        <div className="hidden md:flex items-center justify-end gap-1 px-4 py-2 border-b border-stone-100 bg-white dark:bg-[#0f0f0f] dark:border-[#2a2a2a]">
+          <DarkModeToggle />
           <NotificationBell />
         </div>
 
