@@ -6,15 +6,15 @@ import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 
 const navItems = [
-  { href: '/', label: 'CRM 看板', color: '#d97706' },
-  { href: '/projects', label: '專案管理', color: '#7c3aed' },
-  { href: '/sales', label: '銷售管線', color: '#0ea5e9' },
-  { href: '/sales/sponsorships', label: 'ESG 贊助', color: '#0ea5e9' },
-  { href: '/finance', label: '財務總覽', color: '#10b981' },
-  { href: '/training', label: '教育訓練', color: '#ec4899' },
-  { href: '/ai-strategy', label: 'AI 戰略', color: '#8b5cf6' },
-  { href: '/dashboard', label: '儀表板', color: '#9a9a9a' },
-  { href: '/address-risk', label: '地址風險', color: '#d97706' },
+  { href: '/', label: 'CRM 看板', icon: '⊞', color: '#d97706' },
+  { href: '/projects', label: '專案管理', icon: '▦', color: '#7c3aed' },
+  { href: '/sales', label: '銷售管線', icon: '◎', color: '#0ea5e9' },
+  { href: '/sales/sponsorships', label: 'ESG 贊助', icon: '♻', color: '#0ea5e9' },
+  { href: '/finance', label: '財務總覽', icon: '¥', color: '#10b981' },
+  { href: '/training', label: '教育訓練', icon: '◉', color: '#ec4899' },
+  { href: '/ai-strategy', label: 'AI 戰略', icon: '⚡', color: '#8b5cf6' },
+  { href: '/dashboard', label: '儀表板', icon: '◈', color: '#d97706' },
+  { href: '/address-risk', label: '地址風險', icon: '⚠', color: '#d97706' },
 ]
 
 interface Props {
@@ -54,18 +54,32 @@ export default function SideNav({ onNavigate }: Props) {
     viewer: '股東',
   }
 
+  const roleBadge: Record<string, string> = {
+    admin: 'rgba(217, 119, 6, 0.15)',
+    operator: 'rgba(14, 165, 233, 0.15)',
+    viewer: 'rgba(139, 92, 246, 0.15)',
+  }
+
   return (
-    <aside className="w-56 flex flex-col shrink-0 h-full" style={{ background: '#0d0d0d' }}>
-      {/* Brand */}
+    <aside className="w-56 flex flex-col shrink-0 h-full" style={{ background: '#0d0d0d', borderRight: '1px solid #1a1a1a' }}>
+      {/* Brand with glow */}
       <div className="px-5 py-5" style={{ borderBottom: '1px solid #1a1a1a' }}>
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold"
-            style={{ background: 'linear-gradient(135deg, #d97706, #b45309)', color: '#0a0a0a' }}>
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-base font-bold"
+            style={{
+              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+              color: '#0a0a0a',
+              boxShadow: '0 0 20px rgba(217, 119, 6, 0.3), 0 0 60px rgba(217, 119, 6, 0.1)',
+            }}
+          >
             光
           </div>
           <div>
-            <p className="text-xs font-medium tracking-[0.15em] uppercase" style={{ color: '#555' }}>GUANGHE</p>
-            <p className="text-sm font-semibold text-white leading-tight">營運管理系統</p>
+            <p className="text-sm font-bold text-white leading-tight" style={{ textShadow: '0 0 30px rgba(217, 119, 6, 0.2)' }}>
+              光合創學
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: '#666' }}>營運管理系統</p>
           </div>
         </div>
       </div>
@@ -87,13 +101,14 @@ export default function SideNav({ onNavigate }: Props) {
               onClick={() => onNavigate?.()}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm"
               style={{
-                background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
-                color: isActive ? '#fff' : '#777',
+                background: isActive ? `${item.color}11` : 'transparent',
+                color: isActive ? '#fff' : '#888',
                 borderLeft: isActive ? `2px solid ${item.color}` : '2px solid transparent',
+                boxShadow: isActive ? `inset 0 0 20px ${item.color}08` : 'none',
               }}
             >
-              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: item.color, opacity: isActive ? 1 : 0.4 }} />
-              {item.label}
+              <span className="text-base leading-none opacity-60">{item.icon}</span>
+              <span style={{ textShadow: isActive ? `0 0 20px ${item.color}40` : 'none' }}>{item.label}</span>
             </Link>
           )
         })}
@@ -105,14 +120,25 @@ export default function SideNav({ onNavigate }: Props) {
           <div className="mb-3">
             <p className="text-sm text-white font-medium truncate">{userName}</p>
             {userRole && (
-              <p className="text-xs mt-0.5" style={{ color: '#555' }}>{roleLabel[userRole] || userRole}</p>
+              <span
+                className="inline-block mt-1.5 text-xs font-semibold px-2 py-0.5 rounded"
+                style={{
+                  background: roleBadge[userRole] || 'rgba(255,255,255,0.05)',
+                  color: userRole === 'admin' ? '#fbbf24' : userRole === 'operator' ? '#38bdf8' : '#c4b5fd',
+                  border: `1px solid ${userRole === 'admin' ? 'rgba(217,119,6,0.2)' : userRole === 'operator' ? 'rgba(14,165,233,0.2)' : 'rgba(139,92,246,0.2)'}`,
+                }}
+              >
+                {roleLabel[userRole] || userRole}
+              </span>
             )}
           </div>
         )}
         <button
           onClick={handleLogout}
-          className="text-xs font-medium hover:text-white"
-          style={{ color: '#555' }}
+          className="text-xs font-medium"
+          style={{ color: '#666' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#666')}
         >
           登出 →
         </button>
