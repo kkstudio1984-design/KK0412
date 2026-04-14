@@ -4,6 +4,7 @@ import { DragDropContext, DropResult } from '@hello-pangea/dnd'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Lead, LeadStage, LEAD_STAGES } from '@/lib/types'
+import { useRealtimeRefresh } from '@/lib/hooks/useRealtimeRefresh'
 import LeadPipelineColumn from './LeadPipelineColumn'
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function LeadPipelineBoard({ initialLeads }: Props) {
+  useRealtimeRefresh(['leads'])
   const [leads, setLeads] = useState<Lead[]>(initialLeads)
 
   const grouped = LEAD_STAGES.reduce<Record<LeadStage, Lead[]>>((acc, stage) => {

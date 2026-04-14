@@ -255,6 +255,21 @@ export async function fetchDashboard(): Promise<DashboardData> {
     escalationLevel: p.escalation_level || '正常',
   }))
 
+  // Contracts expiring within 30 days
+  const days30Str = format(addDays(new Date(), 30), 'yyyy-MM-dd')
+  const { data: expiringContracts } = await supabase
+    .from('contracts')
+    .select('end_date, contract_type, space_client:space_clients(organization:organizations(name))')
+    .gte('end_date', todayStr)
+    .lte('end_date', days30Str)
+
+  const contractExpiringSoon = (expiringContracts || []).map((c: any) => ({
+    clientName: c.space_client?.organization?.name || '未知',
+    contractType: c.contract_type,
+    endDate: c.end_date,
+    daysLeft: differenceInDays(new Date(c.end_date), new Date()),
+  }))
+
   // KYC renewal due (beneficial_owner_verified_at > 365 days)
   const { data: renewalData } = await supabase
     .from('space_clients')
@@ -377,6 +392,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     followUpToday,
     overduePayments,
     kycRenewalDue,
+    contractExpiringSoon,
     monthlyDue,
     monthlyCollected,
     gap: monthlyDue - monthlyCollected,

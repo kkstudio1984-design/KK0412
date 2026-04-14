@@ -6,12 +6,14 @@ import toast from 'react-hot-toast'
 import { ClientWithOrg, Stage, STAGES } from '@/lib/types'
 import KanbanColumn from './KanbanColumn'
 import { downloadCSV } from '@/lib/csv'
+import { useRealtimeRefresh } from '@/lib/hooks/useRealtimeRefresh'
 
 interface Props {
   initialClients: ClientWithOrg[]
 }
 
 export default function KanbanBoard({ initialClients }: Props) {
+  useRealtimeRefresh(['space_clients', 'kyc_checks', 'payments'])
   const [clients, setClients] = useState<ClientWithOrg[]>(initialClients)
   const [searchQuery, setSearchQuery] = useState('')
 

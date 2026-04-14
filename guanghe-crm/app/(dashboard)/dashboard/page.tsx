@@ -14,7 +14,7 @@ const ESCALATION_COLORS: Record<string, string> = {
 
 export default async function DashboardPage() {
   const data = await fetchDashboard()
-  const fireCount = data.urgentMail.length + data.kycOverdue.length + data.followUpToday.length + data.overduePayments.length + data.kycRenewalDue.length
+  const fireCount = data.urgentMail.length + data.kycOverdue.length + data.followUpToday.length + data.overduePayments.length + data.kycRenewalDue.length + data.contractExpiringSoon.length
 
   return (
     <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
@@ -97,7 +97,27 @@ export default async function DashboardPage() {
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-medium">{formatNTD(p.amount)}</span>
                       <span className={`text-xs ${ESCALATION_COLORS[p.escalationLevel] || 'text-gray-500'}`}>{p.escalationLevel}</span>
+                      <span className="text-xs text-stone-400">
+                        {p.overdueDays >= 60 ? '→ 退租啟動' : p.overdueDays >= 30 ? '→ 存證信函' : p.overdueDays >= 14 ? '→ 催告' : p.overdueDays >= 7 ? '→ 提醒' : ''}
+                      </span>
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 合約即將到期 */}
+          <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">合約即將到期</h3>
+            {data.contractExpiringSoon.length === 0 ? (
+              <p className="text-sm text-gray-300">無</p>
+            ) : (
+              <div className="space-y-2">
+                {data.contractExpiringSoon.map((c, i) => (
+                  <div key={i} className="text-sm flex justify-between">
+                    <span className="text-gray-700">{c.clientName} — {c.contractType}</span>
+                    <span className={`text-xs ${c.daysLeft <= 7 ? 'text-red-600 font-medium' : 'text-amber-600'}`}>{c.daysLeft} 天</span>
                   </div>
                 ))}
               </div>

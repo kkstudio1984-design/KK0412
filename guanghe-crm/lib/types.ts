@@ -220,6 +220,7 @@ export type DashboardData = {
   followUpToday: { clientId: string; clientName: string; followUpDate: string; nextAction: string | null }[]
   overduePayments: { paymentId: string; orgName: string; dueDate: string; amount: number; overdueDays: number; escalationLevel: string }[]
   kycRenewalDue: { clientName: string; lastVerified: string; daysSince: number }[]
+  contractExpiringSoon: { clientName: string; contractType: string; endDate: string; daysLeft: number }[]
 
   // Tier 2: 生存層
   monthlyDue: number
