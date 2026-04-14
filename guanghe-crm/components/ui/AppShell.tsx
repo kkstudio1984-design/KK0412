@@ -3,13 +3,12 @@
 import { useState } from 'react'
 import SideNav from './SideNav'
 import NotificationBell from './NotificationBell'
-import DarkModeToggle from './DarkModeToggle'
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden" style={{ background: '#0a0a0a' }}>
       {/* Desktop sidebar */}
       <div className="hidden md:flex">
         <SideNav />
@@ -18,8 +17,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-          <div className="relative z-50 w-56">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setMobileOpen(false)} />
+          <div className="relative z-50 w-56 h-full">
             <SideNav onNavigate={() => setMobileOpen(false)} />
           </div>
         </div>
@@ -28,7 +27,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile top bar */}
-        <div className="md:hidden flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-white/[0.06]">
+        <div className="md:hidden flex items-center justify-between px-4 py-3" style={{ background: '#0d0d0d', borderBottom: '1px solid #1a1a1a' }}>
           <div className="flex items-center gap-3">
             <button onClick={() => setMobileOpen(true)} className="text-white p-1">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -36,23 +35,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </svg>
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-900 font-bold text-xs">光</div>
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold" style={{ background: 'linear-gradient(135deg, #d97706, #b45309)', color: '#0a0a0a' }}>光</div>
               <span className="text-sm font-semibold text-white">光合創學</span>
             </div>
           </div>
-          <div className="flex items-center">
-            <DarkModeToggle />
-            <NotificationBell />
-          </div>
-        </div>
-
-        {/* Desktop notification bar */}
-        <div className="hidden md:flex items-center justify-end gap-1 px-4 py-2 border-b border-stone-100 bg-white dark:bg-[#0f0f0f] dark:border-[#2a2a2a]">
-          <DarkModeToggle />
           <NotificationBell />
         </div>
 
-        <main className="flex-1 overflow-auto">
+        {/* Desktop top bar */}
+        <div className="hidden md:flex items-center justify-end gap-1 px-4 py-2" style={{ background: '#0d0d0d', borderBottom: '1px solid #1a1a1a' }}>
+          <NotificationBell />
+        </div>
+
+        <main className="flex-1 overflow-auto" style={{ background: '#0a0a0a' }}>
           {children}
         </main>
       </div>

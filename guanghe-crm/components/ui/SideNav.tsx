@@ -6,15 +6,15 @@ import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 
 const navItems = [
-  { href: '/', label: 'CRM 看板', icon: '⊞', color: 'bg-amber-500' },
-  { href: '/projects', label: '專案管理', icon: '▦', color: 'bg-violet-500' },
-  { href: '/sales', label: '銷售管線', icon: '◎', color: 'bg-sky-500' },
-  { href: '/sales/sponsorships', label: 'ESG 贊助', icon: '♻', color: 'bg-sky-400' },
-  { href: '/finance', label: '財務總覽', icon: '¥', color: 'bg-emerald-500' },
-  { href: '/training', label: '教育訓練', icon: '◉', color: 'bg-pink-500' },
-  { href: '/ai-strategy', label: 'AI 戰略', icon: '⚡', color: 'bg-violet-500' },
-  { href: '/dashboard', label: '儀表板', icon: '◈', color: 'bg-stone-400' },
-  { href: '/address-risk', label: '地址風險', icon: '⚠', color: 'bg-amber-500' },
+  { href: '/', label: 'CRM 看板', color: '#d97706' },
+  { href: '/projects', label: '專案管理', color: '#7c3aed' },
+  { href: '/sales', label: '銷售管線', color: '#0ea5e9' },
+  { href: '/sales/sponsorships', label: 'ESG 贊助', color: '#0ea5e9' },
+  { href: '/finance', label: '財務總覽', color: '#10b981' },
+  { href: '/training', label: '教育訓練', color: '#ec4899' },
+  { href: '/ai-strategy', label: 'AI 戰略', color: '#8b5cf6' },
+  { href: '/dashboard', label: '儀表板', color: '#9a9a9a' },
+  { href: '/address-risk', label: '地址風險', color: '#d97706' },
 ]
 
 interface Props {
@@ -54,48 +54,45 @@ export default function SideNav({ onNavigate }: Props) {
     viewer: '股東',
   }
 
-  const roleBadgeColor: Record<string, string> = {
-    admin: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
-    operator: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
-    viewer: 'bg-stone-500/20 text-stone-400 border-stone-500/30',
-  }
-
   return (
-    <aside className="w-56 bg-slate-900 flex flex-col shrink-0">
+    <aside className="w-56 flex flex-col shrink-0 h-full" style={{ background: '#0d0d0d' }}>
       {/* Brand */}
-      <div className="px-5 py-5 border-b border-white/[0.06]">
+      <div className="px-5 py-5" style={{ borderBottom: '1px solid #1a1a1a' }}>
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-900 font-bold text-sm shadow-lg shadow-amber-500/20">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold"
+            style={{ background: 'linear-gradient(135deg, #d97706, #b45309)', color: '#0a0a0a' }}>
             光
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium tracking-[0.15em] uppercase">Guanghe</p>
+            <p className="text-xs font-medium tracking-[0.15em] uppercase" style={{ color: '#555' }}>GUANGHE</p>
             <p className="text-sm font-semibold text-white leading-tight">營運管理系統</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-0.5">
+      <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
-          const isActive = item.href === '/'
+          const isActive =
+            item.href === '/'
               ? pathname === '/'
               : item.href === '/sales'
                 ? pathname === '/sales' || (pathname.startsWith('/sales') && !pathname.startsWith('/sales/sponsorships'))
                 : pathname.startsWith(item.href)
+
           return (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => onNavigate?.()}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm ${
-                isActive
-                  ? 'bg-white/[0.08] text-amber-400 font-semibold'
-                  : 'text-slate-400 hover:bg-white/[0.04] hover:text-slate-200'
-              }`}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm"
+              style={{
+                background: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
+                color: isActive ? '#fff' : '#777',
+                borderLeft: isActive ? `2px solid ${item.color}` : '2px solid transparent',
+              }}
             >
-              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.color}`} />
-              <span className="text-base leading-none opacity-70">{item.icon}</span>
+              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: item.color, opacity: isActive ? 1 : 0.4 }} />
               {item.label}
             </Link>
           )
@@ -103,20 +100,19 @@ export default function SideNav({ onNavigate }: Props) {
       </nav>
 
       {/* User */}
-      <div className="px-4 py-4 border-t border-white/[0.06]">
+      <div className="px-4 py-4" style={{ borderTop: '1px solid #1a1a1a' }}>
         {userName && (
           <div className="mb-3">
-            <p className="text-sm text-slate-300 font-medium truncate">{userName}</p>
+            <p className="text-sm text-white font-medium truncate">{userName}</p>
             {userRole && (
-              <span className={`inline-block mt-1 text-xs font-semibold px-1.5 py-0.5 rounded border ${roleBadgeColor[userRole] || 'text-slate-400'}`}>
-                {roleLabel[userRole] || userRole}
-              </span>
+              <p className="text-xs mt-0.5" style={{ color: '#555' }}>{roleLabel[userRole] || userRole}</p>
             )}
           </div>
         )}
         <button
           onClick={handleLogout}
-          className="text-xs text-slate-500 hover:text-slate-300 font-medium"
+          className="text-xs font-medium hover:text-white"
+          style={{ color: '#555' }}
         >
           登出 →
         </button>

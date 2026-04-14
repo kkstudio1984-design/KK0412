@@ -14,27 +14,28 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center relative overflow-hidden">
-      {/* Background texture */}
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: '#0a0a0a' }}>
+      {/* Subtle grid */}
       <div className="absolute inset-0 opacity-[0.03]"
-        style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
-      <div className="absolute top-1/4 -right-32 w-96 h-96 rounded-full bg-amber-500/5 blur-3xl" />
-      <div className="absolute bottom-1/4 -left-32 w-96 h-96 rounded-full bg-amber-500/5 blur-3xl" />
+        style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+      <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] rounded-full blur-[120px]" style={{ background: 'rgba(217, 119, 6, 0.04)' }} />
 
       <div className="w-full max-w-sm mx-auto px-6 relative z-10">
         {/* Brand */}
-        <div className="text-center mb-12">
-          <div className="w-18 h-18 w-[72px] h-[72px] rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-900 font-bold text-3xl shadow-xl shadow-amber-500/20 mx-auto mb-5">
+        <div className="text-center mb-14">
+          <div className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center font-bold text-3xl mx-auto mb-6"
+            style={{ background: 'linear-gradient(135deg, #d97706, #b45309)', color: '#0a0a0a' }}>
             光
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">光合創學</h1>
-          <p className="text-slate-500 text-sm mt-1.5 tracking-wide">營運管理系統</p>
+          <p className="text-sm mt-2 tracking-wide" style={{ color: '#555' }}>營運管理系統</p>
         </div>
 
         {/* Login Button */}
         <button
           onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white hover:bg-stone-50 text-stone-800 font-semibold text-sm rounded-xl shadow-lg shadow-black/20 hover:shadow-xl active:scale-[0.98]"
+          className="w-full flex items-center justify-center gap-3 px-4 py-3.5 font-semibold text-sm rounded-lg active:scale-[0.98]"
+          style={{ background: '#1a1a1a', color: '#e8e6e3', border: '1px solid #333' }}
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -45,7 +46,7 @@ export default function LoginPage() {
           使用 Google 帳號登入
         </button>
 
-        <p className="text-center text-slate-600 text-xs mt-8 tracking-wide">
+        <p className="text-center text-xs mt-8 tracking-wide" style={{ color: '#333' }}>
           僅限授權人員登入
         </p>
       </div>

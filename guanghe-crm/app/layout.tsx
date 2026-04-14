@@ -39,7 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-TW">
-      <body className={`${inter.variable} ${notoSansTC.variable} ${notoSerifTC.variable} font-sans antialiased bg-stone-50 min-h-screen`}>
+      <body className={`${inter.variable} ${notoSansTC.variable} ${notoSerifTC.variable} font-sans antialiased min-h-screen`} style={{ background: '#0a0a0a' }}>
         {children}
         <Toaster
           position="top-right"
