@@ -6,6 +6,7 @@ import { OffboardingRecord, MigrationStatus, SettlementStatus, RefundStatus } fr
 import { formatDate } from '@/lib/utils'
 import { differenceInDays } from 'date-fns'
 import { CanEdit, useRole } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Props {
   clientId: string
@@ -113,7 +114,7 @@ export default function OffboardingPanel({ clientId, serviceType, initialRecords
       </div>
 
       {records.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-6">尚無退租紀錄</p>
+        <EmptyState illustration="empty" title="未啟動退租" message="客戶要退場時，點擊右上「啟動退租」建立流程" />
       ) : (
         <div className="space-y-4">
           {records.map((record) => {

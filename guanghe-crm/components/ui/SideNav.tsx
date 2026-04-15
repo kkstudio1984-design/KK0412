@@ -14,6 +14,7 @@ const navItems = [
   { href: '/training', label: '教育訓練', icon: '◉', color: '#ec4899' },
   { href: '/ai-strategy', label: 'AI 戰略', icon: '⚡', color: '#8b5cf6' },
   { href: '/dashboard', label: '儀表板', icon: '◈', color: '#d97706' },
+  { href: '/reports', label: '月報表', icon: '📊', color: '#10b981' },
   { href: '/address-risk', label: '地址風險', icon: '⚠', color: '#d97706' },
 ]
 

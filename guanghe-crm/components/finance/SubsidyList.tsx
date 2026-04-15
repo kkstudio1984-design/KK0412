@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { SubsidyTracking, APPLICATION_STATUSES, DISBURSEMENT_STATUSES } from '@/lib/types'
 import { formatNTD } from '@/lib/utils'
 import { CanEdit, useRole } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Props {
   initialSubsidies: SubsidyTracking[]
@@ -94,7 +95,7 @@ export default function SubsidyList({ initialSubsidies }: Props) {
       </div>
 
       {subsidies.length === 0 ? (
-        <div className="card p-8 text-center"><p className="text-sm text-stone-300">尚無補助紀錄</p></div>
+        <div className="card"><EmptyState illustration="documents" title="尚無補助紀錄" message="點擊「+ 新增補助」追蹤政府補助申請" /></div>
       ) : (
         <div className="space-y-3">
           {subsidies.map((s) => (

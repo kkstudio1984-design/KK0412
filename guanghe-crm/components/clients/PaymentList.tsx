@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { Payment, PaymentStatus } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
 import { CanEdit, useRole } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Props {
   clientId: string
@@ -96,7 +97,7 @@ export default function PaymentList({ clientId, initialPayments }: Props) {
       </div>
 
       {payments.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-6">尚無收款紀錄</p>
+        <EmptyState illustration="payments" title="尚無收款紀錄" message="新增合約會自動產生帳單，或手動新增單筆收款" />
       ) : (
         <div className="space-y-2">
           {payments.map((payment) => (

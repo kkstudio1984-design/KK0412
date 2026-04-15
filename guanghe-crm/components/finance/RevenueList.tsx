@@ -6,6 +6,7 @@ import { RevenueRecord, RevenueCategory, REVENUE_CATEGORIES } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
 import { downloadCSV } from '@/lib/csv'
 import { CanEdit } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Props {
   initialRecords: RevenueRecord[]
@@ -110,7 +111,7 @@ export default function RevenueList({ initialRecords }: Props) {
             ))}
           </tbody>
         </table>
-        {records.length === 0 && <p className="text-sm text-stone-300 text-center py-8">尚無營收紀錄</p>}
+        {records.length === 0 && <EmptyState illustration="sales" title="尚無營收紀錄" message="點擊「+ 新增營收」記錄收入" />}
       </div>
 
       {showModal && (

@@ -6,6 +6,7 @@ import { Course, CourseType, COURSE_TYPES } from '@/lib/types'
 import { formatNTD } from '@/lib/utils'
 import Link from 'next/link'
 import { CanEdit } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Props {
   initialCourses: Course[]
@@ -74,7 +75,7 @@ export default function CourseList({ initialCourses }: Props) {
       </div>
 
       {courses.length === 0 ? (
-        <div className="card p-8 text-center"><p className="text-sm text-stone-300">尚無課程</p></div>
+        <div className="card"><EmptyState illustration="training" title="尚無課程" message="點擊「+ 新增課程」開始建立培訓課程" /></div>
       ) : (
         <div className="space-y-3">
           {courses.map((c) => {

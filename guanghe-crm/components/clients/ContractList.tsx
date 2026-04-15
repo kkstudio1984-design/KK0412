@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { Contract, PaymentCycle } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
 import { CanEdit } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Props {
   clientId: string
@@ -96,7 +97,7 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
       </div>
 
       {contracts.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-6">尚無合約</p>
+        <EmptyState illustration="contracts" title="尚無合約" message="建立合約後將自動產生繳款記錄" />
       ) : (
         <div className="space-y-3">
           {contracts.map((ct) => (

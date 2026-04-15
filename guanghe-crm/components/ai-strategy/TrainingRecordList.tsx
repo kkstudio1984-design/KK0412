@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface TrainingRecord { id: string; partnerId: string; trainingType: string; toolName: string | null; completedAt: string | null; status: string; assessmentScore: number | null; createdAt: string; partnerName: string }
 interface Props { initialRecords: TrainingRecord[] }
@@ -18,7 +19,7 @@ export default function TrainingRecordList({ initialRecords }: Props) {
     <div>
       <h2 className="font-semibold text-stone-800 mb-4">夥伴培訓紀錄</h2>
       {records.length === 0 ? (
-        <div className="card p-6 text-center"><p className="text-sm text-stone-300">尚無培訓紀錄</p></div>
+        <div className="card"><EmptyState illustration="training" title="尚無培訓紀錄" message="記錄夥伴的培訓進度與評分" /></div>
       ) : (
         <div className="card overflow-hidden">
           <table className="w-full text-sm">

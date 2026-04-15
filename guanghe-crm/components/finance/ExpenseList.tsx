@@ -6,6 +6,7 @@ import { Expense, ExpenseCategory, EXPENSE_CATEGORIES } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
 import { downloadCSV } from '@/lib/csv'
 import { CanEdit } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Props {
   initialExpenses: Expense[]
@@ -105,7 +106,7 @@ export default function ExpenseList({ initialExpenses }: Props) {
             ))}
           </tbody>
         </table>
-        {expenses.length === 0 && <p className="text-sm text-stone-300 text-center py-8">尚無費用紀錄</p>}
+        {expenses.length === 0 && <EmptyState illustration="empty" title="尚無費用紀錄" message="點擊「+ 新增費用」記錄支出" />}
       </div>
 
       {showModal && (

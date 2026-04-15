@@ -6,6 +6,7 @@ import { Project, ProjectType, PROJECT_TYPES, PROJECT_STATUSES } from '@/lib/typ
 import { formatDate, formatNTD } from '@/lib/utils'
 import Link from 'next/link'
 import { CanEdit } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Props {
   initialProjects: Project[]
@@ -89,7 +90,7 @@ export default function ProjectList({ initialProjects }: Props) {
       </div>
 
       {projects.length === 0 ? (
-        <div className="card p-8 text-center"><p className="text-sm text-stone-300">尚無專案</p></div>
+        <div className="card"><EmptyState illustration="projects" title="尚無專案" message="點擊「+ 新增專案」開始管理接案專案" /></div>
       ) : (
         <div className="space-y-3">
           {projects.map((p) => {

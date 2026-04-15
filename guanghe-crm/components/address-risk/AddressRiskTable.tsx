@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Client {
   id: string
@@ -83,7 +84,7 @@ export default function AddressRiskTable({ clients }: Props) {
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && <p className="text-sm text-stone-300 text-center py-8">無符合條件的結果</p>}
+        {filtered.length === 0 && <EmptyState illustration="search" message="無符合條件的結果" />}
       </div>
     </div>
   )

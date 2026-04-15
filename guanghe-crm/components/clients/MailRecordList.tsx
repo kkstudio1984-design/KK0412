@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { MailRecord, MailType, PickupStatus } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
 import { CanEdit, useRole } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Props {
   clientId: string
@@ -120,7 +121,7 @@ export default function MailRecordList({ clientId, initialRecords }: Props) {
       </div>
 
       {sorted.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-6">尚無信件紀錄</p>
+        <EmptyState illustration="documents" title="尚無信件" message="點擊「登記信件」新增收到的郵件" />
       ) : (
         <div className="space-y-2">
           {sorted.map((record) => (

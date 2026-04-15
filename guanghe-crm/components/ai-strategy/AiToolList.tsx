@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { formatNTD } from '@/lib/utils'
 import { CanEdit, useRole } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface AiTool {
   id: string; name: string; purpose: string | null; usedByModules: string[]
@@ -73,7 +74,7 @@ export default function AiToolList({ initialTools }: Props) {
       </div>
 
       {tools.length === 0 ? (
-        <div className="card p-6 text-center"><p className="text-sm text-stone-300">尚無工具</p></div>
+        <div className="card"><EmptyState illustration="empty" title="尚無 AI 工具" message="記錄團隊正在使用的 AI 工具" /></div>
       ) : (
         <div className="space-y-2">
           {tools.map(tool => (

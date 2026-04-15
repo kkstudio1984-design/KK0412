@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { formatDate } from '@/lib/utils'
 import { CanEdit } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Agent {
   id: string; name: string; purpose: string | null; targetModule: string | null
@@ -45,7 +46,7 @@ export default function AgentList({ initialAgents }: Props) {
       </div>
 
       {agents.length === 0 ? (
-        <div className="card p-6 text-center"><p className="text-sm text-stone-300">尚無 Agent</p></div>
+        <div className="card"><EmptyState illustration="empty" title="尚無 Agent" message="記錄自訂 AI Agent 的 prompt 和用途" /></div>
       ) : (
         <div className="space-y-2">
           {agents.map(agent => (

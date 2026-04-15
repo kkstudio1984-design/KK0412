@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { Sponsorship, SPONSORSHIP_TIERS, SPONSORSHIP_STATUSES, SponsorshipTier, SponsorshipStatus } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
 import { CanEdit } from '@/components/providers/RoleProvider'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Props {
   initialSponsorships: Sponsorship[]
@@ -110,9 +111,7 @@ export default function SponsorshipList({ initialSponsorships }: Props) {
 
       {/* Sponsorship cards */}
       {sponsorships.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-          <p className="text-sm text-gray-400">尚無贊助紀錄</p>
-        </div>
+        <div className="card"><EmptyState illustration="contracts" title="尚無贊助合約" message="點擊「+ 新增贊助」建立 ESG 贊助合約" /></div>
       ) : (
         <div className="space-y-3">
           {sponsorships.map((s) => (
