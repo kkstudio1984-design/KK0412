@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Payment, PaymentStatus } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
+import { CanEdit, useRole } from '@/components/providers/RoleProvider'
 
 interface Props {
   clientId: string
@@ -24,6 +25,7 @@ const STATUS_STYLE: Record<PaymentStatus, string> = {
 }
 
 export default function PaymentList({ clientId, initialPayments }: Props) {
+  const { canEdit } = useRole()
   const [payments, setPayments] = useState<Payment[]>(initialPayments)
   const [updating, setUpdating] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
@@ -83,12 +85,14 @@ export default function PaymentList({ clientId, initialPayments }: Props) {
     <div className="bg-white rounded-xl border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-5">
         <h2 className="font-semibold text-gray-800">收款紀錄</h2>
-        <button
-          onClick={() => setShowModal(true)}
-          className="text-sm bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-semibold px-3 py-1.5 rounded-lg shadow-sm"
-        >
-          + 新增收款
-        </button>
+        <CanEdit>
+          <button
+            onClick={() => setShowModal(true)}
+            className="text-sm bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-semibold px-3 py-1.5 rounded-lg shadow-sm"
+          >
+            + 新增收款
+          </button>
+        </CanEdit>
       </div>
 
       {payments.length === 0 ? (
@@ -110,7 +114,7 @@ export default function PaymentList({ clientId, initialPayments }: Props) {
                 {formatNTD(payment.amount)}
               </span>
               <button
-                disabled={updating === payment.id}
+                disabled={!canEdit || updating === payment.id}
                 onClick={() => toggleStatus(payment)}
                 className={`text-xs font-medium border rounded-lg px-2.5 py-1.5 cursor-pointer transition-colors disabled:opacity-50 shrink-0 ${STATUS_STYLE[payment.status]}`}
               >

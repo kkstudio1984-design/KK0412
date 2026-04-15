@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import LeadPipelineBoard from '@/components/leads/LeadPipelineBoard'
 import PageHeader from '@/components/ui/PageHeader'
+import { CanEdit } from '@/components/providers/RoleProvider'
 import { fetchLeads } from '@/lib/queries'
 
 export default async function SalesPipelinePage() {
@@ -16,7 +17,9 @@ export default async function SalesPipelinePage() {
         subtitle="潛在客戶追蹤與轉化"
         moduleColor="bg-sky-500"
         action={
-          <Link href="/sales/leads/new" className="btn-primary">+ 新增潛在客戶</Link>
+          <CanEdit>
+            <Link href="/sales/leads/new" className="btn-primary">+ 新增潛在客戶</Link>
+          </CanEdit>
         }
       />
 

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { OffboardingRecord, MigrationStatus, SettlementStatus, RefundStatus } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
 import { differenceInDays } from 'date-fns'
+import { CanEdit, useRole } from '@/components/providers/RoleProvider'
 
 interface Props {
   clientId: string
@@ -32,6 +33,7 @@ const REFUND_STYLES: Record<RefundStatus, string> = {
 }
 
 export default function OffboardingPanel({ clientId, serviceType, initialRecords }: Props) {
+  const { canEdit } = useRole()
   const [records, setRecords] = useState<OffboardingRecord[]>(initialRecords)
   const [showModal, setShowModal] = useState(false)
   const [adding, setAdding] = useState(false)
@@ -101,10 +103,12 @@ export default function OffboardingPanel({ clientId, serviceType, initialRecords
       <div className="flex items-center justify-between mb-5">
         <h2 className="font-semibold text-gray-800">退場流程</h2>
         {!activeRecord && (
-          <button onClick={() => setShowModal(true)}
-            className="text-sm bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm">
-            啟動退租
-          </button>
+          <CanEdit>
+            <button onClick={() => setShowModal(true)}
+              className="text-sm bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm">
+              啟動退租
+            </button>
+          </CanEdit>
         )}
       </div>
 
@@ -139,7 +143,7 @@ export default function OffboardingPanel({ clientId, serviceType, initialRecords
                   <div className="space-y-2 pt-3 border-t border-gray-100">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-500">結算狀態</span>
-                      <select value={record.settlementStatus} disabled={updating}
+                      <select value={record.settlementStatus} disabled={!canEdit || updating}
                         onChange={(e) => handleUpdate(record.id, { settlementStatus: e.target.value })}
                         className={`text-xs font-medium border rounded-lg px-2 py-1 ${SETTLEMENT_STYLES[record.settlementStatus]}`}>
                         <option value="待結算">待結算</option>
@@ -150,7 +154,7 @@ export default function OffboardingPanel({ clientId, serviceType, initialRecords
                     {serviceType === '借址登記' && (
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">地址遷出</span>
-                        <select value={record.addressMigrationStatus} disabled={updating}
+                        <select value={record.addressMigrationStatus} disabled={!canEdit || updating}
                           onChange={(e) => handleUpdate(record.id, { addressMigrationStatus: e.target.value })}
                           className={`text-xs font-medium border rounded-lg px-2 py-1 ${MIGRATION_STYLES[record.addressMigrationStatus]}`}>
                           <option value="待遷出">待遷出</option>
@@ -163,7 +167,7 @@ export default function OffboardingPanel({ clientId, serviceType, initialRecords
 
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-500">押金退還</span>
-                      <select value={record.depositRefundStatus} disabled={updating}
+                      <select value={record.depositRefundStatus} disabled={!canEdit || updating}
                         onChange={(e) => handleUpdate(record.id, { depositRefundStatus: e.target.value })}
                         className={`text-xs font-medium border rounded-lg px-2 py-1 ${REFUND_STYLES[record.depositRefundStatus]}`}>
                         <option value="待退">待退</option>

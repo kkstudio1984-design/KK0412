@@ -7,6 +7,7 @@ import { ClientWithOrg, Stage, STAGES } from '@/lib/types'
 import KanbanColumn from './KanbanColumn'
 import { downloadCSV } from '@/lib/csv'
 import { useRealtimeRefresh } from '@/lib/hooks/useRealtimeRefresh'
+import { useRole } from '@/components/providers/RoleProvider'
 
 interface Props {
   initialClients: ClientWithOrg[]
@@ -14,6 +15,7 @@ interface Props {
 
 export default function KanbanBoard({ initialClients }: Props) {
   useRealtimeRefresh(['space_clients', 'kyc_checks', 'payments'])
+  const { canEdit } = useRole()
   const [clients, setClients] = useState<ClientWithOrg[]>(initialClients)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -46,6 +48,10 @@ export default function KanbanBoard({ initialClients }: Props) {
   }
 
   const onDragEnd = async (result: DropResult) => {
+    if (!canEdit) {
+      toast.error('您無編輯權限')
+      return
+    }
     const { draggableId, destination, source } = result
     if (!destination) return
     if (destination.droppableId === source.droppableId) return

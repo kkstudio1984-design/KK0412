@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { Course, CourseType, COURSE_TYPES } from '@/lib/types'
 import { formatNTD } from '@/lib/utils'
 import Link from 'next/link'
+import { CanEdit } from '@/components/providers/RoleProvider'
 
 interface Props {
   initialCourses: Course[]
@@ -67,7 +68,9 @@ export default function CourseList({ initialCourses }: Props) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-stone-500">共 {courses.length} 門課程</p>
-        <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增課程</button>
+        <CanEdit>
+          <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增課程</button>
+        </CanEdit>
       </div>
 
       {courses.length === 0 ? (

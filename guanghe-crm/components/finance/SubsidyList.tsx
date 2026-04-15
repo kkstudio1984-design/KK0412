@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { SubsidyTracking, APPLICATION_STATUSES, DISBURSEMENT_STATUSES } from '@/lib/types'
 import { formatNTD } from '@/lib/utils'
+import { CanEdit, useRole } from '@/components/providers/RoleProvider'
 
 interface Props {
   initialSubsidies: SubsidyTracking[]
@@ -24,6 +25,7 @@ const DISB_STYLES: Record<string, string> = {
 }
 
 export default function SubsidyList({ initialSubsidies }: Props) {
+  const { canEdit } = useRole()
   const [subsidies, setSubsidies] = useState<SubsidyTracking[]>(initialSubsidies)
   const [showModal, setShowModal] = useState(false)
   const [adding, setAdding] = useState(false)
@@ -86,7 +88,9 @@ export default function SubsidyList({ initialSubsidies }: Props) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-stone-500">共 {subsidies.length} 筆</p>
-        <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增補助</button>
+        <CanEdit>
+          <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增補助</button>
+        </CanEdit>
       </div>
 
       {subsidies.length === 0 ? (
@@ -105,7 +109,7 @@ export default function SubsidyList({ initialSubsidies }: Props) {
                   <span className="text-xs text-stone-400">申請：</span>
                   <select
                     value={s.applicationStatus}
-                    disabled={updating === s.id}
+                    disabled={!canEdit || updating === s.id}
                     onChange={(e) => handleStatusChange(s.id, 'applicationStatus', e.target.value)}
                     className={`badge cursor-pointer ${APP_STYLES[s.applicationStatus]}`}
                   >
@@ -116,7 +120,7 @@ export default function SubsidyList({ initialSubsidies }: Props) {
                   <span className="text-xs text-stone-400">撥款：</span>
                   <select
                     value={s.disbursementStatus}
-                    disabled={updating === s.id}
+                    disabled={!canEdit || updating === s.id}
                     onChange={(e) => handleStatusChange(s.id, 'disbursementStatus', e.target.value)}
                     className={`badge cursor-pointer ${DISB_STYLES[s.disbursementStatus]}`}
                   >

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { Expense, ExpenseCategory, EXPENSE_CATEGORIES } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
 import { downloadCSV } from '@/lib/csv'
+import { CanEdit } from '@/components/providers/RoleProvider'
 
 interface Props {
   initialExpenses: Expense[]
@@ -77,7 +78,9 @@ export default function ExpenseList({ initialExpenses }: Props) {
         <p className="text-sm text-stone-500">共 {expenses.length} 筆，合計 {formatNTD(total)}</p>
         <div className="flex items-center gap-2">
           <button onClick={handleExport} className="text-xs text-stone-500 hover:text-stone-700 px-3 py-1.5 border border-stone-200 rounded-lg hover:bg-stone-50">匯出 CSV</button>
-          <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增費用</button>
+          <CanEdit>
+            <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增費用</button>
+          </CanEdit>
         </div>
       </div>
 

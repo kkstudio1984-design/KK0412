@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Sponsorship, SPONSORSHIP_TIERS, SPONSORSHIP_STATUSES, SponsorshipTier, SponsorshipStatus } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
+import { CanEdit } from '@/components/providers/RoleProvider'
 
 interface Props {
   initialSponsorships: Sponsorship[]
@@ -96,13 +97,15 @@ export default function SponsorshipList({ initialSponsorships }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-gray-800">贊助列表</h2>
-        <button
-          onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 text-sm font-semibold px-4 py-2 rounded-lg transition-all shadow-sm hover:shadow-md"
-        >
-          <span className="text-base leading-none">+</span>
-          新增贊助
-        </button>
+        <CanEdit>
+          <button
+            onClick={() => setShowModal(true)}
+            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 text-sm font-semibold px-4 py-2 rounded-lg transition-all shadow-sm hover:shadow-md"
+          >
+            <span className="text-base leading-none">+</span>
+            新增贊助
+          </button>
+        </CanEdit>
       </div>
 
       {/* Sponsorship cards */}

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { RevenueRecord, RevenueCategory, REVENUE_CATEGORIES } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
 import { downloadCSV } from '@/lib/csv'
+import { CanEdit } from '@/components/providers/RoleProvider'
 
 interface Props {
   initialRecords: RevenueRecord[]
@@ -78,7 +79,9 @@ export default function RevenueList({ initialRecords }: Props) {
         <p className="text-sm text-stone-500">共 {records.length} 筆，合計 {formatNTD(total)}</p>
         <div className="flex items-center gap-2">
           <button onClick={handleExport} className="text-xs text-stone-500 hover:text-stone-700 px-3 py-1.5 border border-stone-200 rounded-lg hover:bg-stone-50">匯出 CSV</button>
-          <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增營收</button>
+          <CanEdit>
+            <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增營收</button>
+          </CanEdit>
         </div>
       </div>
 

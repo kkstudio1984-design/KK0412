@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Task, TaskStatus, TASK_STATUSES } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
+import { CanEdit, useRole } from '@/components/providers/RoleProvider'
 
 interface Props {
   projectId: string
@@ -19,6 +20,7 @@ const STATUS_STYLES: Record<TaskStatus, string> = {
 }
 
 export default function TaskList({ projectId, initialTasks }: Props) {
+  const { canEdit } = useRole()
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [showModal, setShowModal] = useState(false)
   const [adding, setAdding] = useState(false)
@@ -82,7 +84,9 @@ export default function TaskList({ projectId, initialTasks }: Props) {
           <h2 className="font-semibold text-stone-800">任務列表</h2>
           <span className="text-xs text-stone-400">{doneCount}/{tasks.length} 完成</span>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn-primary text-xs px-3 py-1.5">+ 新增任務</button>
+        <CanEdit>
+          <button onClick={() => setShowModal(true)} className="btn-primary text-xs px-3 py-1.5">+ 新增任務</button>
+        </CanEdit>
       </div>
 
       {tasks.length === 0 ? (
@@ -97,7 +101,7 @@ export default function TaskList({ projectId, initialTasks }: Props) {
               </div>
               <select
                 value={task.status}
-                disabled={updating === task.id}
+                disabled={!canEdit || updating === task.id}
                 onChange={(e) => handleStatusChange(task.id, e.target.value as TaskStatus)}
                 className={`badge cursor-pointer disabled:opacity-50 ${STATUS_STYLES[task.status]}`}
               >

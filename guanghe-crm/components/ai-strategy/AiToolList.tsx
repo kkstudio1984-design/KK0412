@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { formatNTD } from '@/lib/utils'
+import { CanEdit, useRole } from '@/components/providers/RoleProvider'
 
 interface AiTool {
   id: string; name: string; purpose: string | null; usedByModules: string[]
@@ -18,6 +19,7 @@ const STATUS_STYLES: Record<string, string> = {
 }
 
 export default function AiToolList({ initialTools }: Props) {
+  const { canEdit } = useRole()
   const [tools, setTools] = useState<AiTool[]>(initialTools)
   const [showModal, setShowModal] = useState(false)
   const [adding, setAdding] = useState(false)
@@ -65,7 +67,9 @@ export default function AiToolList({ initialTools }: Props) {
           <h2 className="font-semibold text-stone-800">AI 工具清單</h2>
           <span className="text-xs text-stone-400">月成本 {formatNTD(totalCost)}</span>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn-primary text-xs px-3 py-1.5">+ 新增工具</button>
+        <CanEdit>
+          <button onClick={() => setShowModal(true)} className="btn-primary text-xs px-3 py-1.5">+ 新增工具</button>
+        </CanEdit>
       </div>
 
       {tools.length === 0 ? (
@@ -87,7 +91,7 @@ export default function AiToolList({ initialTools }: Props) {
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 {tool.costMonthly && <span className="text-xs text-stone-500 tabular-nums">{formatNTD(tool.costMonthly)}/月</span>}
-                <select value={tool.status} onChange={(e) => handleStatusChange(tool.id, e.target.value)}
+                <select value={tool.status} disabled={!canEdit} onChange={(e) => handleStatusChange(tool.id, e.target.value)}
                   className={`badge cursor-pointer ${STATUS_STYLES[tool.status] || ''}`}>
                   <option value="使用中">使用中</option>
                   <option value="評估中">評估中</option>

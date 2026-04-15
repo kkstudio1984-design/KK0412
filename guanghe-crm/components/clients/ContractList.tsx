@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Contract, PaymentCycle } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
+import { CanEdit } from '@/components/providers/RoleProvider'
 
 interface Props {
   clientId: string
@@ -84,12 +85,14 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
     <div className="bg-white rounded-xl border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-5">
         <h2 className="font-semibold text-gray-800">合約管理</h2>
-        <button
-          onClick={() => setShowModal(true)}
-          className="text-sm bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-semibold px-3 py-1.5 rounded-lg shadow-sm"
-        >
-          + 新增合約
-        </button>
+        <CanEdit>
+          <button
+            onClick={() => setShowModal(true)}
+            className="text-sm bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-semibold px-3 py-1.5 rounded-lg shadow-sm"
+          >
+            + 新增合約
+          </button>
+        </CanEdit>
       </div>
 
       {contracts.length === 0 ? (

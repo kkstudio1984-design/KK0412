@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { ClientDocument, DocumentStatus } from '@/lib/types'
+import { useRole } from '@/components/providers/RoleProvider'
 
 interface Props {
   clientId: string
@@ -22,6 +23,7 @@ const STATUS_ICON: Record<DocumentStatus, string> = {
 }
 
 export default function DocumentChecklist({ clientId, initialDocuments }: Props) {
+  const { canEdit } = useRole()
   const [docs, setDocs] = useState<ClientDocument[]>(initialDocuments)
   const [updating, setUpdating] = useState<string | null>(null)
 
@@ -76,7 +78,7 @@ export default function DocumentChecklist({ clientId, initialDocuments }: Props)
             </div>
             <select
               value={doc.status}
-              disabled={updating === doc.id}
+              disabled={!canEdit || updating === doc.id}
               onChange={(e) => handleChange(doc.id, e.target.value as DocumentStatus)}
               className={`text-xs font-medium border rounded-lg px-2.5 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-50 ${STATUS_STYLES[doc.status]}`}
             >

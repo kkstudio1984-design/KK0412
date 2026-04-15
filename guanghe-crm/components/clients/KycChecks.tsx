@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { KycCheck, KycStatus } from '@/lib/types'
+import { useRole } from '@/components/providers/RoleProvider'
 
 interface Props {
   clientId: string
@@ -22,6 +23,7 @@ const STATUS_COLOR: Record<KycStatus, string> = {
 }
 
 export default function KycChecks({ clientId, initialChecks }: Props) {
+  const { canEdit } = useRole()
   const [checks, setChecks] = useState<KycCheck[]>(initialChecks)
   const [updating, setUpdating] = useState<string | null>(null)
   const [overrideTarget, setOverrideTarget] = useState<string | null>(null)
@@ -106,7 +108,7 @@ export default function KycChecks({ clientId, initialChecks }: Props) {
               <div className="flex items-center gap-2">
                 <select
                   value={check.status}
-                  disabled={updating === check.id}
+                  disabled={!canEdit || updating === check.id}
                   onChange={(e) => handleChange(check.id, e.target.value as KycStatus)}
                   className={`text-xs font-medium border rounded-lg px-2.5 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 ${STATUS_COLOR[check.status]}`}
                 >
@@ -114,7 +116,7 @@ export default function KycChecks({ clientId, initialChecks }: Props) {
                   <option value="異常">異常</option>
                   <option value="待查">待查</option>
                 </select>
-                {check.status === '異常' && (
+                {check.status === '異常' && canEdit && (
                   <button
                     type="button"
                     onClick={() => {

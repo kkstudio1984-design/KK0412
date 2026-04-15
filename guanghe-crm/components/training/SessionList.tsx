@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { CourseSession, SessionStatus, SESSION_STATUSES } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
+import { CanEdit } from '@/components/providers/RoleProvider'
 
 interface Props {
   courseId: string
@@ -118,7 +119,9 @@ export default function SessionList({ courseId, courseName, maxParticipants, ini
     <div>
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-semibold text-stone-800">場次列表</h2>
-        <button onClick={() => setShowSessionModal(true)} className="btn-primary text-xs">+ 新增場次</button>
+        <CanEdit>
+          <button onClick={() => setShowSessionModal(true)} className="btn-primary text-xs">+ 新增場次</button>
+        </CanEdit>
       </div>
 
       {sessions.length === 0 ? (
@@ -147,12 +150,14 @@ export default function SessionList({ courseId, courseName, maxParticipants, ini
                   {s.actualParticipants != null && <span>實到 {s.actualParticipants} 人</span>}
                   {s.revenue != null && <span>營收 NT${s.revenue.toLocaleString()}</span>}
                 </div>
-                <button
-                  onClick={() => setShowEnrollModal(s.id)}
-                  className="text-xs text-amber-600 hover:text-amber-700 font-medium"
-                >
-                  + 新增報名
-                </button>
+                <CanEdit>
+                  <button
+                    onClick={() => setShowEnrollModal(s.id)}
+                    className="text-xs text-amber-600 hover:text-amber-700 font-medium"
+                  >
+                    + 新增報名
+                  </button>
+                </CanEdit>
               </div>
             </div>
           ))}

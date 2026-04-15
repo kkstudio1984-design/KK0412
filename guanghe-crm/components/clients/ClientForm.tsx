@@ -4,9 +4,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { SOURCES, Source, ServiceType } from '@/lib/types'
+import { useRole } from '@/components/providers/RoleProvider'
 
 export default function ClientForm() {
   const router = useRouter()
+  const { canEdit, loading: roleLoading } = useRole()
   const [loading, setLoading] = useState(false)
 
   const [form, setForm] = useState({
@@ -55,6 +57,15 @@ export default function ClientForm() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (roleLoading) return <div>載入中...</div>
+  if (!canEdit) {
+    return (
+      <div className="card p-8 text-center">
+        <p className="text-sm" style={{ color: '#9a9a9a' }}>您無權限新增資料</p>
+      </div>
+    )
   }
 
   return (

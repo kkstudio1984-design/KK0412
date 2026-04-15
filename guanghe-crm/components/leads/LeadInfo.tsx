@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Lead, LEAD_CHANNELS, LEAD_INTERESTS, LeadChannel, LeadInterest } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
+import { CanEdit } from '@/components/providers/RoleProvider'
 
 interface Props {
   lead: Lead
@@ -73,12 +74,14 @@ export default function LeadInfo({ lead }: Props) {
             </button>
           </div>
         ) : (
-          <button
-            onClick={() => setEditing(true)}
-            className="text-sm text-amber-600 hover:text-amber-800 px-3 py-1.5 rounded-lg hover:bg-amber-50 font-medium"
-          >
-            編輯
-          </button>
+          <CanEdit>
+            <button
+              onClick={() => setEditing(true)}
+              className="text-sm text-amber-600 hover:text-amber-800 px-3 py-1.5 rounded-lg hover:bg-amber-50 font-medium"
+            >
+              編輯
+            </button>
+          </CanEdit>
         )}
       </div>
 

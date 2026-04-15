@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { Project, ProjectType, PROJECT_TYPES, PROJECT_STATUSES } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
 import Link from 'next/link'
+import { CanEdit } from '@/components/providers/RoleProvider'
 
 interface Props {
   initialProjects: Project[]
@@ -82,7 +83,9 @@ export default function ProjectList({ initialProjects }: Props) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-stone-500">共 {projects.length} 個專案，{activeCount} 個進行中</p>
-        <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增專案</button>
+        <CanEdit>
+          <button onClick={() => setShowModal(true)} className="btn-primary">+ 新增專案</button>
+        </CanEdit>
       </div>
 
       {projects.length === 0 ? (

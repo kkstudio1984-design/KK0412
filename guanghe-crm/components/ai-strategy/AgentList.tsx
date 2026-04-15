@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { formatDate } from '@/lib/utils'
+import { CanEdit } from '@/components/providers/RoleProvider'
 
 interface Agent {
   id: string; name: string; purpose: string | null; targetModule: string | null
@@ -38,7 +39,9 @@ export default function AgentList({ initialAgents }: Props) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-stone-800">Agent 管理</h2>
-        <button onClick={() => setShowModal(true)} className="btn-primary text-xs px-3 py-1.5">+ 新增 Agent</button>
+        <CanEdit>
+          <button onClick={() => setShowModal(true)} className="btn-primary text-xs px-3 py-1.5">+ 新增 Agent</button>
+        </CanEdit>
       </div>
 
       {agents.length === 0 ? (

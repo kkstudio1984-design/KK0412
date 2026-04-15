@@ -4,6 +4,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { MailRecord, MailType, PickupStatus } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
+import { CanEdit, useRole } from '@/components/providers/RoleProvider'
 
 interface Props {
   clientId: string
@@ -23,6 +24,7 @@ const MAIL_TYPE_STYLES: Record<MailType, string> = {
 }
 
 export default function MailRecordList({ clientId, initialRecords }: Props) {
+  const { canEdit } = useRole()
   const [records, setRecords] = useState<MailRecord[]>(initialRecords)
   const [updating, setUpdating] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
@@ -109,10 +111,12 @@ export default function MailRecordList({ clientId, initialRecords }: Props) {
             </span>
           )}
         </div>
-        <button onClick={() => setShowModal(true)}
-          className="text-sm bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-semibold px-3 py-1.5 rounded-lg shadow-sm">
-          + 登記信件
-        </button>
+        <CanEdit>
+          <button onClick={() => setShowModal(true)}
+            className="text-sm bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-semibold px-3 py-1.5 rounded-lg shadow-sm">
+            + 登記信件
+          </button>
+        </CanEdit>
       </div>
 
       {sorted.length === 0 ? (
@@ -138,7 +142,7 @@ export default function MailRecordList({ clientId, initialRecords }: Props) {
               </div>
               <select
                 value={record.pickupStatus}
-                disabled={updating === record.id}
+                disabled={!canEdit || updating === record.id}
                 onChange={(e) => handleStatusChange(record.id, e.target.value as PickupStatus)}
                 className={`text-xs font-medium border rounded-lg px-2.5 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-50 shrink-0 ${PICKUP_STYLES[record.pickupStatus]}`}>
                 <option value="待領取">待領取</option>

@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import KanbanBoard from '@/components/board/KanbanBoard'
 import PageHeader from '@/components/ui/PageHeader'
+import { CanEdit } from '@/components/providers/RoleProvider'
 import { fetchClients } from '@/lib/queries'
 
 export default async function BoardPage() {
@@ -16,7 +17,9 @@ export default async function BoardPage() {
         subtitle="客戶進線管理・七階段追蹤"
         moduleColor="bg-amber-500"
         action={
-          <Link href="/clients/new" className="btn-primary">+ 新增客戶</Link>
+          <CanEdit>
+            <Link href="/clients/new" className="btn-primary">+ 新增客戶</Link>
+          </CanEdit>
         }
       />
 

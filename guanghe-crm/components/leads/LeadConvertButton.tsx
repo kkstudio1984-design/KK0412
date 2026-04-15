@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { Lead } from '@/lib/types'
+import { CanEdit } from '@/components/providers/RoleProvider'
 
 interface Props {
   lead: Lead
@@ -76,22 +77,24 @@ export default function LeadConvertButton({ lead }: Props) {
   }
 
   return (
-    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold text-amber-800 mb-0.5">準備轉換</p>
-          <p className="text-xs text-amber-600">
-            將建立：{getConvertLabel(lead.interest)}
-          </p>
+    <CanEdit>
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-amber-800 mb-0.5">準備轉換</p>
+            <p className="text-xs text-amber-600">
+              將建立：{getConvertLabel(lead.interest)}
+            </p>
+          </div>
+          <button
+            onClick={handleConvert}
+            disabled={loading}
+            className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 disabled:opacity-60 disabled:cursor-not-allowed text-slate-900 text-sm font-semibold px-5 py-2 rounded-lg transition-all shadow-sm hover:shadow-md"
+          >
+            {loading ? '轉換中...' : '轉換為客戶'}
+          </button>
         </div>
-        <button
-          onClick={handleConvert}
-          disabled={loading}
-          className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 disabled:opacity-60 disabled:cursor-not-allowed text-slate-900 text-sm font-semibold px-5 py-2 rounded-lg transition-all shadow-sm hover:shadow-md"
-        >
-          {loading ? '轉換中...' : '轉換為客戶'}
-        </button>
       </div>
-    </div>
+    </CanEdit>
   )
 }
