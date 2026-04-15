@@ -4,6 +4,7 @@ import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import PWARegister from '@/components/ui/PWARegister'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -28,9 +29,19 @@ const notoSerifTC = Noto_Serif_TC({
 export const metadata: Metadata = {
   title: '光合創學營運管理系統',
   description: 'Guanghe OMS — 六大模組整合營運後台',
+  manifest: '/manifest.json',
+  themeColor: '#d97706',
   icons: {
-    icon: '/favicon.svg',
-    apple: '/favicon.svg',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.svg', sizes: '192x192', type: 'image/svg+xml' },
+    ],
+    apple: '/icon-192.svg',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: '光合 OMS',
   },
 }
 
@@ -64,6 +75,7 @@ export default function RootLayout({
         />
         <Analytics />
         <SpeedInsights />
+        <PWARegister />
       </body>
     </html>
   )
