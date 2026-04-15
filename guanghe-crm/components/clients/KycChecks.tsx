@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { KycCheck, KycStatus } from '@/lib/types'
 import { useRole } from '@/components/providers/RoleProvider'
@@ -8,6 +9,7 @@ import { useRole } from '@/components/providers/RoleProvider'
 interface Props {
   clientId: string
   initialChecks: KycCheck[]
+  beneficialOwnerVerifiedAt?: string | null
 }
 
 const STATUS_ICON: Record<KycStatus, string> = {
@@ -22,14 +24,35 @@ const STATUS_COLOR: Record<KycStatus, string> = {
   '待查': 'text-gray-600 bg-gray-50 border-gray-200',
 }
 
-export default function KycChecks({ clientId, initialChecks }: Props) {
+export default function KycChecks({ clientId, initialChecks, beneficialOwnerVerifiedAt }: Props) {
+  const router = useRouter()
   const { canEdit } = useRole()
   const [checks, setChecks] = useState<KycCheck[]>(initialChecks)
   const [updating, setUpdating] = useState<string | null>(null)
   const [overrideTarget, setOverrideTarget] = useState<string | null>(null)
   const [overrideReason, setOverrideReason] = useState('')
+  const [renewing, setRenewing] = useState(false)
 
   const passedCount = checks.filter((c) => c.status === '通過').length
+
+  const daysSince = beneficialOwnerVerifiedAt
+    ? Math.floor((Date.now() - new Date(beneficialOwnerVerifiedAt).getTime()) / (1000 * 60 * 60 * 24))
+    : null
+  const needsRenewal = daysSince !== null && daysSince > 365
+
+  const handleRenewal = async () => {
+    setRenewing(true)
+    try {
+      const res = await fetch(`/api/clients/${clientId}/kyc/renew`, { method: 'POST' })
+      if (!res.ok) throw new Error()
+      toast.success('已完成年度覆核')
+      router.refresh()
+    } catch {
+      toast.error('覆核失敗')
+    } finally {
+      setRenewing(false)
+    }
+  }
 
   const handleChange = async (kycId: string, status: KycStatus) => {
     setUpdating(kycId)
@@ -91,6 +114,24 @@ export default function KycChecks({ clientId, initialChecks }: Props) {
           {passedCount} / 5 通過
         </span>
       </div>
+
+      {needsRenewal && (
+        <div className="mb-4 p-3 rounded-lg" style={{ background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.25)' }}>
+          <p className="text-sm font-medium" style={{ color: '#fb923c' }}>⚠ 年度覆核到期</p>
+          <p className="text-xs mt-1" style={{ color: '#d6d3d1' }}>
+            實質受益人上次審查於 {daysSince} 天前（超過 365 天），依洗防法需重新審查。
+          </p>
+          {canEdit && (
+            <button
+              onClick={handleRenewal}
+              disabled={renewing}
+              className="btn-primary text-xs px-3 py-1 mt-2"
+            >
+              {renewing ? '處理中...' : '完成年度覆核'}
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="space-y-3">
         {checks.map((check) => (

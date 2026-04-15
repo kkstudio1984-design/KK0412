@@ -49,6 +49,7 @@ export default async function ReportsPage() {
         title="月報表"
         subtitle="過去 6 個月營運趨勢"
         moduleColor="bg-emerald-500"
+        action={<a href="/reports/tax" className="btn-secondary">雙月稅務報表</a>}
       />
       <MonthlyReport trends={trends} />
     </div>

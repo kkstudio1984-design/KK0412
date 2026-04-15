@@ -8,8 +8,10 @@ import PaymentList from '@/components/clients/PaymentList'
 import MailRecordList from '@/components/clients/MailRecordList'
 import OffboardingPanel from '@/components/clients/OffboardingPanel'
 import ClientTimeline from '@/components/clients/ClientTimeline'
+import IncidentList from '@/components/clients/IncidentList'
 import { fetchClient } from '@/lib/queries'
 import { formatNTD } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/server'
 
 export default async function ClientDetailPage({
   params,
@@ -19,6 +21,14 @@ export default async function ClientDetailPage({
   const { id } = await params
   const client = await fetchClient(id)
   if (!client) notFound()
+
+  const supabaseForIncidents = await createClient()
+  const { data: incidentsData } = await supabaseForIncidents
+    .from('incidents')
+    .select('*, reporter:profiles!reported_by(name), resolver:profiles!resolved_by(name)')
+    .eq('space_client_id', id)
+    .order('occurred_at', { ascending: false })
+  const clientIncidents = incidentsData || []
 
   // Build timeline events from all client activity
   const timelineEvents = [
@@ -101,7 +111,11 @@ export default async function ClientDetailPage({
 
         {/* 區塊 B — KYC（僅借址登記） */}
         {client.serviceType === '借址登記' && (
-          <KycChecks clientId={client.id} initialChecks={client.kycChecks} />
+          <KycChecks
+            clientId={client.id}
+            initialChecks={client.kycChecks}
+            beneficialOwnerVerifiedAt={(client as { beneficialOwnerVerifiedAt?: string | null }).beneficialOwnerVerifiedAt ?? null}
+          />
         )}
 
         {/* 區塊 B2 — 文件檢核 */}
@@ -124,6 +138,9 @@ export default async function ClientDetailPage({
         {client.serviceType === '借址登記' && (
           <MailRecordList clientId={client.id} initialRecords={client.mailRecords || []} />
         )}
+
+        {/* 區塊 — 客訴與事件 */}
+        <IncidentList clientId={client.id} initialIncidents={clientIncidents} />
 
         {/* 區塊 — 退場流程（退租中或已結案階段）*/}
         {(client.stage === '退租中' || client.stage === '已結案' || (client.offboardingRecords && client.offboardingRecords.length > 0)) && (
