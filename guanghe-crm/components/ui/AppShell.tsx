@@ -4,6 +4,8 @@ import { useState } from 'react'
 import SideNav from './SideNav'
 import NotificationBell from './NotificationBell'
 import CommandPalette from './CommandPalette'
+import KeyboardShortcuts from './KeyboardShortcuts'
+import OnboardingTour from './OnboardingTour'
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -61,7 +63,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <span className="flex-1 text-left">搜尋客戶、專案、頁面...</span>
             <kbd className="px-1.5 py-0.5 rounded font-mono text-xs" style={{ background: '#222', color: '#666', border: '1px solid #333' }}>⌘K</kbd>
           </button>
-          <NotificationBell />
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }))}
+              className="p-2 rounded-lg"
+              style={{ color: '#666' }}
+              title="快捷鍵 (?)"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+            <NotificationBell />
+          </div>
         </div>
 
         <main className="flex-1 overflow-auto" style={{ background: '#0a0a0a' }}>
@@ -70,6 +84,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <CommandPalette />
+      <KeyboardShortcuts />
+      <OnboardingTour />
     </div>
   )
 }
