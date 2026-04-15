@@ -10,6 +10,7 @@ import OffboardingPanel from '@/components/clients/OffboardingPanel'
 import ClientTimeline from '@/components/clients/ClientTimeline'
 import IncidentList from '@/components/clients/IncidentList'
 import ChangeNotifications from '@/components/clients/ChangeNotifications'
+import EmailTemplatePicker from '@/components/clients/EmailTemplatePicker'
 import { fetchClient } from '@/lib/queries'
 import { formatNTD } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/server'
@@ -111,6 +112,16 @@ export default async function ClientDetailPage({
         <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
           {client.stage}
         </span>
+        <div className="ml-auto">
+          <EmailTemplatePicker clientContext={{
+            client_name: client.organization.name,
+            contact_name: client.organization.contactName,
+            service_type: client.serviceType,
+            plan: client.plan || undefined,
+            monthly_fee: client.monthlyFee,
+            contact_email: client.organization.contactEmail,
+          }} />
+        </div>
       </div>
 
       <div className="space-y-4">

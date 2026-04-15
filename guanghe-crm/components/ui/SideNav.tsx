@@ -25,6 +25,7 @@ const navItems = [
 const adminItems = [
   { href: '/admin/users', label: '使用者管理', icon: '👥', color: '#f59e0b' },
   { href: '/admin/audit', label: '操作軌跡', icon: '📋', color: '#f59e0b' },
+  { href: '/admin/email-templates', label: 'Email 範本', icon: '📧', color: '#f59e0b' },
 ]
 
 interface Props {
