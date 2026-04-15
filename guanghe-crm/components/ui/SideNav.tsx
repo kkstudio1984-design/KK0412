@@ -18,6 +18,8 @@ const navItems = [
   { href: '/reports', label: '月報表', icon: '📊', color: '#10b981' },
   { href: '/calendar', label: '日曆', icon: '📅', color: '#f59e0b' },
   { href: '/address-risk', label: '地址風險', icon: '⚠', color: '#d97706' },
+  { href: '/visitors', label: '訪客登記', icon: '🚪', color: '#0ea5e9' },
+  { href: '/seats', label: '座位管理', icon: '🪑', color: '#d97706' },
 ]
 
 const adminItems = [
