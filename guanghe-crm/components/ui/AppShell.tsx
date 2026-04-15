@@ -3,9 +3,15 @@
 import { useState } from 'react'
 import SideNav from './SideNav'
 import NotificationBell from './NotificationBell'
+import CommandPalette from './CommandPalette'
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [paletteOpen, setPaletteOpen] = useState(false)
+
+  const triggerPalette = () => {
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))
+  }
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#0a0a0a' }}>
@@ -43,7 +49,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Desktop top bar */}
-        <div className="hidden md:flex items-center justify-end gap-1 px-4 py-2" style={{ background: '#0d0d0d', borderBottom: '1px solid #1a1a1a' }}>
+        <div className="hidden md:flex items-center justify-between gap-3 px-4 py-2" style={{ background: '#0d0d0d', borderBottom: '1px solid #1a1a1a' }}>
+          <button
+            onClick={triggerPalette}
+            className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs w-64"
+            style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#888' }}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span className="flex-1 text-left">搜尋客戶、專案、頁面...</span>
+            <kbd className="px-1.5 py-0.5 rounded font-mono text-xs" style={{ background: '#222', color: '#666', border: '1px solid #333' }}>⌘K</kbd>
+          </button>
           <NotificationBell />
         </div>
 
@@ -51,6 +68,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+
+      <CommandPalette />
     </div>
   )
 }
