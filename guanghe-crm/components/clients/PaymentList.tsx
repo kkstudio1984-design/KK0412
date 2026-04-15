@@ -126,6 +126,17 @@ export default function PaymentList({ clientId, initialPayments }: Props) {
                   {payment.escalationLevel}
                 </span>
               )}
+              {payment.status === '已收' && (
+                <a
+                  href={`/print/receipt/${payment.id}`}
+                  target="_blank"
+                  rel="noopener"
+                  className="text-xs px-2 py-1 rounded-md font-medium shrink-0 hover:opacity-80"
+                  style={{ background: 'rgba(217,119,6,0.15)', color: '#fbbf24', border: '1px solid rgba(217,119,6,0.3)' }}
+                >
+                  🖨
+                </a>
+              )}
             </div>
           ))}
         </div>

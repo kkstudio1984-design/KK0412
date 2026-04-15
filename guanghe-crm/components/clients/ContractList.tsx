@@ -103,7 +103,18 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
           {contracts.map((ct) => (
             <div key={ct.id} className="border border-gray-100 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-800">{ct.contractType}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-800">{ct.contractType}</span>
+                  <a
+                    href={`/print/contract/${ct.id}`}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-xs px-2 py-0.5 rounded-md font-medium hover:opacity-80"
+                    style={{ background: 'rgba(217,119,6,0.15)', color: '#fbbf24', border: '1px solid rgba(217,119,6,0.3)' }}
+                  >
+                    🖨 PDF
+                  </a>
+                </div>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-medium">
                   {ct.paymentCycle}
                 </span>
