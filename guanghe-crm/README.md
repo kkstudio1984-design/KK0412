@@ -1,36 +1,177 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 光合創學營運管理系統 (Guanghe OMS)
 
-## Getting Started
+一套涵蓋六大部門的整合式營運後台，讓 3 人核心團隊用最少人力管理空間、專案、財務、銷售、培訓與 AI 工具鏈。
 
-First, run the development server:
+**線上版：** https://guanghe-crm.vercel.app
+
+---
+
+## 技術架構
+
+- **前端：** Next.js 14 (App Router) + React 18 + TypeScript
+- **樣式：** Tailwind CSS + 自訂 design system
+- **資料庫：** Supabase (PostgreSQL + RLS)
+- **認證：** Supabase Auth + Google OAuth
+- **即時：** Supabase Realtime
+- **部署：** Vercel
+- **圖表：** Recharts
+- **拖拉：** @hello-pangea/dnd
+
+---
+
+## 六大模組
+
+| 模組 | 功能 | 路徑 |
+|------|------|------|
+| **M1 空間營運** | 借址登記、共享工位、場地租借、KYC、合約、收款、信件、退場 | `/` `/address-risk` |
+| **M2 專案接案** | AI影片、SEO配圖、社群經營、手心共影、任務派工 | `/projects` |
+| **M3 業務銷售** | Leads Pipeline、ESG 贊助、Lead 轉換 | `/sales` |
+| **M4 行政財務** | 營收、費用、政府補助追蹤 | `/finance` |
+| **M5 教育訓練** | 課程、場次、報名 | `/training` |
+| **M6 AI 戰略** | AI 工具、Agent、夥伴培訓 | `/ai-strategy` |
+| **儀表板** | 三層式（救火/生存/成長） | `/dashboard` |
+
+---
+
+## 本機開發
+
+### 1. 安裝
+
+```bash
+git clone git@github.com:kkstudio1984-design/KK0412.git
+cd KK0412/guanghe-crm
+npm install
+```
+
+### 2. 設定環境變數
+
+```bash
+cp .env.example .env
+```
+
+編輯 `.env` 填入 Supabase 憑證（參考 `.env.example` 裡的取得位置）。
+
+### 3. 資料庫初始化
+
+到 [Supabase SQL Editor](https://supabase.com/dashboard/project/_/sql) 依序執行：
+
+```
+supabase/migrations/001_initial_schema.sql    # 共用資料層 + M1
+supabase/migrations/002_audit_triggers.sql    # 操作軌跡 trigger
+supabase/migrations/003_m3_sales.sql          # M3 業務銷售
+supabase/migrations/004_m4_finance.sql        # M4 完整財務
+supabase/migrations/005_m2_projects.sql       # M2 專案接案
+supabase/migrations/006_m5_training.sql       # M5 教育訓練
+supabase/migrations/007_m6_ai.sql             # M6 AI 戰略
+supabase/migrations/008_notifications.sql     # 通知系統
+```
+
+### 4. 啟動 dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+開 http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 專案結構
 
-## Learn More
+```
+guanghe-crm/
+├── app/
+│   ├── (dashboard)/          # 需登入的主應用路由群組
+│   │   ├── page.tsx          # CRM 看板（首頁）
+│   │   ├── projects/         # M2
+│   │   ├── sales/            # M3
+│   │   ├── finance/          # M4
+│   │   ├── training/         # M5
+│   │   ├── ai-strategy/      # M6
+│   │   ├── dashboard/        # 三層式儀表板
+│   │   └── layout.tsx        # AppShell（側欄 + 頂欄）
+│   ├── api/                  # API routes
+│   ├── auth/callback/        # OAuth 回調
+│   ├── login/                # 登入頁
+│   ├── globals.css           # 全局樣式 + CSS 變數
+│   └── layout.tsx            # 根 layout（字體、metadata）
+├── components/
+│   ├── board/                # CRM 看板
+│   ├── clients/              # 客戶詳情相關
+│   ├── leads/                # M3 銷售管線
+│   ├── projects/             # M2 專案
+│   ├── sponsorships/         # M3 ESG 贊助
+│   ├── finance/              # M4 財務
+│   ├── training/             # M5 課程
+│   ├── ai-strategy/          # M6 AI 工具
+│   ├── dashboard/            # 儀表板卡片 + 圖表
+│   ├── address-risk/         # 地址風險表格
+│   └── ui/                   # 共用 UI（SideNav、PageHeader、Toast 等）
+├── lib/
+│   ├── supabase/             # Supabase client（server + browser）
+│   ├── hooks/                # React hooks（Realtime）
+│   ├── queries.ts            # Server-side data fetching
+│   ├── types.ts              # TypeScript 型別定義
+│   ├── utils.ts              # 日期、金額等 utilities
+│   └── csv.ts                # CSV 匯出
+├── supabase/migrations/      # SQL migrations（依序執行）
+├── docs/
+│   ├── PRD.md                # 完整產品需求文件
+│   └── sprint-plan.md        # 10 週 Sprint 計畫
+├── middleware.ts             # Auth 中介層
+└── .env.example              # 環境變數範本
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 角色權限
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| 角色 | 權限 |
+|------|------|
+| **admin** | 完整 CRUD + 可改權限設定 |
+| **operator** | 完整 CRUD（不能改權限設定） |
+| **viewer** | 唯讀（股東用） |
+| **partner** | 預留給身障夥伴（目前未啟用） |
 
-## Deploy on Vercel
+新註冊用戶預設為 `viewer`。要改角色需到 Supabase SQL Editor：
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```sql
+update profiles set role = 'admin' where email = 'xxx@gmail.com';
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 部署
+
+專案使用 Vercel 自動部署：
+- **main 分支** → https://guanghe-crm.vercel.app
+- 環境變數設定在 Vercel Dashboard → Settings → Environment Variables
+
+```bash
+# 手動部署
+npx vercel --prod
+```
+
+---
+
+## 常用指令
+
+```bash
+npm run dev          # 開發模式
+npm run build        # 正式建置
+npm run start        # 啟動 production server
+npm run lint         # ESLint 檢查
+```
+
+---
+
+## 文件
+
+- **PRD** — `docs/PRD.md`（產品需求、驗收標準、資料模型）
+- **Sprint Plan** — `docs/sprint-plan.md`（開發時程）
+
+---
+
+## 授權
+
+內部使用，非開源專案。
