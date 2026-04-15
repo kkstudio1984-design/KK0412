@@ -76,7 +76,7 @@ export async function PATCH(
     const body = await req.json()
     const { recordId, ...updates } = body
 
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (updates.settlementStatus) updateData.settlement_status = updates.settlementStatus
     if (updates.addressMigrationStatus) {
       updateData.address_migration_status = updates.addressMigrationStatus

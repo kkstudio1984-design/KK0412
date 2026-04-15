@@ -10,7 +10,7 @@ export async function PATCH(
     const supabase = await createClient()
     const body = await req.json()
 
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (body.tier !== undefined) updateData.tier = body.tier
     if (body.annualAmount !== undefined) updateData.annual_amount = parseInt(body.annualAmount)
     if (body.startDate !== undefined) updateData.start_date = body.startDate

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import type { KycCheckRow } from '@/lib/db-types'
 
 // GET /api/clients/[id] — 完整資料（含 KYC + payments）
 export async function GET(
@@ -49,10 +50,10 @@ export async function PATCH(
         .from('space_clients')
         .select('service_type, kyc_checks(status)')
         .eq('id', id)
-        .single()
+        .single<{ service_type: string; kyc_checks: Pick<KycCheckRow, 'status'>[] | null }>()
 
       if (client?.service_type === '借址登記') {
-        const allPassed = (client.kyc_checks || []).every((k: any) => k.status === '通過')
+        const allPassed = (client.kyc_checks || []).every((k) => k.status === '通過')
         if (!allPassed) {
           return NextResponse.json(
             { error: 'KYC 尚未全部通過，無法推進到已簽約' },
@@ -63,7 +64,7 @@ export async function PATCH(
     }
 
     // Update space_client fields
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (body.stage !== undefined) updateData.stage = body.stage
     if (body.nextAction !== undefined) updateData.next_action = body.nextAction
     if (body.followUpDate !== undefined) updateData.follow_up_date = body.followUpDate || null
@@ -92,7 +93,7 @@ export async function PATCH(
         .single()
 
       if (sc) {
-        const orgUpdate: any = {}
+        const orgUpdate: Record<string, unknown> = {}
         if (body.orgName) orgUpdate.name = body.orgName
         if (body.contactName !== undefined) orgUpdate.contact_name = body.contactName
         if (body.contactPhone !== undefined) orgUpdate.contact_phone = body.contactPhone

@@ -10,7 +10,7 @@ export async function PATCH(
     const supabase = await createClient()
     const body = await req.json()
 
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (body.applicationStatus !== undefined) updateData.application_status = body.applicationStatus
     if (body.disbursementStatus !== undefined) updateData.disbursement_status = body.disbursementStatus
     if (body.notes !== undefined) updateData.notes = body.notes

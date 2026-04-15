@@ -18,7 +18,16 @@ export default async function AddressRiskPage() {
     .not('stage', 'in', '("已流失")')
     .order('created_at', { ascending: true })
 
-  const allClients = (clients || []).map((c: any) => ({
+  type AddressRiskClientRow = {
+    id: string
+    stage: string
+    is_high_risk_kyc: boolean
+    blacklist_flag: boolean
+    red_flags: string[] | null
+    organization?: { name?: string | null; tax_id?: string | null; contact_name?: string | null } | null
+    kyc_checks?: { status: string }[] | null
+  }
+  const allClients = ((clients || []) as unknown as AddressRiskClientRow[]).map((c) => ({
     id: c.id,
     orgName: c.organization?.name || '未知',
     taxId: c.organization?.tax_id || '—',
@@ -27,11 +36,11 @@ export default async function AddressRiskPage() {
     isHighRisk: c.is_high_risk_kyc,
     isBlacklist: c.blacklist_flag,
     redFlags: c.red_flags || [],
-    kycPassed: (c.kyc_checks || []).filter((k: any) => k.status === '通過').length,
+    kycPassed: (c.kyc_checks || []).filter((k) => k.status === '通過').length,
     kycTotal: (c.kyc_checks || []).length,
   }))
 
-  const highRiskCount = allClients.filter((c: any) => c.isHighRisk || c.isBlacklist).length
+  const highRiskCount = allClients.filter((c) => c.isHighRisk || c.isBlacklist).length
 
   return (
     <div className="px-6 py-8 max-w-5xl mx-auto">

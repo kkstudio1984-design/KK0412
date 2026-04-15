@@ -18,7 +18,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const { id } = await params
     const supabase = await createClient()
     const body = await req.json()
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (body.name !== undefined) updateData.name = body.name
     if (body.courseType !== undefined) updateData.course_type = body.courseType
     if (body.durationHours !== undefined) updateData.duration_hours = parseFloat(body.durationHours)

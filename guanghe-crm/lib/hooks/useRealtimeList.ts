@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-export function useRealtimeList<T>(
+export function useRealtimeList<T extends { id: string }>(
   table: string,
   initialData: T[],
-  mapFn?: (row: any) => T
+  mapFn?: (row: unknown) => T
 ) {
   const [data, setData] = useState<T[]>(initialData)
 
@@ -22,19 +22,19 @@ export function useRealtimeList<T>(
         'postgres_changes',
         { event: '*', schema: 'public', table },
         (payload) => {
-          const map = mapFn || ((r: any) => r as T)
+          const map = mapFn || ((r: unknown) => r as T)
 
           if (payload.eventType === 'INSERT') {
             setData((prev) => [...prev, map(payload.new)])
           } else if (payload.eventType === 'UPDATE') {
             setData((prev) =>
-              prev.map((item: any) =>
-                item.id === (payload.new as any).id ? map(payload.new) : item
+              prev.map((item) =>
+                item.id === (payload.new as { id: string }).id ? map(payload.new) : item
               )
             )
           } else if (payload.eventType === 'DELETE') {
             setData((prev) =>
-              prev.filter((item: any) => item.id !== (payload.old as any).id)
+              prev.filter((item) => item.id !== (payload.old as { id: string }).id)
             )
           }
         }

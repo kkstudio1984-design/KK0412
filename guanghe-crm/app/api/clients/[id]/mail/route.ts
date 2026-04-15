@@ -63,7 +63,7 @@ export async function PATCH(
     const body = await req.json()
     const { mailId, pickupStatus } = body
 
-    const updateData: any = { pickup_status: pickupStatus }
+    const updateData: Record<string, unknown> = { pickup_status: pickupStatus }
     if (pickupStatus === '已領取') updateData.picked_up_at = new Date().toISOString()
     if (pickupStatus === '已退回') updateData.final_notice_at = new Date().toISOString()
 

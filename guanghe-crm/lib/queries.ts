@@ -1,7 +1,15 @@
 import { createClient } from './supabase/server'
 import { ClientWithOrg, ClientDetail, DashboardData, MailRecord, OffboardingRecord, Lead, Sponsorship, RevenueRecord, SubsidyTracking, Expense, Project } from './types'
-import { getMonthRange, getOverdueDays } from './utils'
+import { getMonthRange } from './utils'
 import { addDays, differenceInDays, format, startOfMonth, endOfMonth } from 'date-fns'
+import type {
+  SpaceClientWithJoinsRow, KycCheckRow, ClientDocumentRow, PaymentRow,
+  ContractRow, MailRecordRow, OffboardingRecordRow, LeadWithOrgRow,
+  SponsorshipWithOrgRow, RevenueRecordRow, SubsidyRow, ExpenseRow,
+  ProjectWithJoinsRow, CourseWithJoinsRow, AiToolRow, AgentRow,
+  TrainingRecordWithPartnerRow, CourseSessionRow, EnrollmentRow, TaskRow,
+  OrganizationRow,
+} from './db-types'
 
 export async function fetchClients(): Promise<ClientWithOrg[]> {
   const supabase = await createClient()
@@ -19,13 +27,13 @@ export async function fetchClients(): Promise<ClientWithOrg[]> {
   if (error) throw error
   if (!clients) return []
 
-  return clients.map((c: any) => ({
+  return (clients as SpaceClientWithJoinsRow[]).map((c): ClientWithOrg => ({
     id: c.id,
     orgId: c.org_id,
-    serviceType: c.service_type,
+    serviceType: c.service_type as ClientWithOrg['serviceType'],
     plan: c.plan,
     monthlyFee: c.monthly_fee,
-    stage: c.stage,
+    stage: c.stage as ClientWithOrg['stage'],
     nextAction: c.next_action,
     followUpDate: c.follow_up_date,
     redFlags: c.red_flags || [],
@@ -36,26 +44,26 @@ export async function fetchClients(): Promise<ClientWithOrg[]> {
     blacklistFlag: c.blacklist_flag ?? false,
     isDisabilityPartner: c.is_disability_partner ?? false,
     organization: {
-      id: c.organization.id,
-      name: c.organization.name,
-      taxId: c.organization.tax_id,
-      contactName: c.organization.contact_name,
-      contactPhone: c.organization.contact_phone,
-      contactEmail: c.organization.contact_email,
-      contactLine: c.organization.contact_line,
-      source: c.organization.source,
-      notes: c.organization.notes,
-      createdAt: c.organization.created_at,
-      updatedAt: c.organization.updated_at,
+      id: c.organization!.id,
+      name: c.organization!.name,
+      taxId: c.organization!.tax_id,
+      contactName: c.organization!.contact_name,
+      contactPhone: c.organization!.contact_phone,
+      contactEmail: c.organization!.contact_email,
+      contactLine: c.organization!.contact_line,
+      source: c.organization!.source as import('./types').Source,
+      notes: c.organization!.notes,
+      createdAt: c.organization!.created_at,
+      updatedAt: c.organization!.updated_at,
     },
-    kycChecks: (c.kyc_checks || []).map((k: any) => ({
+    kycChecks: (c.kyc_checks || []).map((k: KycCheckRow) => ({
       id: k.id,
       spaceClientId: k.space_client_id,
-      checkType: k.check_type,
-      status: k.status,
+      checkType: k.check_type as import('./types').CheckType,
+      status: k.status as import('./types').KycStatus,
       checkedAt: k.checked_at,
     })),
-    hasOverduePayment: (c.payments || []).some((p: any) => p.status === '逾期'),
+    hasOverduePayment: (c.payments || []).some((p: Partial<PaymentRow>) => p.status === '逾期'),
   }))
 }
 
@@ -75,7 +83,7 @@ export async function fetchClient(id: string): Promise<ClientDetail | null> {
       offboarding_records(*)
     `)
     .eq('id', id)
-    .single()
+    .single<SpaceClientWithJoinsRow>()
 
   if (error || !c) return null
 
@@ -100,19 +108,19 @@ export async function fetchClient(id: string): Promise<ClientDetail | null> {
     beneficialOwnerName: c.beneficial_owner_name ?? null,
     beneficialOwnerVerifiedAt: c.beneficial_owner_verified_at ?? null,
     organization: {
-      id: c.organization.id,
-      name: c.organization.name,
-      taxId: c.organization.tax_id,
-      contactName: c.organization.contact_name,
-      contactPhone: c.organization.contact_phone,
-      contactEmail: c.organization.contact_email,
-      contactLine: c.organization.contact_line,
-      source: c.organization.source,
-      notes: c.organization.notes,
-      createdAt: c.organization.created_at,
-      updatedAt: c.organization.updated_at,
+      id: c.organization!.id,
+      name: c.organization!.name,
+      taxId: c.organization!.tax_id,
+      contactName: c.organization!.contact_name,
+      contactPhone: c.organization!.contact_phone,
+      contactEmail: c.organization!.contact_email,
+      contactLine: c.organization!.contact_line,
+      source: c.organization!.source,
+      notes: c.organization!.notes,
+      createdAt: c.organization!.created_at,
+      updatedAt: c.organization!.updated_at,
     },
-    kycChecks: (c.kyc_checks || []).map((k: any) => ({
+    kycChecks: (c.kyc_checks || []).map((k: KycCheckRow) => ({
       id: k.id,
       spaceClientId: k.space_client_id,
       checkType: k.check_type,
@@ -120,19 +128,19 @@ export async function fetchClient(id: string): Promise<ClientDetail | null> {
       checkedAt: k.checked_at,
       overrideReason: k.override_reason ?? null,
     })),
-    payments: (c.payments || []).map((p: any) => ({
-      id: p.id,
-      spaceClientId: p.space_client_id,
+    payments: (c.payments || []).map((p: Partial<PaymentRow>) => ({
+      id: p.id as string,
+      spaceClientId: p.space_client_id as string,
       contractId: p.contract_id ?? null,
-      dueDate: p.due_date,
-      amount: p.amount,
-      status: p.status,
-      paidAt: p.paid_at,
+      dueDate: p.due_date as string,
+      amount: p.amount as number,
+      status: p.status as PaymentRow['status'],
+      paidAt: p.paid_at as string | null,
       escalationLevel: p.escalation_level ?? undefined,
       escalationUpdatedAt: p.escalation_updated_at ?? null,
-      createdAt: p.created_at,
+      createdAt: p.created_at as string,
     })),
-    documents: ((c as any).client_documents || []).map((d: any) => ({
+    documents: (c.client_documents || []).map((d: ClientDocumentRow) => ({
       id: d.id,
       spaceClientId: d.space_client_id,
       documentType: d.document_type,
@@ -141,7 +149,7 @@ export async function fetchClient(id: string): Promise<ClientDetail | null> {
       submittedAt: d.submitted_at,
       notes: d.notes,
     })),
-    contracts: (c.contracts || []).map((ct: any) => ({
+    contracts: (c.contracts || []).map((ct: ContractRow) => ({
       id: ct.id,
       spaceClientId: ct.space_client_id,
       contractType: ct.contract_type,
@@ -154,7 +162,7 @@ export async function fetchClient(id: string): Promise<ClientDetail | null> {
       isNotarized: ct.is_notarized,
       notarizedAt: ct.notarized_at,
     })),
-    mailRecords: (c.mail_records || []).map((m: any): MailRecord => ({
+    mailRecords: (c.mail_records || []).map((m: MailRecordRow): MailRecord => ({
       id: m.id,
       spaceClientId: m.space_client_id,
       receivedDate: m.received_date,
@@ -166,7 +174,7 @@ export async function fetchClient(id: string): Promise<ClientDetail | null> {
       finalNoticeAt: m.final_notice_at,
       pickedUpAt: m.picked_up_at,
     })),
-    offboardingRecords: (c.offboarding_records || []).map((o: any): OffboardingRecord => ({
+    offboardingRecords: (c.offboarding_records || []).map((o: OffboardingRecordRow): OffboardingRecord => ({
       id: o.id,
       spaceClientId: o.space_client_id,
       requestDate: o.request_date,
@@ -184,6 +192,45 @@ export async function fetchClient(id: string): Promise<ClientDetail | null> {
       closedAt: o.closed_at,
     })),
   }
+}
+
+// Narrow inline types for ad-hoc dashboard shapes
+type UrgentMailJoinRow = {
+  mail_type: string
+  received_date: string
+  space_client?: { organization?: { name?: string } | null } | null
+}
+type KycOverdueJoinRow = {
+  id: string
+  stage: string
+  updated_at: string
+  organization?: { name?: string } | null
+}
+type FollowUpJoinRow = {
+  id: string
+  follow_up_date: string | null
+  next_action: string | null
+  organization?: { name?: string } | null
+}
+type OverduePaymentJoinRow = {
+  id: string
+  due_date: string
+  amount: number
+  escalation_level: string | null
+  space_client?: { organization?: { name?: string } | null } | null
+}
+type ExpiringContractJoinRow = {
+  end_date: string
+  contract_type: string
+  space_client?: { organization?: { name?: string } | null } | null
+}
+type RenewalJoinRow = {
+  beneficial_owner_verified_at: string
+  organization?: { name?: string } | null
+}
+type RevenueByTypeJoinRow = {
+  amount: number
+  space_client?: { service_type?: string } | null
 }
 
 export async function fetchDashboard(): Promise<DashboardData> {
@@ -204,7 +251,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .eq('pickup_status', '待領取')
     .or(`mail_type.eq.法院文書,received_date.lt.${days7ago}`)
 
-  const urgentMail = (urgentMailData || []).map((m: any) => ({
+  const urgentMail = ((urgentMailData || []) as unknown as UrgentMailJoinRow[]).map((m) => ({
     clientName: m.space_client?.organization?.name || '未知',
     mailType: m.mail_type,
     receivedDate: m.received_date,
@@ -218,7 +265,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .eq('stage', 'KYC審核中')
     .lt('updated_at', new Date(Date.now() - 7 * 86400000).toISOString())
 
-  const kycOverdue = (kycOverdueData || []).map((c: any) => ({
+  const kycOverdue = ((kycOverdueData || []) as unknown as KycOverdueJoinRow[]).map((c) => ({
     clientName: c.organization?.name || '未知',
     stage: c.stage,
     daysSinceUpdate: differenceInDays(new Date(), new Date(c.updated_at)),
@@ -232,10 +279,10 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .not('follow_up_date', 'is', null)
     .not('stage', 'in', '("已結案","已流失")')
 
-  const followUpToday = (followUpData || []).map((c: any) => ({
+  const followUpToday = ((followUpData || []) as unknown as FollowUpJoinRow[]).map((c) => ({
     clientId: c.id,
     clientName: c.organization?.name || '未知',
-    followUpDate: c.follow_up_date,
+    followUpDate: (c.follow_up_date ?? '') as string,
     nextAction: c.next_action,
   }))
 
@@ -246,7 +293,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .eq('status', '逾期')
     .order('due_date', { ascending: true })
 
-  const overduePayments = (overdueData || []).map((p: any) => ({
+  const overduePayments = ((overdueData || []) as unknown as OverduePaymentJoinRow[]).map((p) => ({
     paymentId: p.id,
     orgName: p.space_client?.organization?.name || '未知',
     dueDate: p.due_date,
@@ -263,7 +310,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .gte('end_date', todayStr)
     .lte('end_date', days30Str)
 
-  const contractExpiringSoon = (expiringContracts || []).map((c: any) => ({
+  const contractExpiringSoon = ((expiringContracts || []) as unknown as ExpiringContractJoinRow[]).map((c) => ({
     clientName: c.space_client?.organization?.name || '未知',
     contractType: c.contract_type,
     endDate: c.end_date,
@@ -279,7 +326,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .not('beneficial_owner_verified_at', 'is', null)
     .lt('beneficial_owner_verified_at', new Date(Date.now() - 365 * 86400000).toISOString())
 
-  const kycRenewalDue = (renewalData || []).map((c: any) => ({
+  const kycRenewalDue = ((renewalData || []) as unknown as RenewalJoinRow[]).map((c) => ({
     clientName: c.organization?.name || '未知',
     lastVerified: c.beneficial_owner_verified_at,
     daysSince: differenceInDays(new Date(), new Date(c.beneficial_owner_verified_at)),
@@ -293,7 +340,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .gte('due_date', startStr)
     .lte('due_date', endStr)
 
-  const monthlyDue = (dueData || []).reduce((sum: number, p: any) => sum + p.amount, 0)
+  const monthlyDue = ((dueData || []) as { amount: number }[]).reduce((sum, p) => sum + p.amount, 0)
 
   const { data: collectedData } = await supabase
     .from('payments')
@@ -302,7 +349,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .gte('paid_at', startStr)
     .lte('paid_at', endStr)
 
-  const monthlyCollected = (collectedData || []).reduce((sum: number, p: any) => sum + p.amount, 0)
+  const monthlyCollected = ((collectedData || []) as { amount: number }[]).reduce((sum, p) => sum + p.amount, 0)
 
   // Revenue by service type this month
   const { data: revenueByTypeData } = await supabase
@@ -313,8 +360,8 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .lte('paid_at', endStr)
 
   const revenueMap: Record<string, number> = {}
-  for (const p of (revenueByTypeData || [])) {
-    const type = (p as any).space_client?.service_type || '其他'
+  for (const p of ((revenueByTypeData || []) as unknown as RevenueByTypeJoinRow[])) {
+    const type = p.space_client?.service_type || '其他'
     revenueMap[type] = (revenueMap[type] || 0) + p.amount
   }
   const revenueByType = Object.entries(revenueMap).map(([type, amount]) => ({ type, amount }))
@@ -327,7 +374,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .gte('due_date', todayStr)
     .lte('due_date', days90Str)
 
-  const cashFlow90Days = (cashFlowData || []).reduce((sum: number, p: any) => sum + p.amount, 0)
+  const cashFlow90Days = ((cashFlowData || []) as { amount: number }[]).reduce((sum, p) => sum + p.amount, 0)
 
   // Total deposits held
   const { data: depositData } = await supabase
@@ -335,7 +382,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .select('deposit_amount')
     .eq('deposit_status', '已收')
 
-  const totalDepositsHeld = (depositData || []).reduce((sum: number, c: any) => sum + c.deposit_amount, 0)
+  const totalDepositsHeld = ((depositData || []) as { deposit_amount: number }[]).reduce((sum, c) => sum + c.deposit_amount, 0)
 
   // ── Tier 3: 成長層 ──
 
@@ -345,7 +392,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .select('stage')
 
   const pipelineMap: Record<string, number> = {}
-  for (const c of (pipelineData || [])) {
+  for (const c of ((pipelineData || []) as { stage: string }[])) {
     pipelineMap[c.stage] = (pipelineMap[c.stage] || 0) + 1
   }
   const STAGES = ['初步詢問', 'KYC審核中', '已簽約', '服務中', '退租中', '已結案', '已流失']
@@ -373,7 +420,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .select('source')
 
   const sourceMap: Record<string, number> = {}
-  for (const o of (sourceData || [])) {
+  for (const o of ((sourceData || []) as { source: string }[])) {
     sourceMap[o.source] = (sourceMap[o.source] || 0) + 1
   }
   const sourceAnalysis = Object.entries(sourceMap).map(([source, count]) => ({ source, count })).sort((a, b) => b.count - a.count)
@@ -384,7 +431,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
     .select('assigned_seats')
     .eq('stage', '服務中')
 
-  const sold = (seatData || []).reduce((sum: number, c: any) => sum + (c.assigned_seats || 0), 0)
+  const sold = ((seatData || []) as { assigned_seats: number | null }[]).reduce((sum, c) => sum + (c.assigned_seats || 0), 0)
 
   return {
     urgentMail,
@@ -417,7 +464,7 @@ export async function fetchLeads(): Promise<Lead[]> {
   if (error) throw error
   if (!data) return []
 
-  return data.map((l: any) => ({
+  return (data as LeadWithOrgRow[]).map((l) => ({
     id: l.id,
     orgId: l.org_id,
     contactName: l.contact_name,
@@ -452,7 +499,7 @@ export async function fetchLead(id: string): Promise<Lead | null> {
     .from('leads')
     .select('*, organization:organizations(*)')
     .eq('id', id)
-    .single()
+    .single<LeadWithOrgRow>()
 
   if (error || !l) return null
 
@@ -495,7 +542,7 @@ export async function fetchSponsorships(): Promise<Sponsorship[]> {
   if (error) throw error
   if (!data) return []
 
-  return data.map((s: any) => ({
+  return (data as SponsorshipWithOrgRow[]).map((s) => ({
     id: s.id,
     orgId: s.org_id,
     tier: s.tier,
@@ -531,7 +578,7 @@ export async function fetchRevenueRecords(): Promise<RevenueRecord[]> {
     .select('*')
     .order('revenue_date', { ascending: false })
   if (error) throw error
-  return (data || []).map((r: any) => ({
+  return ((data || []) as RevenueRecordRow[]).map((r) => ({
     id: r.id,
     sourceModule: r.source_module,
     sourceId: r.source_id,
@@ -551,7 +598,7 @@ export async function fetchSubsidies(): Promise<SubsidyTracking[]> {
     .select('*')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return (data || []).map((s: any) => ({
+  return ((data || []) as SubsidyRow[]).map((s) => ({
     id: s.id,
     subsidyName: s.subsidy_name,
     agency: s.agency,
@@ -572,7 +619,7 @@ export async function fetchExpenses(): Promise<Expense[]> {
     .select('*')
     .order('expense_date', { ascending: false })
   if (error) throw error
-  return (data || []).map((e: any) => ({
+  return ((data || []) as ExpenseRow[]).map((e) => ({
     id: e.id,
     category: e.category,
     amount: e.amount,
@@ -599,7 +646,7 @@ export async function fetchFinanceSummary() {
 
   const revenueByCategory: Record<string, number> = {}
   let totalRevenue = 0
-  for (const r of (revenueData || [])) {
+  for (const r of ((revenueData || []) as { category: string; amount: number }[])) {
     revenueByCategory[r.category] = (revenueByCategory[r.category] || 0) + r.amount
     totalRevenue += r.amount
   }
@@ -613,7 +660,7 @@ export async function fetchFinanceSummary() {
 
   const expenseByCategory: Record<string, number> = {}
   let totalExpenses = 0
-  for (const e of (expenseData || [])) {
+  for (const e of ((expenseData || []) as { category: string; amount: number }[])) {
     expenseByCategory[e.category] = (expenseByCategory[e.category] || 0) + e.amount
     totalExpenses += e.amount
   }
@@ -624,8 +671,10 @@ export async function fetchFinanceSummary() {
     .select('annual_amount, application_status, disbursement_status')
     .in('application_status', ['核准'])
 
-  const totalSubsidy = (subsidyData || []).reduce((sum: number, s: any) => sum + s.annual_amount, 0)
-  const disbursed = (subsidyData || []).filter((s: any) => s.disbursement_status === '全額撥款').reduce((sum: number, s: any) => sum + s.annual_amount, 0)
+  type SubsidySummaryRow = { annual_amount: number; application_status: string; disbursement_status: string }
+  const subsidies = (subsidyData || []) as SubsidySummaryRow[]
+  const totalSubsidy = subsidies.reduce((sum, s) => sum + s.annual_amount, 0)
+  const disbursed = subsidies.filter((s) => s.disbursement_status === '全額撥款').reduce((sum, s) => sum + s.annual_amount, 0)
 
   return {
     totalRevenue,
@@ -640,14 +689,14 @@ export async function fetchFinanceSummary() {
 
 // ── M2 Project Queries ──────────────────────────
 
-export async function fetchProjects(): Promise<any[]> {
+export async function fetchProjects(): Promise<Project[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('projects')
     .select('*, organization:organizations(id, name, contact_name), tasks(id, status)')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return (data || []).map((p: any) => ({
+  return ((data || []) as ProjectWithJoinsRow[]).map((p) => ({
     id: p.id,
     orgId: p.org_id,
     name: p.name,
@@ -660,12 +709,12 @@ export async function fetchProjects(): Promise<any[]> {
     createdAt: p.created_at,
     updatedAt: p.updated_at,
     organization: p.organization ? {
-      id: p.organization.id,
-      name: p.organization.name,
-      contactName: p.organization.contact_name,
+      id: p.organization.id as string,
+      name: p.organization.name as string,
+      contactName: p.organization.contact_name as string,
     } : undefined,
-    tasks: (p.tasks || []).map((t: any) => ({ id: t.id, status: t.status })),
-  }))
+    tasks: (p.tasks || []).map((t: Partial<TaskRow>) => ({ id: t.id as string, status: t.status as string })),
+  })) as unknown as Project[]
 }
 
 export async function fetchProject(id: string): Promise<Project | null> {
@@ -674,7 +723,7 @@ export async function fetchProject(id: string): Promise<Project | null> {
     .from('projects')
     .select('*, organization:organizations(*), tasks(*)')
     .eq('id', id)
-    .single()
+    .single<ProjectWithJoinsRow>()
   if (error || !p) return null
   return {
     id: p.id,
@@ -689,72 +738,86 @@ export async function fetchProject(id: string): Promise<Project | null> {
     createdAt: p.created_at,
     updatedAt: p.updated_at,
     organization: p.organization ? {
-      id: p.organization.id,
-      name: p.organization.name,
-      taxId: p.organization.tax_id,
-      contactName: p.organization.contact_name,
-      contactPhone: p.organization.contact_phone,
-      contactEmail: p.organization.contact_email,
-      contactLine: p.organization.contact_line,
-      source: p.organization.source,
-      notes: p.organization.notes,
-      createdAt: p.organization.created_at,
-      updatedAt: p.organization.updated_at,
+      id: p.organization.id as string,
+      name: p.organization.name as string,
+      taxId: p.organization.tax_id ?? null,
+      contactName: p.organization.contact_name as string,
+      contactPhone: p.organization.contact_phone ?? null,
+      contactEmail: p.organization.contact_email ?? null,
+      contactLine: p.organization.contact_line ?? null,
+      source: p.organization.source as string,
+      notes: p.organization.notes ?? null,
+      createdAt: p.organization.created_at as string,
+      updatedAt: p.organization.updated_at as string,
     } : undefined,
-    tasks: (p.tasks || []).map((t: any) => ({
-      id: t.id,
-      projectId: t.project_id,
-      partnerId: t.partner_id,
-      title: t.title,
-      status: t.status,
-      dueDate: t.due_date,
-      outputUrl: t.output_url,
-      reviewNotes: t.review_notes,
-      createdAt: t.created_at,
-      updatedAt: t.updated_at,
+    tasks: (p.tasks || []).map((t: Partial<TaskRow>) => ({
+      id: t.id as string,
+      projectId: t.project_id as string,
+      partnerId: t.partner_id ?? null,
+      title: t.title as string,
+      status: t.status as string,
+      dueDate: t.due_date ?? null,
+      outputUrl: t.output_url ?? null,
+      reviewNotes: t.review_notes ?? null,
+      createdAt: t.created_at as string,
+      updatedAt: t.updated_at as string,
     })),
-  }
+  } as unknown as Project
 }
 
 // ── M5 Training Queries ──────────────────────────
 
-export async function fetchCourses(): Promise<any[]> {
+import type { Course } from './types'
+
+type CourseListRow = {
+  id: string
+  name: string
+  course_type: import('./types').CourseType
+  duration_hours: number
+  price: number
+  max_participants: number
+  description: string | null
+  created_at: string
+  course_sessions?: { id: string; status: import('./types').SessionStatus }[]
+}
+
+export async function fetchCourses(): Promise<Course[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('courses')
     .select('*, course_sessions(id, status)')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return (data || []).map((c: any) => ({
+  return ((data || []) as CourseListRow[]).map((c) => ({
     id: c.id, name: c.name, courseType: c.course_type,
     durationHours: c.duration_hours, price: c.price,
     maxParticipants: c.max_participants, description: c.description,
     createdAt: c.created_at,
-    sessions: c.course_sessions || [],
+    sessions: (c.course_sessions || []) as unknown as Course['sessions'],
   }))
 }
 
-export async function fetchCourse(id: string): Promise<any> {
+export async function fetchCourse(id: string) {
   const supabase = await createClient()
   const { data: c, error } = await supabase
     .from('courses')
     .select('*, course_sessions(*, enrollments(id, payment_status))')
     .eq('id', id)
-    .single()
+    .single<CourseWithJoinsRow>()
   if (error || !c) return null
   return {
     id: c.id, name: c.name, courseType: c.course_type,
     durationHours: c.duration_hours, price: c.price,
     maxParticipants: c.max_participants, description: c.description,
     createdAt: c.created_at,
-    sessions: (c.course_sessions || []).map((s: any) => ({
+    sessions: (c.course_sessions || []).map((s: CourseSessionRow & { enrollments?: Partial<EnrollmentRow>[] }) => ({
       id: s.id, courseId: s.course_id, sessionDate: s.session_date,
       startTime: s.start_time, location: s.location, orgId: s.org_id,
       status: s.status, actualParticipants: s.actual_participants,
       revenue: s.revenue, createdAt: s.created_at,
       enrollmentCount: (s.enrollments || []).length,
-      enrollments: (s.enrollments || []).map((e: any) => ({
-        id: e.id, paymentStatus: e.payment_status,
+      enrollments: (s.enrollments || []).map((e: Partial<EnrollmentRow>) => ({
+        id: e.id as string, paymentStatus: e.payment_status as string,
       })),
     })),
   }
@@ -762,22 +825,22 @@ export async function fetchCourse(id: string): Promise<any> {
 
 // ── M6 AI Strategy Queries ──────────────────────
 
-export async function fetchAiTools(): Promise<any[]> {
+export async function fetchAiTools() {
   const supabase = await createClient()
   const { data, error } = await supabase.from('ai_tools').select('*').order('created_at', { ascending: false })
   if (error) throw error
-  return (data || []).map((t: any) => ({
+  return ((data || []) as AiToolRow[]).map((t) => ({
     id: t.id, name: t.name, purpose: t.purpose,
     usedByModules: t.used_by_modules || [], costMonthly: t.cost_monthly,
     status: t.status, createdAt: t.created_at,
   }))
 }
 
-export async function fetchAgents(): Promise<any[]> {
+export async function fetchAgents() {
   const supabase = await createClient()
   const { data, error } = await supabase.from('agents').select('*').order('created_at', { ascending: false })
   if (error) throw error
-  return (data || []).map((a: any) => ({
+  return ((data || []) as AgentRow[]).map((a) => ({
     id: a.id, name: a.name, purpose: a.purpose,
     targetModule: a.target_module, promptVersion: a.prompt_version,
     lastUpdated: a.last_updated, performanceNotes: a.performance_notes,
@@ -785,14 +848,17 @@ export async function fetchAgents(): Promise<any[]> {
   }))
 }
 
-export async function fetchTrainingRecords(): Promise<any[]> {
+export async function fetchTrainingRecords() {
   const supabase = await createClient()
   const { data, error } = await supabase.from('training_records').select('*, partner:partners(name)').order('created_at', { ascending: false })
   if (error) throw error
-  return (data || []).map((r: any) => ({
+  return ((data || []) as TrainingRecordWithPartnerRow[]).map((r) => ({
     id: r.id, partnerId: r.partner_id, trainingType: r.training_type,
     toolName: r.tool_name, completedAt: r.completed_at, status: r.status,
     assessmentScore: r.assessment_score, createdAt: r.created_at,
     partnerName: r.partner?.name || '未知',
   }))
 }
+
+// Suppress unused-import warning for OrganizationRow (used transitively via joined types)
+export type { OrganizationRow }

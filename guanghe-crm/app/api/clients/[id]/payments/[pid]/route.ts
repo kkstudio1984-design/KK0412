@@ -11,7 +11,7 @@ export async function PATCH(
     const supabase = await createClient()
     const body = await req.json()
 
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (body.status !== undefined) updateData.status = body.status
     if (body.status === '已收') updateData.paid_at = new Date().toISOString()
     if (body.amount !== undefined) updateData.amount = parseInt(body.amount)

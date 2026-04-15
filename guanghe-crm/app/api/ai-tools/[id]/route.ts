@@ -6,7 +6,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const { id } = await params
     const supabase = await createClient()
     const body = await req.json()
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (body.name !== undefined) updateData.name = body.name
     if (body.purpose !== undefined) updateData.purpose = body.purpose
     if (body.usedByModules !== undefined) updateData.used_by_modules = body.usedByModules

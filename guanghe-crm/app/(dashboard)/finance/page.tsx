@@ -42,7 +42,7 @@ export default async function FinancePage() {
             <p className="text-sm text-stone-300">尚無營收</p>
           ) : (
             <div className="space-y-2">
-              {summary.revenueByCategory.map((r: any, i: number) => (
+              {summary.revenueByCategory.map((r: { category: string; amount: number }, i: number) => (
                 <div key={i} className="flex justify-between text-sm">
                   <span className="text-stone-600">{r.category}</span>
                   <span className="font-semibold text-stone-800 tabular-nums">{formatNTD(r.amount)}</span>
@@ -58,7 +58,7 @@ export default async function FinancePage() {
             <p className="text-sm text-stone-300">尚無支出</p>
           ) : (
             <div className="space-y-2">
-              {summary.expenseByCategory.map((e: any, i: number) => (
+              {summary.expenseByCategory.map((e: { category: string; amount: number }, i: number) => (
                 <div key={i} className="flex justify-between text-sm">
                   <span className="text-stone-600">{e.category}</span>
                   <span className="font-semibold text-stone-800 tabular-nums">{formatNTD(e.amount)}</span>

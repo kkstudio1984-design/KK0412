@@ -30,7 +30,7 @@ export async function PATCH(
     const supabase = await createClient()
     const body = await req.json()
 
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (body.name !== undefined) updateData.name = body.name
     if (body.projectType !== undefined) updateData.project_type = body.projectType
     if (body.status !== undefined) updateData.status = body.status

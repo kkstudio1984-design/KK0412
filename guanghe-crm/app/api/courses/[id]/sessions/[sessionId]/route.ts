@@ -6,7 +6,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const { sessionId } = await params
     const supabase = await createClient()
     const body = await req.json()
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
     if (body.status !== undefined) updateData.status = body.status
     if (body.actualParticipants !== undefined) updateData.actual_participants = parseInt(body.actualParticipants)
     if (body.revenue !== undefined) updateData.revenue = parseInt(body.revenue)
