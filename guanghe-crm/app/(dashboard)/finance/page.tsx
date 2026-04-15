@@ -89,6 +89,7 @@ export default async function FinancePage() {
         <Link href="/finance/revenue" className="card px-4 py-3 text-sm text-stone-600 hover:text-amber-600 font-medium">
           營收紀錄 →
         </Link>
+        <Link href="/finance/cash" className="card px-4 py-3 text-sm text-stone-600 hover:text-amber-600 font-medium">現金盤點 →</Link>
         <Link href="/finance/expenses" className="card px-4 py-3 text-sm text-stone-600 hover:text-amber-600 font-medium">
           費用紀錄 →
         </Link>

@@ -8,6 +8,9 @@ import { useRouter } from 'next/navigation'
 interface Props {
   client: ClientWithOrg
   index: number
+  bulkMode?: boolean
+  selected?: boolean
+  onToggleSelect?: (id: string) => void
 }
 
 function isAutoLossSuggestion(client: ClientWithOrg): boolean {
@@ -20,7 +23,7 @@ function isAutoLossSuggestion(client: ClientWithOrg): boolean {
   return diffDays > 14
 }
 
-export default function ClientCard({ client, index }: Props) {
+export default function ClientCard({ client, index, bulkMode, selected, onToggleSelect }: Props) {
   const router = useRouter()
   const hasRedFlags = client.redFlags.length > 0
   const followUpColor = getFollowUpColor(client.followUpDate)
@@ -29,20 +32,47 @@ export default function ClientCard({ client, index }: Props) {
   const showAutoLoss = isAutoLossSuggestion(client)
   const hasBadges = hasRedFlags || showHighRiskKyc
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (bulkMode) {
+      e.stopPropagation()
+      onToggleSelect?.(client.id)
+    } else {
+      router.push(`/clients/${client.id}`)
+    }
+  }
+
   return (
-    <Draggable draggableId={client.id} index={index}>
+    <Draggable draggableId={client.id} index={index} isDragDisabled={bulkMode}>
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          onClick={() => router.push(`/clients/${client.id}`)}
+          onClick={handleClick}
           className={`bg-white border rounded-xl p-4 cursor-pointer select-none group ${
             snapshot.isDragging
               ? 'shadow-2xl border-amber-400 rotate-1 scale-[1.02]'
+              : selected
+              ? 'border-amber-500 shadow-[0_0_0_2px_rgba(245,158,11,0.4)]'
               : 'border-stone-200/80 hover:border-amber-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
           }`}
         >
+          {/* Bulk mode checkbox */}
+          {bulkMode && (
+            <div className="flex items-center gap-2 mb-2">
+              <input
+                type="checkbox"
+                checked={!!selected}
+                onChange={() => onToggleSelect?.(client.id)}
+                onClick={e => e.stopPropagation()}
+                className="w-4 h-4 rounded border-stone-300 accent-amber-500"
+              />
+              <span className="text-xs" style={{ color: selected ? '#d97706' : '#888' }}>
+                {selected ? '已選取' : '點選以選取'}
+              </span>
+            </div>
+          )}
+
           {/* Badges row */}
           {hasBadges && (
             <div className="flex flex-wrap items-center gap-1.5 mb-2.5">

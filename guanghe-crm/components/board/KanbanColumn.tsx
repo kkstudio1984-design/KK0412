@@ -7,6 +7,9 @@ import ClientCard from './ClientCard'
 interface Props {
   stage: Stage
   clients: ClientWithOrg[]
+  bulkMode?: boolean
+  selectedIds?: Set<string>
+  onToggleSelect?: (id: string) => void
 }
 
 const STAGE_STYLE: Record<Stage, { color: string; bg: string }> = {
@@ -19,7 +22,7 @@ const STAGE_STYLE: Record<Stage, { color: string; bg: string }> = {
   '已流失':    { color: '#fb7185', bg: 'rgba(251,113,133,0.08)' },
 }
 
-export default function KanbanColumn({ stage, clients }: Props) {
+export default function KanbanColumn({ stage, clients, bulkMode, selectedIds, onToggleSelect }: Props) {
   const style = STAGE_STYLE[stage]
 
   return (
@@ -57,7 +60,14 @@ export default function KanbanColumn({ stage, clients }: Props) {
             }}
           >
             {clients.map((client, index) => (
-              <ClientCard key={client.id} client={client} index={index} />
+              <ClientCard
+                key={client.id}
+                client={client}
+                index={index}
+                bulkMode={bulkMode}
+                selected={selectedIds?.has(client.id)}
+                onToggleSelect={onToggleSelect}
+              />
             ))}
             {provided.placeholder}
           </div>
