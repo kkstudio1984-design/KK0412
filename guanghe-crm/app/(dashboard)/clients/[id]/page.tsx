@@ -9,6 +9,7 @@ import MailRecordList from '@/components/clients/MailRecordList'
 import OffboardingPanel from '@/components/clients/OffboardingPanel'
 import ClientTimeline from '@/components/clients/ClientTimeline'
 import IncidentList from '@/components/clients/IncidentList'
+import ChangeNotifications from '@/components/clients/ChangeNotifications'
 import { fetchClient } from '@/lib/queries'
 import { formatNTD } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/server'
@@ -29,6 +30,13 @@ export default async function ClientDetailPage({
     .eq('space_client_id', id)
     .order('occurred_at', { ascending: false })
   const clientIncidents = incidentsData || []
+
+  const { data: changesData } = await supabaseForIncidents
+    .from('change_notifications')
+    .select('*')
+    .eq('space_client_id', id)
+    .order('created_at', { ascending: false })
+  const clientChanges = changesData || []
 
   // Build timeline events from all client activity
   const timelineEvents = [
@@ -141,6 +149,11 @@ export default async function ClientDetailPage({
 
         {/* 區塊 — 客訴與事件 */}
         <IncidentList clientId={client.id} initialIncidents={clientIncidents} />
+
+        {/* 區塊 — 變更通知（僅借址登記）*/}
+        {client.serviceType === '借址登記' && (
+          <ChangeNotifications clientId={client.id} initialChanges={clientChanges} />
+        )}
 
         {/* 區塊 — 退場流程（退租中或已結案階段）*/}
         {(client.stage === '退租中' || client.stage === '已結案' || (client.offboardingRecords && client.offboardingRecords.length > 0)) && (

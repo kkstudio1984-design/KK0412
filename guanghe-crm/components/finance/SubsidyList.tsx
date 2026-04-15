@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { SubsidyTracking, APPLICATION_STATUSES, DISBURSEMENT_STATUSES } from '@/lib/types'
 import { formatNTD } from '@/lib/utils'
@@ -99,30 +100,32 @@ export default function SubsidyList({ initialSubsidies }: Props) {
       ) : (
         <div className="space-y-3">
           {subsidies.map((s) => (
-            <div key={s.id} className="card p-5">
+            <Link key={s.id} href={`/finance/subsidies/${s.id}`} className="card p-5 block hover:border-stone-300 transition-colors">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold text-stone-800">{s.subsidyName}</h3>
                 <span className="text-sm font-bold text-stone-800 tabular-nums">{formatNTD(s.annualAmount)}/年</span>
               </div>
               <p className="text-xs text-stone-400 mb-3">{s.agency}</p>
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2" onClick={(e) => e.preventDefault()}>
                   <span className="text-xs text-stone-400">申請：</span>
                   <select
                     value={s.applicationStatus}
                     disabled={!canEdit || updating === s.id}
-                    onChange={(e) => handleStatusChange(s.id, 'applicationStatus', e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => { e.stopPropagation(); handleStatusChange(s.id, 'applicationStatus', e.target.value) }}
                     className={`badge cursor-pointer ${APP_STYLES[s.applicationStatus]}`}
                   >
                     {APPLICATION_STATUSES.map(st => <option key={st} value={st}>{st}</option>)}
                   </select>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2" onClick={(e) => e.preventDefault()}>
                   <span className="text-xs text-stone-400">撥款：</span>
                   <select
                     value={s.disbursementStatus}
                     disabled={!canEdit || updating === s.id}
-                    onChange={(e) => handleStatusChange(s.id, 'disbursementStatus', e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => { e.stopPropagation(); handleStatusChange(s.id, 'disbursementStatus', e.target.value) }}
                     className={`badge cursor-pointer ${DISB_STYLES[s.disbursementStatus]}`}
                   >
                     {DISBURSEMENT_STATUSES.map(st => <option key={st} value={st}>{st}</option>)}
@@ -130,7 +133,7 @@ export default function SubsidyList({ initialSubsidies }: Props) {
                 </div>
               </div>
               {s.notes && <p className="text-xs text-stone-400 mt-2">{s.notes}</p>}
-            </div>
+            </Link>
           ))}
         </div>
       )}
