@@ -17,6 +17,11 @@ const navItems = [
   { href: '/address-risk', label: '地址風險', icon: '⚠', color: '#d97706' },
 ]
 
+const adminItems = [
+  { href: '/admin/users', label: '使用者管理', icon: '👥', color: '#f59e0b' },
+  { href: '/admin/audit', label: '操作軌跡', icon: '📋', color: '#f59e0b' },
+]
+
 interface Props {
   onNavigate?: () => void
 }
@@ -112,6 +117,32 @@ export default function SideNav({ onNavigate }: Props) {
             </Link>
           )
         })}
+
+        {userRole === 'admin' && (
+          <>
+            <div className="my-3 mx-3 border-t" style={{ borderColor: '#1a1a1a' }} />
+            <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#444' }}>管理員專區</p>
+            {adminItems.map(item => {
+              const isActive = pathname.startsWith(item.href)
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => onNavigate?.()}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm"
+                  style={{
+                    background: isActive ? `${item.color}11` : 'transparent',
+                    color: isActive ? '#fff' : '#888',
+                    borderLeft: isActive ? `2px solid ${item.color}` : '2px solid transparent',
+                  }}
+                >
+                  <span className="text-base leading-none opacity-60">{item.icon}</span>
+                  <span>{item.label}</span>
+                </Link>
+              )
+            })}
+          </>
+        )}
       </nav>
 
       {/* User */}
