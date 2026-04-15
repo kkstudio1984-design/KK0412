@@ -157,11 +157,55 @@ npx vercel --prod
 ## 常用指令
 
 ```bash
-npm run dev          # 開發模式
-npm run build        # 正式建置
-npm run start        # 啟動 production server
-npm run lint         # ESLint 檢查
+npm run dev            # 開發模式
+npm run build          # 正式建置
+npm run start          # 啟動 production server
+npm run lint           # ESLint 檢查
+npm run test:e2e       # E2E 測試（headless）
+npm run test:e2e:ui    # E2E 測試（UI 模式，可視化）
+npm run test:e2e:debug # E2E 測試（debug 模式）
 ```
+
+---
+
+## E2E 測試
+
+使用 Playwright 做端對端測試。需要一個 Supabase 測試帳號。
+
+### 前置設定
+
+1. **啟用 Supabase email/password 認證**
+   到 Supabase Dashboard → Authentication → Providers → Email，開啟。
+
+2. **建立測試使用者**
+   到 Authentication → Users → Add user → 填 email + password。
+
+3. **設定為 operator 角色**
+   ```sql
+   update profiles set role = 'operator' where email = 'test@example.com';
+   ```
+
+4. **設定本地 env**
+   在 `.env` 加上：
+   ```
+   TEST_USER_EMAIL=test@example.com
+   TEST_USER_PASSWORD=your_test_password
+   ```
+
+5. **跑測試**
+   ```bash
+   npm run test:e2e
+   ```
+
+### GitHub Actions CI
+
+Secrets 需要設定（GitHub repo → Settings → Secrets and variables → Actions）：
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `TEST_USER_EMAIL`
+- `TEST_USER_PASSWORD`
+
+Push 到 main 會自動 build，PR 會額外跑 E2E。
 
 ---
 
