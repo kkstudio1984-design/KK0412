@@ -9,6 +9,7 @@ const navItems = [
   { href: '/', label: 'CRM 看板', icon: '⊞', color: '#d97706' },
   { href: '/projects', label: '專案管理', icon: '▦', color: '#7c3aed' },
   { href: '/sales', label: '銷售管線', icon: '◎', color: '#0ea5e9' },
+  { href: '/contracts', label: '合約管理', icon: '📄', color: '#d97706' },
   { href: '/sales/sponsorships', label: 'ESG 贊助', icon: '♻', color: '#0ea5e9' },
   { href: '/finance', label: '財務總覽', icon: '¥', color: '#10b981' },
   { href: '/training', label: '教育訓練', icon: '◉', color: '#ec4899' },

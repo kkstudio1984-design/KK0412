@@ -862,3 +862,44 @@ export async function fetchTrainingRecords() {
 
 // Suppress unused-import warning for OrganizationRow (used transitively via joined types)
 export type { OrganizationRow }
+
+// ── 合約總覽 ─────────────────────────────────────────
+import type { Contract } from './types'
+
+export type ContractWithClient = Contract & {
+  clientId: string
+  orgName: string
+}
+
+export async function fetchAllContracts(): Promise<ContractWithClient[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('contracts')
+    .select(`
+      *,
+      space_client:space_clients(
+        id,
+        organization:organizations(name)
+      )
+    `)
+    .order('end_date', { ascending: true })
+
+  if (error) throw error
+  if (!data) return []
+
+  return (data as any[]).map((ct) => ({
+    id: ct.id,
+    spaceClientId: ct.space_client_id,
+    clientId: ct.space_client?.id ?? ct.space_client_id,
+    orgName: ct.space_client?.organization?.name ?? '—',
+    contractType: ct.contract_type,
+    paymentCycle: ct.payment_cycle,
+    startDate: ct.start_date,
+    endDate: ct.end_date,
+    monthlyRent: ct.monthly_rent,
+    depositAmount: ct.deposit_amount,
+    depositStatus: ct.deposit_status,
+    isNotarized: ct.is_notarized,
+    notarizedAt: ct.notarized_at,
+  }))
+}
