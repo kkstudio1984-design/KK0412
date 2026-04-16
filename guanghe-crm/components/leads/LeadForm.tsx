@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { LEAD_CHANNELS, LEAD_INTERESTS, LeadChannel, LeadInterest } from '@/lib/types'
+import { LEAD_CHANNELS, LEAD_INTERESTS } from '@/lib/types'
 import { useRole } from '@/components/providers/RoleProvider'
 
 export default function LeadForm() {
@@ -14,8 +14,8 @@ export default function LeadForm() {
   const [form, setForm] = useState({
     contactName: '',
     contactInfo: '',
-    channel: 'self' as string,
-    interest: '借址登記' as string,
+    channel: LEAD_CHANNELS[0],
+    interest: LEAD_INTERESTS[0],
     followUpDate: '',
     notes: '',
   })
@@ -84,7 +84,8 @@ export default function LeadForm() {
               type="text"
               value={form.contactName}
               onChange={(e) => set('contactName', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              style={{ background: '#0a0a0a', border: '1px solid #2a2a2a', color: '#e8e6e3' }}
               placeholder="王小明"
             />
           </div>
@@ -97,7 +98,8 @@ export default function LeadForm() {
               type="text"
               value={form.contactInfo}
               onChange={(e) => set('contactInfo', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              style={{ background: '#0a0a0a', border: '1px solid #2a2a2a', color: '#e8e6e3' }}
               placeholder="0912-345-678 或 example@mail.com"
             />
           </div>
@@ -107,7 +109,8 @@ export default function LeadForm() {
             <select
               value={form.channel}
               onChange={(e) => set('channel', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              style={{ background: '#0a0a0a', border: '1px solid #2a2a2a', color: '#e8e6e3' }}
             >
               {LEAD_CHANNELS.map((ch) => (
                 <option key={ch} value={ch}>{ch}</option>
@@ -120,7 +123,8 @@ export default function LeadForm() {
             <select
               value={form.interest}
               onChange={(e) => set('interest', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              style={{ background: '#0a0a0a', border: '1px solid #2a2a2a', color: '#e8e6e3' }}
             >
               {LEAD_INTERESTS.map((i) => (
                 <option key={i} value={i}>{i}</option>
@@ -134,7 +138,8 @@ export default function LeadForm() {
               type="date"
               value={form.followUpDate}
               onChange={(e) => set('followUpDate', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              style={{ background: '#0a0a0a', border: '1px solid #2a2a2a', color: '#e8e6e3' }}
             />
           </div>
 
@@ -144,7 +149,8 @@ export default function LeadForm() {
               value={form.notes}
               onChange={(e) => set('notes', e.target.value)}
               rows={3}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+              style={{ background: '#0a0a0a', border: '1px solid #2a2a2a', color: '#e8e6e3' }}
               placeholder="補充說明..."
             />
           </div>

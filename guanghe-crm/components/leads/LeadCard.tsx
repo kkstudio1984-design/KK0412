@@ -23,32 +23,43 @@ export default function LeadCard({ lead, index }: Props) {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           onClick={() => router.push(`/sales/leads/${lead.id}`)}
-          className={`bg-white border rounded-xl p-4 cursor-pointer select-none group ${
-            snapshot.isDragging
-              ? 'shadow-2xl border-amber-400 rotate-1 scale-[1.02]'
-              : 'border-stone-200/80 hover:border-amber-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
-          }`}
+          className="rounded-xl p-4 cursor-pointer select-none group"
+          style={{
+            ...provided.draggableProps.style,
+            background: '#0f0f0f',
+            border: `1px solid ${snapshot.isDragging ? '#d97706' : '#1f1f1f'}`,
+            transform: snapshot.isDragging
+              ? `${provided.draggableProps.style?.transform ?? ''} rotate(1deg) scale(1.02)`
+              : (provided.draggableProps.style?.transform ?? 'none'),
+            boxShadow: snapshot.isDragging
+              ? '0 8px 32px rgba(0,0,0,0.5), 0 0 20px rgba(217,119,6,0.2)'
+              : '0 1px 3px rgba(0,0,0,0.2)',
+          }}
         >
           {/* Contact name */}
-          <p className="font-semibold text-stone-800 text-sm leading-snug mb-1.5 line-clamp-1 group-hover:text-amber-700">
+          <p className="font-semibold text-sm leading-snug mb-1.5 line-clamp-1" style={{ color: '#e8e6e3' }}>
             {lead.contactName}
           </p>
 
           {/* Organization name */}
           {lead.organization && (
-            <p className="text-xs text-stone-400 mb-2.5 line-clamp-1">
+            <p className="text-xs mb-2.5 line-clamp-1" style={{ color: '#888' }}>
               {lead.organization.name}
             </p>
           )}
 
           {/* Pills row */}
           <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
-            {/* Channel pill */}
-            <span className="inline-block text-xs px-2 py-0.5 rounded-md bg-stone-100 text-stone-500 font-medium">
+            <span
+              className="inline-block text-xs px-2 py-0.5 rounded-md font-medium"
+              style={{ background: '#1a1a1a', color: '#a8a29e' }}
+            >
               {lead.channel}
             </span>
-            {/* Interest pill */}
-            <span className="inline-block text-xs px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-medium border border-amber-100">
+            <span
+              className="inline-block text-xs px-2 py-0.5 rounded-md font-medium"
+              style={{ background: 'rgba(217,119,6,0.1)', color: '#fbbf24', border: '1px solid rgba(217,119,6,0.25)' }}
+            >
               {lead.interest}
             </span>
           </div>
@@ -56,16 +67,19 @@ export default function LeadCard({ lead, index }: Props) {
           {/* Follow-up */}
           <div className="flex items-center gap-1.5 mb-1">
             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${followUpDot}`} />
-            <span className={`text-xs ${followUpColor}`}>
+            <span className="text-xs" style={{ color: followUpColor }}>
               {getFollowUpLabel(lead.followUpDate)}
             </span>
           </div>
 
           {/* Converted badge */}
           {lead.convertedTo && (
-            <div className="mt-2 pt-2 border-t border-stone-100">
-              <span className="badge text-emerald-700 bg-emerald-50 border-emerald-200 text-xs px-2 py-0.5 rounded-md font-medium">
-                已轉換
+            <div className="mt-2 pt-2" style={{ borderTop: '1px solid #1f1f1f' }}>
+              <span
+                className="text-xs px-2 py-0.5 rounded-md font-medium"
+                style={{ background: 'rgba(52,211,153,0.12)', color: '#34d399', border: '1px solid rgba(52,211,153,0.25)' }}
+              >
+                ✓ 已轉換
               </span>
             </div>
           )}

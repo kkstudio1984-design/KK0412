@@ -3,11 +3,11 @@ import { differenceInDays, endOfMonth, format, startOfMonth } from 'date-fns'
 // ── 跟進日期 ───────────────────────────────────────────
 
 export function getFollowUpColor(dateStr: string | null): string {
-  if (!dateStr) return 'text-gray-400'
+  if (!dateStr) return '#8a8680'
   const days = differenceInDays(new Date(dateStr), new Date())
-  if (days >= 3) return 'text-green-600'
-  if (days >= 1) return 'text-yellow-500'
-  return 'text-red-500'
+  if (days >= 3) return '#34d399'
+  if (days >= 1) return '#fbbf24'
+  return '#f87171'
 }
 
 export function getFollowUpDotColor(dateStr: string | null): string {

@@ -122,8 +122,12 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ org, client }, { status: 201 })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[POST /api/clients]', error)
-    return NextResponse.json({ error: '新增客戶失敗' }, { status: 500 })
+    const msg =
+      error instanceof Error
+        ? error.message
+        : (error as { message?: string })?.message ?? '新增客戶失敗'
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
