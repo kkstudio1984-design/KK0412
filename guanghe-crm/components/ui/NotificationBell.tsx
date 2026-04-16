@@ -12,11 +12,11 @@ interface Notification {
   created_at: string
 }
 
-const TYPE_COLORS: Record<string, string> = {
-  urgent: 'text-red-600',
-  warning: 'text-amber-600',
-  info: 'text-blue-600',
-  success: 'text-emerald-600',
+const TYPE_DOT: Record<string, string> = {
+  urgent:  '#f87171',
+  warning: '#fbbf24',
+  info:    '#38bdf8',
+  success: '#34d399',
 }
 
 export default function NotificationBell() {
@@ -100,29 +100,62 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-10 w-80 rounded-xl shadow-2xl z-50 overflow-hidden" style={{ background: '#1a1a1a', border: '1px solid #333' }}>
-          <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100">
-            <span className="text-sm font-semibold text-stone-800">通知</span>
+        <div className="absolute right-0 top-10 w-80 rounded-xl shadow-2xl z-50 overflow-hidden" style={{ background: '#1a1a1a', border: '1px solid #2a2a2a' }}>
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid #2a2a2a' }}>
+            <span className="text-sm font-semibold" style={{ color: '#e8e6e3' }}>通知</span>
             {unreadCount > 0 && (
-              <button onClick={markAllRead} className="text-xs text-amber-600 hover:text-amber-700">全部已讀</button>
+              <button
+                onClick={markAllRead}
+                className="text-xs"
+                style={{ color: '#fbbf24' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#fcd34d')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#fbbf24')}
+              >
+                全部已讀
+              </button>
             )}
           </div>
+
+          {/* List */}
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <p className="text-sm text-stone-300 text-center py-8">沒有通知</p>
+              <p className="text-sm text-center py-8" style={{ color: '#555' }}>沒有通知</p>
             ) : (
-              notifications.slice(0, 15).map(n => (
-                <div key={n.id} className={`px-4 py-3 border-b border-stone-50 hover:bg-stone-50 ${!n.read ? 'bg-amber-50/30' : ''}`}>
-                  <div className="flex items-start gap-2">
-                    <span className={`text-xs mt-0.5 ${TYPE_COLORS[n.type] || 'text-stone-400'}`}>●</span>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm ${!n.read ? 'font-medium text-stone-800' : 'text-stone-600'}`}>{n.title}</p>
-                      {n.message && <p className="text-xs text-stone-400 mt-0.5 truncate">{n.message}</p>}
-                      <p className="text-xs text-stone-300 mt-1">{timeAgo(n.created_at)}</p>
+              notifications.slice(0, 15).map(n => {
+                const dotColor = TYPE_DOT[n.type] || '#555'
+                const row = (
+                  <div
+                    key={n.id}
+                    className="px-4 py-3"
+                    style={{
+                      borderBottom: '1px solid #222',
+                      background: !n.read ? 'rgba(217,119,6,0.04)' : 'transparent',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#222')}
+                    onMouseLeave={e => (e.currentTarget.style.background = !n.read ? 'rgba(217,119,6,0.04)' : 'transparent')}
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className="mt-1 shrink-0 text-xs" style={{ color: dotColor }}>●</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm leading-snug" style={{ color: n.read ? '#888' : '#e8e6e3', fontWeight: n.read ? 400 : 500 }}>
+                          {n.title}
+                        </p>
+                        {n.message && (
+                          <p className="text-xs mt-0.5 truncate" style={{ color: '#666' }}>{n.message}</p>
+                        )}
+                        <p className="text-xs mt-1" style={{ color: '#444' }}>{timeAgo(n.created_at)}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                )
+
+                return n.link ? (
+                  <a key={n.id} href={n.link} onClick={() => setOpen(false)} style={{ display: 'block', textDecoration: 'none' }}>
+                    {row}
+                  </a>
+                ) : row
+              })
             )}
           </div>
         </div>
