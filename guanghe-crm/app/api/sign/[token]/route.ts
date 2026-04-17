@@ -34,8 +34,14 @@ export async function POST(
 ) {
   try {
     const { token } = await params
-    const { signerName, action } = await req.json()
+    const { signerName, action, signatureImage } = await req.json()
     // action: 'sign' | 'reject'
+    // signatureImage: base64 PNG data URL (only for 'sign')
+
+    // Reject oversized payloads to keep DB lean (PNG from canvas ~20–60KB, cap at 500KB)
+    if (signatureImage && typeof signatureImage === 'string' && signatureImage.length > 500_000) {
+      return NextResponse.json({ error: '簽名圖片過大' }, { status: 413 })
+    }
 
     const supabase = await createClient()
 
@@ -68,6 +74,7 @@ export async function POST(
         signer_name: signerName || null,
         signer_ip: signerIp,
         signed_at: new Date().toISOString(),
+        signature_image_data: action === 'sign' ? (signatureImage || null) : null,
       })
       .eq('id', contract.id)
 

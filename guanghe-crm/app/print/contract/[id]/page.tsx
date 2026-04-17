@@ -133,7 +133,19 @@ export default async function PrintContractPage({ params }: { params: Promise<{ 
           <div>
             <p className="font-bold mb-6">乙方：{org?.name || '—'}</p>
             <p className="text-stone-600 text-xs mb-2">負責人簽章：</p>
-            <div className="border-b border-stone-900 h-12" />
+            <div className="border-b border-stone-900 h-12 relative">
+              {(contract as any).signature_image_data && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={(contract as any).signature_image_data}
+                  alt="電子簽名"
+                  style={{
+                    position: 'absolute', bottom: 0, left: 0,
+                    maxHeight: '48px', maxWidth: '100%', objectFit: 'contain',
+                  }}
+                />
+              )}
+            </div>
           </div>
         </section>
 

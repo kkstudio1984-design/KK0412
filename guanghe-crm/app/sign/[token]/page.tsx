@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { format } from 'date-fns'
+import SignaturePad from 'signature_pad'
 
 interface ContractData {
   id: string
@@ -37,6 +38,10 @@ export default function SignPage() {
   const [agreed, setAgreed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState<'signed' | 'rejected' | null>(null)
+  const [hasSignature, setHasSignature] = useState(false)
+
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const padRef = useRef<SignaturePad | null>(null)
 
   useEffect(() => {
     fetch(`/api/sign/${token}`)
@@ -51,15 +56,62 @@ export default function SignPage() {
       .finally(() => setLoading(false))
   }, [token])
 
+  // Initialize SignaturePad when canvas appears (after contract loads and not yet signed)
+  useEffect(() => {
+    if (!canvasRef.current || padRef.current) return
+    if (!contract || done || contract.signing_status !== '待簽署') return
+
+    const canvas = canvasRef.current
+    const resize = () => {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1)
+      const rect = canvas.getBoundingClientRect()
+      canvas.width = rect.width * ratio
+      canvas.height = rect.height * ratio
+      canvas.getContext('2d')?.scale(ratio, ratio)
+      padRef.current?.clear()
+      setHasSignature(false)
+    }
+
+    const pad = new SignaturePad(canvas, {
+      backgroundColor: 'rgb(255,255,255)',
+      penColor: 'rgb(17,17,17)',
+      minWidth: 0.8,
+      maxWidth: 2.4,
+    })
+    pad.addEventListener('endStroke', () => setHasSignature(!pad.isEmpty()))
+    padRef.current = pad
+
+    resize()
+    window.addEventListener('resize', resize)
+    return () => {
+      window.removeEventListener('resize', resize)
+      pad.off()
+      padRef.current = null
+    }
+  }, [contract, done])
+
+  const clearSignature = () => {
+    padRef.current?.clear()
+    setHasSignature(false)
+  }
+
   const handleAction = async (action: 'sign' | 'reject') => {
     if (action === 'sign' && !agreed) return
     if (action === 'sign' && !signerName.trim()) return
+    if (action === 'sign' && (!padRef.current || padRef.current.isEmpty())) {
+      setError('請在下方簽名後再確認')
+      setTimeout(() => setError(null), 3000)
+      return
+    }
     setSubmitting(true)
     try {
+      const signatureImage = action === 'sign' && padRef.current
+        ? padRef.current.toDataURL('image/png')
+        : null
       const res = await fetch(`/api/sign/${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ signerName: signerName.trim(), action }),
+        body: JSON.stringify({ signerName: signerName.trim(), action, signatureImage }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error || '操作失敗'); return }
@@ -216,6 +268,54 @@ export default function SignPage() {
               />
             </div>
 
+            {/* Handwritten signature canvas */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                <label style={{ color: '#666', fontSize: '0.75rem' }}>
+                  親筆簽名（手指或滑鼠）<span style={{ color: '#f87171' }}> *</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={clearSignature}
+                  style={{
+                    background: 'transparent', border: 'none', color: '#888', fontSize: '0.72rem',
+                    cursor: 'pointer', padding: '0.2rem 0.4rem',
+                  }}
+                >
+                  清除重簽
+                </button>
+              </div>
+              <div style={{
+                position: 'relative', background: '#fff', borderRadius: '8px',
+                border: '1px solid #2a2a2a', overflow: 'hidden',
+              }}>
+                <canvas
+                  ref={canvasRef}
+                  style={{
+                    display: 'block', width: '100%', height: '180px', touchAction: 'none',
+                    cursor: 'crosshair',
+                  }}
+                />
+                {!hasSignature && (
+                  <div style={{
+                    position: 'absolute', inset: 0, display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', pointerEvents: 'none',
+                    color: '#aaa', fontSize: '0.85rem',
+                  }}>
+                    在此處簽名
+                  </div>
+                )}
+                {/* Baseline */}
+                <div style={{
+                  position: 'absolute', bottom: '20%', left: '5%', right: '5%',
+                  borderBottom: '1px dashed #ddd', pointerEvents: 'none',
+                }} />
+              </div>
+              <p style={{ color: '#444', fontSize: '0.68rem', marginTop: '0.4rem', margin: '0.4rem 0 0' }}>
+                簽名筆跡將作為合約電子簽章存檔，具法律效力
+              </p>
+            </div>
+
             <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', cursor: 'pointer', marginBottom: '1.5rem' }}>
               <input
                 type="checkbox"
@@ -229,21 +329,24 @@ export default function SignPage() {
             </label>
 
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                onClick={() => handleAction('sign')}
-                disabled={submitting || !agreed || !signerName.trim()}
-                style={{
-                  flex: 1, padding: '0.75rem', borderRadius: '8px', fontSize: '0.875rem',
-                  fontWeight: 600, cursor: submitting || !agreed || !signerName.trim() ? 'not-allowed' : 'pointer',
-                  background: submitting || !agreed || !signerName.trim()
-                    ? '#2a2a2a'
-                    : 'linear-gradient(to right, #f59e0b, #d97706)',
-                  color: submitting || !agreed || !signerName.trim() ? '#555' : '#0a0a0a',
-                  border: 'none',
-                }}
-              >
-                {submitting ? '處理中...' : '✍️ 確認簽署'}
-              </button>
+              {(() => {
+                const disabled = submitting || !agreed || !signerName.trim() || !hasSignature
+                return (
+                  <button
+                    onClick={() => handleAction('sign')}
+                    disabled={disabled}
+                    style={{
+                      flex: 1, padding: '0.75rem', borderRadius: '8px', fontSize: '0.875rem',
+                      fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer',
+                      background: disabled ? '#2a2a2a' : 'linear-gradient(to right, #f59e0b, #d97706)',
+                      color: disabled ? '#555' : '#0a0a0a',
+                      border: 'none',
+                    }}
+                  >
+                    {submitting ? '處理中...' : '✍️ 確認簽署'}
+                  </button>
+                )
+              })()}
               <button
                 onClick={() => handleAction('reject')}
                 disabled={submitting}
