@@ -137,6 +137,23 @@ export default async function PrintContractPage({ params }: { params: Promise<{ 
           </div>
         </section>
 
+        {/* E-signature stamp */}
+        {(contract as any).signing_status === '已簽署' && (
+          <div className="mt-6 pt-4" style={{ borderTop: '1px solid #e5e7eb' }}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg"
+              style={{ background: '#f0fdf4', border: '1px solid #86efac' }}>
+              <span style={{ color: '#16a34a', fontSize: '0.85rem' }}>✓</span>
+              <div>
+                <p style={{ color: '#15803d', fontSize: '0.8rem', fontWeight: 600, margin: 0 }}>已完成電子簽署</p>
+                <p style={{ color: '#4ade80', fontSize: '0.7rem', margin: 0 }}>
+                  簽署人：{(contract as any).signer_name || '—'}
+                  {(contract as any).signed_at && ` · ${format(new Date((contract as any).signed_at), 'yyyy年MM月dd日 HH:mm')}`}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <p className="text-center text-xs text-stone-500 mt-12">
           中華民國 {new Date().getFullYear() - 1911} 年 {new Date().getMonth() + 1} 月 {new Date().getDate()} 日
         </p>

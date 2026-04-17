@@ -48,6 +48,13 @@ const DEPOSIT_STYLES: Record<string, { color: string; bg: string }> = {
   已退: { color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' },
 }
 
+const SIGNING_STYLES: Record<string, { color: string; bg: string }> = {
+  未發送: { color: '#555',    bg: 'rgba(85,85,85,0.12)' },
+  待簽署: { color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' },
+  已簽署: { color: '#34d399', bg: 'rgba(52,211,153,0.12)' },
+  已拒絕: { color: '#f87171', bg: 'rgba(248,113,113,0.12)' },
+}
+
 const ALL_TABS: Array<'全部' | ContractStatus> = ['全部', '生效中', '到期提醒', '緊急到期', '已過期']
 
 interface Props {
@@ -153,7 +160,7 @@ export default function ContractTable({ contracts }: Props) {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: '#0a0a0a', borderBottom: '1px solid #222' }}>
-                {['公司名稱', '合約類型', '繳費週期', '起始日', '到期日', '剩餘天數', '押金狀態', '狀態'].map((h) => (
+                {['公司名稱', '合約類型', '繳費週期', '起始日', '到期日', '剩餘天數', '押金狀態', '狀態', '簽署狀態'].map((h) => (
                   <th
                     key={h}
                     className="px-4 py-3 text-left font-medium text-xs uppercase tracking-wide"
@@ -224,6 +231,17 @@ export default function ContractTable({ contracts }: Props) {
                         style={{ background: st.bg, color: st.color }}
                       >
                         {c.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className="inline-block px-2 py-0.5 rounded text-xs font-medium"
+                        style={{
+                          background: (SIGNING_STYLES[c.signingStatus ?? '未發送'] ?? SIGNING_STYLES['未發送']).bg,
+                          color: (SIGNING_STYLES[c.signingStatus ?? '未發送'] ?? SIGNING_STYLES['未發送']).color,
+                        }}
+                      >
+                        {c.signingStatus ?? '未發送'}
                       </span>
                     </td>
                   </tr>

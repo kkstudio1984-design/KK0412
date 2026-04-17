@@ -126,6 +126,8 @@ export type Payment = {
 export type PaymentCycle = '月繳' | '季繳' | '半年繳' | '年繳'
 export type DepositStatus = '未收' | '已收' | '已退'
 
+export type SigningStatus = '未發送' | '待簽署' | '已簽署' | '已拒絕'
+
 export type Contract = {
   id: string
   spaceClientId: string
@@ -138,6 +140,11 @@ export type Contract = {
   depositStatus: DepositStatus
   isNotarized: boolean
   notarizedAt: string | null
+  signingStatus: SigningStatus
+  signingToken: string | null
+  signingTokenExpiresAt: string | null
+  signedAt: string | null
+  signerName: string | null
 }
 
 // ── Offboarding ───────────────────────────────────────

@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { differenceInMonths, differenceInDays, format } from 'date-fns'
-import { Contract, PaymentCycle } from '@/lib/types'
+import { Contract, PaymentCycle, SigningStatus } from '@/lib/types'
 import { formatDate, formatNTD } from '@/lib/utils'
 import { CanEdit } from '@/components/providers/RoleProvider'
 import EmptyState from '@/components/ui/EmptyState'
@@ -37,6 +37,14 @@ const CYCLE_LABEL: Record<PaymentCycle, string> = {
   '季繳': '季繳（98折）',
   '半年繳': '半年繳（97折）',
   '年繳': '年繳（95折）建議',
+}
+
+// ── 簽署狀態樣式 ───────────────────────────────────────────
+const SIGNING_STYLE: Record<SigningStatus, { color: string; bg: string; border: string }> = {
+  '未發送': { color: '#555',    bg: 'transparent',              border: '#333' },
+  '待簽署': { color: '#fbbf24', bg: 'rgba(251,191,36,0.08)',   border: 'rgba(251,191,36,0.3)' },
+  '已簽署': { color: '#34d399', bg: 'rgba(52,211,153,0.1)',    border: 'rgba(52,211,153,0.3)' },
+  '已拒絕': { color: '#f87171', bg: 'rgba(248,113,113,0.08)',  border: 'rgba(248,113,113,0.3)' },
 }
 
 // ── 押金狀態樣式 ───────────────────────────────────────────
@@ -81,6 +89,8 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
   const [contracts, setContracts] = useState<Contract[]>(initialContracts)
   const [showModal, setShowModal] = useState(false)
   const [adding, setAdding]       = useState(false)
+  const [signingModal, setSigningModal] = useState<{ contractId: string; url: string; expiresAt: string } | null>(null)
+  const [sendingSign, setSendingSign] = useState<string | null>(null) // contractId being sent
 
   const [form, setForm] = useState({
     paymentCycle:  '年繳' as PaymentCycle,
@@ -98,6 +108,23 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
     () => calcPreview(form.monthlyRent, form.paymentCycle, form.startDate, form.endDate),
     [form.monthlyRent, form.paymentCycle, form.startDate, form.endDate]
   )
+
+  const handleSendSign = async (contractId: string) => {
+    setSendingSign(contractId)
+    try {
+      const res = await fetch(`/api/contracts/${contractId}/sign-request`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || '發送失敗')
+      setSigningModal({ contractId, url: data.signingUrl, expiresAt: data.expiresAt })
+      // Update local contracts state
+      setContracts(cs => cs.map(c => c.id === contractId ? { ...c, signingStatus: '待簽署' as SigningStatus } : c))
+      toast.success('簽署連結已產生')
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : '發送失敗')
+    } finally {
+      setSendingSign(null)
+    }
+  }
 
   const handleAdd = async () => {
     if (!form.startDate || !form.endDate || !form.monthlyRent) {
@@ -128,17 +155,22 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
       }
       const data = await res.json()
       setContracts(cs => [data.contract, ...cs].map((ct: any) => ({
-        id:            ct.id,
-        spaceClientId: ct.space_client_id  || ct.spaceClientId,
-        contractType:  ct.contract_type    || ct.contractType,
-        paymentCycle:  ct.payment_cycle    || ct.paymentCycle,
-        startDate:     ct.start_date       || ct.startDate,
-        endDate:       ct.end_date         || ct.endDate,
-        monthlyRent:   ct.monthly_rent     ?? ct.monthlyRent,
-        depositAmount: ct.deposit_amount   ?? ct.depositAmount,
-        depositStatus: ct.deposit_status   || ct.depositStatus,
-        isNotarized:   ct.is_notarized     ?? ct.isNotarized,
-        notarizedAt:   ct.notarized_at     || ct.notarizedAt,
+        id:                    ct.id,
+        spaceClientId:         ct.space_client_id        || ct.spaceClientId,
+        contractType:          ct.contract_type          || ct.contractType,
+        paymentCycle:          ct.payment_cycle          || ct.paymentCycle,
+        startDate:             ct.start_date             || ct.startDate,
+        endDate:               ct.end_date               || ct.endDate,
+        monthlyRent:           ct.monthly_rent           ?? ct.monthlyRent,
+        depositAmount:         ct.deposit_amount         ?? ct.depositAmount,
+        depositStatus:         ct.deposit_status         || ct.depositStatus,
+        isNotarized:           ct.is_notarized           ?? ct.isNotarized,
+        notarizedAt:           ct.notarized_at           || ct.notarizedAt,
+        signingStatus:         ct.signing_status         ?? ct.signingStatus         ?? '未發送',
+        signingToken:          ct.signing_token          ?? ct.signingToken          ?? null,
+        signingTokenExpiresAt: ct.signing_token_expires_at ?? ct.signingTokenExpiresAt ?? null,
+        signedAt:              ct.signed_at              ?? ct.signedAt              ?? null,
+        signerName:            ct.signer_name            ?? ct.signerName            ?? null,
       })))
       toast.success(`合約已建立，自動產生 ${data.paymentsCreated} 筆繳款記錄`)
       setShowModal(false)
@@ -185,6 +217,8 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
             const badge   = getContractBadge(ct.endDate)
             const deposit = DEPOSIT_STYLE[ct.depositStatus] || DEPOSIT_STYLE['未收']
             const daysLeft = differenceInDays(new Date(ct.endDate), new Date())
+            const signing  = SIGNING_STYLE[ct.signingStatus ?? '未發送']
+            const signingLabel = ct.signingStatus ?? '未發送'
             return (
               <div key={ct.id} className="rounded-lg p-4" style={{ border: '1px solid #2a2a2a', background: '#0f0f0f' }}>
                 {/* Header row */}
@@ -212,6 +246,34 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
                   </span>
                 </div>
 
+                  {/* Signing status */}
+                  <div className="flex items-center gap-1.5 mt-2">
+                    <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+                      style={{ background: signing.bg, color: signing.color, border: `1px solid ${signing.border}` }}>
+                      {signingLabel === '未發送' ? '未發送簽署' : signingLabel === '待簽署' ? '⏳ 待簽署' : signingLabel === '已簽署' ? '✓ 已簽署' : '✕ 已拒絕'}
+                    </span>
+                    {(signingLabel === '未發送' || signingLabel === '待簽署' || signingLabel === '已拒絕') && ct.signingStatus !== '已簽署' && (
+                      <button
+                        onClick={() => handleSendSign(ct.id)}
+                        disabled={sendingSign === ct.id}
+                        className="text-xs px-2 py-0.5 rounded-md"
+                        style={{
+                          background: 'rgba(217,119,6,0.1)', color: '#d97706',
+                          border: '1px solid rgba(217,119,6,0.25)',
+                          cursor: sendingSign === ct.id ? 'not-allowed' : 'pointer',
+                          opacity: sendingSign === ct.id ? 0.6 : 1,
+                        }}
+                      >
+                        {sendingSign === ct.id ? '發送中...' : signingLabel === '待簽署' ? '重新發送' : '發送簽署連結'}
+                      </button>
+                    )}
+                    {signingLabel === '已簽署' && ct.signedAt && (
+                      <span className="text-xs" style={{ color: '#444' }}>
+                        {format(new Date(ct.signedAt), 'yyyy/MM/dd')} · {ct.signerName || ''}
+                      </span>
+                    )}
+                  </div>
+
                 {/* Details grid */}
                 <div className="grid grid-cols-2 gap-y-1.5 gap-x-4 text-xs" style={{ color: '#888' }}>
                   <div>期間：<span style={{ color: '#b0aca6' }}>{formatDate(ct.startDate)} ~ {formatDate(ct.endDate)}</span></div>
@@ -230,6 +292,37 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* ── 簽署連結 Modal ──────────────────────────────────── */}
+      {signingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.75)' }}>
+          <div className="rounded-xl shadow-2xl p-6 w-[400px]" style={{ background: '#161616', border: '1px solid #2a2a2a' }}>
+            <h3 className="font-semibold mb-2" style={{ color: '#e8e6e3' }}>📋 簽署連結已產生</h3>
+            <p className="text-xs mb-4" style={{ color: '#666' }}>
+              連結有效期限：72 小時（{format(new Date(signingModal.expiresAt), 'yyyy/MM/dd HH:mm')} 前）
+            </p>
+
+            <div className="rounded-lg px-3 py-2.5 mb-4 break-all text-xs select-all"
+              style={{ background: '#0a0a0a', border: '1px solid #2a2a2a', color: '#b0aca6', fontFamily: 'monospace' }}>
+              {signingModal.url}
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => { navigator.clipboard.writeText(signingModal.url); toast.success('已複製連結') }}
+                className="flex-1 text-sm font-semibold py-2 rounded-lg"
+                style={{ background: 'linear-gradient(to right, #f59e0b, #d97706)', color: '#0a0a0a' }}>
+                複製連結
+              </button>
+              <button onClick={() => setSigningModal(null)}
+                className="flex-1 text-sm py-2 rounded-lg"
+                style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', color: '#888' }}>
+                關閉
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
