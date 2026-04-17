@@ -91,6 +91,7 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
   const [adding, setAdding]       = useState(false)
   const [signingModal, setSigningModal] = useState<{ contractId: string; url: string; expiresAt: string } | null>(null)
   const [sendingSign, setSendingSign] = useState<string | null>(null) // contractId being sent
+  const [cancellingSign, setCancellingSign] = useState<string | null>(null) // contractId being cancelled
 
   const [form, setForm] = useState({
     paymentCycle:  '年繳' as PaymentCycle,
@@ -123,6 +124,27 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
       toast.error(e instanceof Error ? e.message : '發送失敗')
     } finally {
       setSendingSign(null)
+    }
+  }
+
+  const handleCancelSign = async (contractId: string) => {
+    if (!confirm('確定要取消此簽署連結？連結將立即失效。')) return
+    setCancellingSign(contractId)
+    try {
+      const res = await fetch(`/api/contracts/${contractId}/sign-request`, { method: 'DELETE' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || '取消失敗')
+      setContracts(cs => cs.map(c => c.id === contractId ? {
+        ...c,
+        signingStatus: '未發送' as SigningStatus,
+        signingToken: null,
+        signingTokenExpiresAt: null,
+      } : c))
+      toast.success('簽署連結已取消')
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : '取消失敗')
+    } finally {
+      setCancellingSign(null)
     }
   }
 
@@ -265,6 +287,21 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
                         }}
                       >
                         {sendingSign === ct.id ? '發送中...' : signingLabel === '待簽署' ? '重新發送' : '發送簽署連結'}
+                      </button>
+                    )}
+                    {signingLabel === '待簽署' && (
+                      <button
+                        onClick={() => handleCancelSign(ct.id)}
+                        disabled={cancellingSign === ct.id}
+                        className="text-xs px-2 py-0.5 rounded-md"
+                        style={{
+                          background: 'transparent', color: '#f87171',
+                          border: '1px solid rgba(248,113,113,0.25)',
+                          cursor: cancellingSign === ct.id ? 'not-allowed' : 'pointer',
+                          opacity: cancellingSign === ct.id ? 0.6 : 1,
+                        }}
+                      >
+                        {cancellingSign === ct.id ? '取消中...' : '取消'}
                       </button>
                     )}
                     {signingLabel === '已簽署' && ct.signedAt && (

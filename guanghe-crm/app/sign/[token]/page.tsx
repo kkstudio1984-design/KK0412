@@ -63,6 +63,13 @@ export default function SignPage() {
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error || '操作失敗'); return }
+      // Stamp the local contract state so the success screen can show signed_at/signer_name immediately
+      setContract(prev => prev ? {
+        ...prev,
+        signing_status: action === 'sign' ? '已簽署' : '已拒絕',
+        signed_at: new Date().toISOString(),
+        signer_name: action === 'sign' ? signerName.trim() : prev.signer_name,
+      } : prev)
       setDone(action === 'sign' ? 'signed' : 'rejected')
     } catch {
       setError('網路錯誤，請稍後再試')
