@@ -85,6 +85,7 @@ export default function ClientForm() {
               value={form.name}
               onChange={(e) => set('name', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              style={{ color: '#111', background: '#fff' }}
               placeholder="光合創學有限公司"
             />
           </div>
@@ -96,6 +97,7 @@ export default function ClientForm() {
               value={form.taxId}
               onChange={(e) => set('taxId', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              style={{ color: '#111', background: '#fff' }}
               placeholder="12345678"
             />
           </div>
@@ -109,6 +111,7 @@ export default function ClientForm() {
               value={form.contactName}
               onChange={(e) => set('contactName', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              style={{ color: '#111', background: '#fff' }}
               placeholder="王小明"
             />
           </div>
@@ -120,6 +123,7 @@ export default function ClientForm() {
               value={form.contactPhone}
               onChange={(e) => set('contactPhone', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              style={{ color: '#111', background: '#fff' }}
               placeholder="0912-345-678"
             />
           </div>
@@ -131,6 +135,7 @@ export default function ClientForm() {
               value={form.contactEmail}
               onChange={(e) => set('contactEmail', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              style={{ color: '#111', background: '#fff' }}
               placeholder="example@mail.com"
             />
           </div>
@@ -142,6 +147,7 @@ export default function ClientForm() {
               value={form.contactLine}
               onChange={(e) => set('contactLine', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              style={{ color: '#111', background: '#fff' }}
               placeholder="@lineaccount"
             />
           </div>
@@ -152,6 +158,7 @@ export default function ClientForm() {
               value={form.source}
               onChange={(e) => set('source', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+              style={{ color: '#111', background: '#fff' }}
             >
               {SOURCES.map((s) => (
                 <option key={s} value={s}>{s}</option>
@@ -175,6 +182,7 @@ export default function ClientForm() {
               value={form.serviceType}
               onChange={(e) => set('serviceType', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+              style={{ color: '#111', background: '#fff' }}
             >
               <option value="借址登記">借址登記</option>
               <option value="共享工位">共享工位</option>
@@ -189,6 +197,7 @@ export default function ClientForm() {
               value={form.plan}
               onChange={(e) => set('plan', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              style={{ color: '#111', background: '#fff' }}
               placeholder="標準方案"
             />
           </div>
@@ -203,6 +212,7 @@ export default function ClientForm() {
               value={form.monthlyFee}
               onChange={(e) => set('monthlyFee', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              style={{ color: '#111', background: '#fff' }}
               placeholder="2500"
             />
           </div>
@@ -214,6 +224,7 @@ export default function ClientForm() {
               onChange={(e) => set('notes', e.target.value)}
               rows={3}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+              style={{ color: '#111', background: '#fff' }}
               placeholder="補充說明..."
             />
           </div>
