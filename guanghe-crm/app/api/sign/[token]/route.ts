@@ -49,7 +49,7 @@ export async function POST(
       return NextResponse.json({ error: '連結無效' }, { status: 404 })
     }
     if (contract.signing_status !== '待簽署') {
-      return NextResponse.json({ error: `合約已${contract.signing_status}` }, { status: 409 })
+      return NextResponse.json({ error: `合約${contract.signing_status}` }, { status: 409 })
     }
     if (contract.signing_token_expires_at && new Date(contract.signing_token_expires_at) < new Date()) {
       return NextResponse.json({ error: '簽署連結已過期' }, { status: 410 })
