@@ -69,7 +69,8 @@ async function runAuth(request: NextRequest): Promise<NextResponse> {
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
     !request.nextUrl.pathname.startsWith('/sign') &&
-    !request.nextUrl.pathname.startsWith('/api/sign')
+    !request.nextUrl.pathname.startsWith('/api/sign') &&
+    !request.nextUrl.pathname.startsWith('/api/cron')
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
