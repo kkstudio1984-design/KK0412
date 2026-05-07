@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { addDays, differenceInDays, format, startOfDay } from 'date-fns'
+import { sendDailyDigest } from '@/lib/email'
 
 // This endpoint is called by Vercel Cron daily to scan for events and create notifications
 export async function GET(req: Request) {
@@ -169,10 +170,20 @@ export async function GET(req: Request) {
       if (error) throw error
     }
 
+    let emailResult: Awaited<ReturnType<typeof sendDailyDigest>> | { skipped: true; reason: string } = { skipped: true, reason: 'no_new_notifications' }
+    if (notifications.length > 0) {
+      try {
+        emailResult = await sendDailyDigest(notifications)
+      } catch (e) {
+        emailResult = { skipped: false, sent: false, error: String(e) }
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       notifications_created: notifications.length,
       skipped_duplicates: (todayNotifs?.length ?? 0),
+      email: emailResult,
       timestamp: new Date().toISOString(),
     })
   } catch (error) {
