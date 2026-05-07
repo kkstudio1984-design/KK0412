@@ -197,6 +197,8 @@ export type ClientWithOrg = {
   beneficialOwnerVerifiedAt?: string | null
   healthLevel?: 'healthy' | 'attention' | 'risk' | 'closed'
   healthScore?: number
+  lastContactedAt?: string | null
+  lastContactedNote?: string | null
   organization: Organization
   kycChecks?: KycCheck[]
   payments?: Payment[]

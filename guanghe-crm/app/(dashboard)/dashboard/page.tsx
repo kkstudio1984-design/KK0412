@@ -172,9 +172,14 @@ export default async function DashboardPage() {
                     className="flex items-center justify-between gap-3 text-sm py-1 hover:bg-red-50 rounded px-1 -mx-1 transition"
                     title={r.health.suggestion}
                   >
-                    <span className="text-gray-800 truncate">{r.clientName}</span>
+                    <span className="flex items-center gap-2 min-w-0">
+                      <span className="text-gray-800 truncate">{r.clientName}</span>
+                      {r.lastContactedAt && (Date.now() - new Date(r.lastContactedAt).getTime()) < 7 * 86_400_000 && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium shrink-0" title={`上次聯繫 ${new Date(r.lastContactedAt).toLocaleDateString('zh-TW')}`}>已聯繫</span>
+                      )}
+                    </span>
                     <span className="flex items-center gap-2 flex-shrink-0">
-                      <span className="text-xs text-gray-400 truncate max-w-[160px]">{r.health.factors[0]?.label || '—'}</span>
+                      <span className="text-xs text-gray-400 truncate max-w-[140px]">{r.health.factors[0]?.label || '—'}</span>
                       <span className="text-xs font-semibold text-red-600 tabular-nums">{r.health.score}</span>
                     </span>
                   </Link>
@@ -200,9 +205,14 @@ export default async function DashboardPage() {
                     className="flex items-center justify-between gap-3 text-sm py-1 hover:bg-amber-50 rounded px-1 -mx-1 transition"
                     title={r.health.suggestion}
                   >
-                    <span className="text-gray-800 truncate">{r.clientName}</span>
+                    <span className="flex items-center gap-2 min-w-0">
+                      <span className="text-gray-800 truncate">{r.clientName}</span>
+                      {r.lastContactedAt && (Date.now() - new Date(r.lastContactedAt).getTime()) < 7 * 86_400_000 && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium shrink-0" title={`上次聯繫 ${new Date(r.lastContactedAt).toLocaleDateString('zh-TW')}`}>已聯繫</span>
+                      )}
+                    </span>
                     <span className="flex items-center gap-2 flex-shrink-0">
-                      <span className="text-xs text-gray-400 truncate max-w-[160px]">{r.health.factors[0]?.label || '—'}</span>
+                      <span className="text-xs text-gray-400 truncate max-w-[140px]">{r.health.factors[0]?.label || '—'}</span>
                       <span className="text-xs font-semibold text-amber-600 tabular-nums">{r.health.score}</span>
                     </span>
                   </Link>

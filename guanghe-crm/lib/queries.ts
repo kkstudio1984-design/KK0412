@@ -45,6 +45,8 @@ export async function fetchClients(): Promise<ClientWithOrg[]> {
     isHighRiskKyc: c.is_high_risk_kyc ?? false,
     blacklistFlag: c.blacklist_flag ?? false,
     isDisabilityPartner: c.is_disability_partner ?? false,
+    lastContactedAt: (c as any).last_contacted_at ?? null,
+    lastContactedNote: (c as any).last_contacted_note ?? null,
     organization: {
       id: c.organization!.id,
       name: c.organization!.name,
@@ -948,6 +950,7 @@ export interface ClientHealthRow {
   clientName: string
   stage: string
   health: HealthScore
+  lastContactedAt: string | null
 }
 
 export async function fetchClientsHealthSnapshot(): Promise<{
@@ -960,7 +963,7 @@ export async function fetchClientsHealthSnapshot(): Promise<{
   const { data, error } = await supabase
     .from('space_clients')
     .select(`
-      id, stage, updated_at,
+      id, stage, updated_at, last_contacted_at,
       organization:organizations(name),
       payments(status, escalation_level, due_date, paid_at),
       contracts(end_date, signing_status),
@@ -992,12 +995,21 @@ export async function fetchClientsHealthSnapshot(): Promise<{
         clientName: c.organization?.name || '未知',
         stage: c.stage,
         health,
+        lastContactedAt: c.last_contacted_at ?? null,
       })
     }
   }
 
-  // 按分數升冪（最危險的在最上）
-  rows.sort((a, b) => a.health.score - b.health.score)
+  // 排序：(1) 最近 7 天已聯繫的往下排（不重複打擾）
+  //       (2) 其餘按分數升冪（最危險的最上）
+  const sevenDaysAgo = Date.now() - 7 * 86_400_000
+  rows.sort((a, b) => {
+    const aRecent = a.lastContactedAt && new Date(a.lastContactedAt).getTime() > sevenDaysAgo
+    const bRecent = b.lastContactedAt && new Date(b.lastContactedAt).getTime() > sevenDaysAgo
+    if (aRecent && !bRecent) return 1
+    if (!aRecent && bRecent) return -1
+    return a.health.score - b.health.score
+  })
 
   return {
     attention: rows.filter(r => r.health.level === 'attention'),
