@@ -94,10 +94,28 @@ export default function ClientCard({ client, index, bulkMode, selected, onToggle
             </div>
           )}
 
-          {/* Company name */}
-          <p className="font-semibold text-stone-800 text-sm leading-snug mb-0.5 line-clamp-1 group-hover:text-amber-700">
-            {client.organization.name}
-          </p>
+          {/* Company name + health dot */}
+          <div className="flex items-start justify-between gap-2 mb-0.5">
+            <p className="font-semibold text-stone-800 text-sm leading-snug line-clamp-1 group-hover:text-amber-700 flex-1 min-w-0">
+              {client.organization.name}
+            </p>
+            {client.healthLevel && client.healthLevel !== 'closed' && (
+              <span
+                className={`mt-1 w-2 h-2 rounded-full shrink-0 ${
+                  client.healthLevel === 'risk'
+                    ? 'bg-red-500'
+                    : client.healthLevel === 'attention'
+                    ? 'bg-amber-500'
+                    : 'bg-green-500'
+                }`}
+                title={`健康度 ${client.healthScore ?? '—'}（${
+                  client.healthLevel === 'risk' ? '危險，立刻聯繫' :
+                  client.healthLevel === 'attention' ? '注意，本週聯繫' :
+                  '健康'
+                }）`}
+              />
+            )}
+          </div>
 
           {/* Contact */}
           <p className="text-xs text-stone-400 mb-3">

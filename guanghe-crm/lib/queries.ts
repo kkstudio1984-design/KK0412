@@ -1,6 +1,7 @@
 import { createClient } from './supabase/server'
 import { ClientWithOrg, ClientDetail, DashboardData, MailRecord, OffboardingRecord, Lead, Sponsorship, RevenueRecord, SubsidyTracking, Expense, Project } from './types'
 import { getMonthRange } from './utils'
+import { computeHealthScore, type HealthScore } from './health-score'
 import { addDays, differenceInDays, format, startOfMonth, endOfMonth } from 'date-fns'
 import type {
   SpaceClientWithJoinsRow, KycCheckRow, ClientDocumentRow, PaymentRow,
@@ -20,7 +21,8 @@ export async function fetchClients(): Promise<ClientWithOrg[]> {
       *,
       organization:organizations(*),
       kyc_checks(*),
-      payments(status)
+      payments(status, escalation_level, due_date, paid_at),
+      contracts(end_date, signing_status)
     `)
     .order('created_at', { ascending: true })
 
@@ -64,6 +66,27 @@ export async function fetchClients(): Promise<ClientWithOrg[]> {
       checkedAt: k.checked_at,
     })),
     hasOverduePayment: (c.payments || []).some((p: Partial<PaymentRow>) => p.status === '逾期'),
+    ...(() => {
+      const h = computeHealthScore({
+        stage: c.stage,
+        payments: (c.payments || []).map((p: any) => ({
+          status: p.status ?? null,
+          escalation_level: p.escalation_level ?? null,
+          due_date: p.due_date ?? null,
+          paid_at: p.paid_at ?? null,
+        })),
+        contracts: ((c as any).contracts || []).map((ct: any) => ({
+          end_date: ct.end_date ?? null,
+          signing_status: ct.signing_status ?? null,
+        })),
+        kycChecks: (c.kyc_checks || []).map((k: any) => ({
+          status: k.status ?? null,
+          checked_at: k.checked_at ?? null,
+        })),
+        clientUpdatedAt: c.updated_at,
+      })
+      return { healthLevel: h.level, healthScore: h.score }
+    })(),
   }))
 }
 
@@ -919,7 +942,6 @@ export async function fetchAllContracts(): Promise<ContractWithClient[]> {
 // ── 客戶健康度快照 ──────────────────────────────────────────
 // 一次撈所有非結案／流失客戶 + 相關 payments / contracts / kyc，
 // 在 JS 端套 computeHealthScore，回傳需主動聯繫的列表。
-import { computeHealthScore, type HealthScore } from './health-score'
 
 export interface ClientHealthRow {
   clientId: string
