@@ -165,13 +165,13 @@ export default function KanbanBoard({ initialClients }: Props) {
 
   return (
     <div>
-      <div className="mb-3 px-1 flex items-center gap-2">
+      <div className="mb-3 px-1 flex flex-wrap items-center gap-2">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="搜尋公司名稱、聯絡人、統編..."
-          className="w-full md:w-80 input-base"
+          placeholder="搜尋公司、聯絡人、統編..."
+          className="flex-1 min-w-[200px] md:flex-none md:w-80 input-base"
         />
         <button onClick={handleExport} className="text-xs text-stone-500 hover:text-stone-700 px-3 py-1.5 border border-stone-200 rounded-lg hover:bg-stone-50 whitespace-nowrap">
           匯出 CSV
@@ -179,7 +179,7 @@ export default function KanbanBoard({ initialClients }: Props) {
         <CanEdit>
           <button
             onClick={() => { setBulkMode(!bulkMode); setSelectedIds(new Set()) }}
-            className="btn-secondary text-xs"
+            className="btn-secondary text-xs whitespace-nowrap"
           >
             {bulkMode ? '✓ 批次模式' : '批次操作'}
           </button>
@@ -187,19 +187,19 @@ export default function KanbanBoard({ initialClients }: Props) {
       </div>
 
       {bulkMode && selectedIds.size > 0 && (
-        <div className="sticky top-0 z-10 -mx-1 px-4 py-2.5 flex items-center gap-3 rounded-lg mb-3" style={{ background: 'rgba(217,119,6,0.15)', border: '1px solid rgba(217,119,6,0.3)' }}>
-          <span className="text-sm font-semibold" style={{ color: '#fbbf24' }}>已選 {selectedIds.size} 位</span>
-          <div className="flex gap-2 ml-auto">
-            <button onClick={() => setShowMoveModal(true)} className="text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: '#1a1a1a', color: '#fbbf24' }}>移動階段</button>
-            <button onClick={() => setShowFlagModal(true)} className="text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: '#1a1a1a', color: '#fbbf24' }}>加紅旗</button>
-            <button onClick={handleBulkExport} className="text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: '#1a1a1a', color: '#fbbf24' }}>匯出所選</button>
-            <button onClick={() => setSelectedIds(new Set())} className="text-xs px-3 py-1.5 rounded-lg font-medium" style={{ background: '#1a1a1a', color: '#888' }}>清除</button>
+        <div className="sticky top-0 z-10 -mx-1 px-4 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg mb-3" style={{ background: 'rgba(217,119,6,0.15)', border: '1px solid rgba(217,119,6,0.3)' }}>
+          <span className="text-sm font-semibold whitespace-nowrap" style={{ color: '#fbbf24' }}>已選 {selectedIds.size} 位</span>
+          <div className="flex flex-wrap gap-2 ml-auto">
+            <button onClick={() => setShowMoveModal(true)} className="text-xs px-3 py-1.5 rounded-lg font-medium whitespace-nowrap" style={{ background: '#1a1a1a', color: '#fbbf24' }}>移動階段</button>
+            <button onClick={() => setShowFlagModal(true)} className="text-xs px-3 py-1.5 rounded-lg font-medium whitespace-nowrap" style={{ background: '#1a1a1a', color: '#fbbf24' }}>加紅旗</button>
+            <button onClick={handleBulkExport} className="text-xs px-3 py-1.5 rounded-lg font-medium whitespace-nowrap" style={{ background: '#1a1a1a', color: '#fbbf24' }}>匯出所選</button>
+            <button onClick={() => setSelectedIds(new Set())} className="text-xs px-3 py-1.5 rounded-lg font-medium whitespace-nowrap" style={{ background: '#1a1a1a', color: '#888' }}>清除</button>
           </div>
         </div>
       )}
 
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex gap-3 overflow-x-auto pb-4 pt-2 px-1">
+      <div className="flex gap-3 overflow-x-auto pb-4 pt-2 px-1 snap-x snap-mandatory md:snap-none scroll-smooth">
         {STAGES.map((stage) => (
           <KanbanColumn
             key={stage}

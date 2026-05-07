@@ -78,7 +78,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <main className="flex-1 overflow-auto" style={{ background: '#0a0a0a' }}>
+        <main className="flex-1 overflow-auto pb-[env(safe-area-inset-bottom)]" style={{ background: '#0a0a0a' }}>
           {children}
         </main>
       </div>

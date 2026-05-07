@@ -359,8 +359,8 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
 
       {/* ── 簽署連結 Modal ──────────────────────────────────── */}
       {signingModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.75)' }}>
-          <div className="rounded-xl shadow-2xl p-6 w-[400px]" style={{ background: '#161616', border: '1px solid #2a2a2a' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.75)' }}>
+          <div className="rounded-xl shadow-2xl p-6 w-full max-w-[400px] max-h-[92vh] overflow-y-auto" style={{ background: '#161616', border: '1px solid #2a2a2a' }}>
             <h3 className="font-semibold mb-2" style={{ color: '#e8e6e3' }}>📋 簽署連結已產生</h3>
             <p className="text-xs mb-4" style={{ color: '#666' }}>
               連結有效期限：72 小時（{format(new Date(signingModal.expiresAt), 'yyyy/MM/dd HH:mm')} 前）
@@ -390,8 +390,8 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
 
       {/* ── 新增合約 Modal ──────────────────────────────────── */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)' }}>
-          <div className="rounded-xl shadow-2xl p-6 w-[440px] max-h-[92vh] overflow-y-auto"
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
+          <div className="rounded-xl shadow-2xl p-6 w-full max-w-[440px] max-h-[92vh] overflow-y-auto"
             style={{ background: '#161616', border: '1px solid #2a2a2a' }}>
             <h3 className="font-semibold mb-5" style={{ color: '#e8e6e3' }}>新增合約</h3>
 
