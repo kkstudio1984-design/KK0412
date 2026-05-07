@@ -88,7 +88,7 @@ export default function ContractTable({ contracts }: Props) {
   return (
     <div>
       {/* Stats row */}
-      <div className="grid grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
         {(['生效中', '到期提醒', '緊急到期', '已過期'] as ContractStatus[]).map((s) => {
           const st = STATUS_STYLES[s]
           return (
@@ -157,7 +157,8 @@ export default function ContractTable({ contracts }: Props) {
             尚無合約記錄
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[820px]">
             <thead>
               <tr style={{ background: '#0a0a0a', borderBottom: '1px solid #222' }}>
                 {['公司名稱', '合約類型', '繳費週期', '起始日', '到期日', '剩餘天數', '押金狀態', '狀態', '簽署狀態'].map((h) => (
@@ -249,6 +250,7 @@ export default function ContractTable({ contracts }: Props) {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>
