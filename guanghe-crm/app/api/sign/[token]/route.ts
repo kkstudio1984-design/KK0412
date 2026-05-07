@@ -127,6 +127,64 @@ export async function POST(
       }
     }
 
+    // ── 拒簽時，自動通知內部（業務最痛點：客戶丟單你要立刻知道）──
+    // 失敗不影響主流程。INTERNAL_NOTIFY_EMAIL 未設時跳過。
+    if (action === 'reject') {
+      try {
+        const internalTo = process.env.INTERNAL_NOTIFY_EMAIL
+        if (internalTo) {
+          const { data: full } = await supabase
+            .from('contracts')
+            .select(`
+              id, contract_type, start_date, end_date, monthly_rent,
+              space_client:space_clients(
+                id,
+                organization:organizations(name, contact_name, contact_email)
+              )
+            `)
+            .eq('id', contract.id)
+            .single()
+
+          const org = (full as any)?.space_client?.organization
+          const clientId = (full as any)?.space_client?.id
+          const clientName = org?.name || '未知客戶'
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guanghe-crm.vercel.app'
+          const clientUrl = clientId ? `${baseUrl}/clients/${clientId}` : baseUrl
+          const contractNo = `GH-${contract.id.slice(0, 8).toUpperCase()}`
+          const reasonHtml = trimmedReason
+            ? `<div style="background:#fef2f2;border-left:3px solid #f87171;padding:12px 16px;margin:16px 0;color:#991b1b;font-size:14px;line-height:1.6;">${trimmedReason.replace(/\n/g, '<br>')}</div>`
+            : `<p style="color:#78716c;font-size:13px;margin:16px 0;">客戶未填寫拒絕原因，建議主動聯繫了解。</p>`
+
+          await sendInlineEmail({
+            to: internalTo,
+            subject: `🚫 合約被拒簽：${clientName}（${contractNo}）`,
+            html: `<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:24px;background:#f5f5f4;font-family:-apple-system,'PingFang TC','Noto Sans TC',sans-serif;color:#1c1917;">
+  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;padding:28px;">
+    <p style="margin:0 0 8px;color:#dc2626;font-size:13px;font-weight:600;">🚫 客戶拒簽合約</p>
+    <h1 style="font-size:18px;margin:0 0 16px;">${clientName} · ${contractNo}</h1>
+    <table style="width:100%;font-size:13px;color:#44403c;border-collapse:collapse;">
+      <tr><td style="padding:4px 0;color:#78716c;width:90px;">合約類型</td><td>${(full as any)?.contract_type || '—'}</td></tr>
+      <tr><td style="padding:4px 0;color:#78716c;">簽署人</td><td>${signerName || '—'}</td></tr>
+      <tr><td style="padding:4px 0;color:#78716c;">聯絡人</td><td>${org?.contact_name || '—'}（${org?.contact_email || '—'}）</td></tr>
+      <tr><td style="padding:4px 0;color:#78716c;">月租金</td><td>NT$ ${Number((full as any)?.monthly_rent || 0).toLocaleString()}</td></tr>
+      <tr><td style="padding:4px 0;color:#78716c;">拒簽時間</td><td>${format(new Date(), 'yyyy/MM/dd HH:mm')}</td></tr>
+    </table>
+    <p style="margin:24px 0 4px;color:#78716c;font-size:12px;">客戶填寫的拒絕原因：</p>
+    ${reasonHtml}
+    <a href="${clientUrl}" style="display:inline-block;margin-top:8px;padding:10px 16px;background:#1c1917;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;">前往客戶頁面追蹤 →</a>
+  </div>
+</body></html>`,
+            related: { table: 'contracts', id: contract.id },
+            logKey: 'contract_rejected_internal',
+            supabase,
+          })
+        }
+      } catch (mailErr) {
+        console.error('[sign] failed to send reject notification email:', mailErr)
+      }
+    }
+
     return NextResponse.json({ ok: true, status: newStatus })
   } catch (error) {
     return NextResponse.json({ error: '簽署失敗', details: String(error) }, { status: 500 })

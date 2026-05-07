@@ -166,13 +166,15 @@ export async function GET(req: Request) {
         // 升級到「提醒」「催告」「存證信函」時自動寄催繳信給客戶；
         // 「退租啟動」不自動寄（這階段必須由人工親自聯繫）
         if (['提醒', '催告', '存證信函'].includes(newLevel)) {
+          // 對齊 email_templates.payment_overdue 範本的變數命名（migration 013）
+          const deadline = format(addDays(new Date(), 7), 'yyyy-MM-dd')
           await tryEmail('payment_overdue', org?.contact_email, org?.contact_name, {
             client_name: clientName,
             contact_name: org?.contact_name || clientName,
             amount: p.amount.toLocaleString(),
             due_date: p.due_date,
-            days_overdue: daysOverdue,
-            escalation_level: newLevel,
+            overdue_days: daysOverdue,
+            deadline,
           }, { table: 'payments', id: p.id })
         }
       }
