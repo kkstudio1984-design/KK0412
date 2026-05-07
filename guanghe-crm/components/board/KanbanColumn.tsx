@@ -27,7 +27,7 @@ export default function KanbanColumn({ stage, clients, bulkMode, selectedIds, on
 
   return (
     <div
-      className="flex flex-col w-56 md:w-64 shrink-0 rounded-xl"
+      className="flex flex-col w-[calc(100vw-2rem)] sm:w-56 md:w-64 shrink-0 snap-center md:snap-align-none rounded-xl"
       style={{
         background: '#111',
         border: '1px solid #222',

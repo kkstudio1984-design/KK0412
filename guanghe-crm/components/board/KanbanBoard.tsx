@@ -199,7 +199,7 @@ export default function KanbanBoard({ initialClients }: Props) {
       )}
 
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex gap-3 overflow-x-auto pb-4 pt-2 px-1">
+      <div className="flex gap-3 overflow-x-auto pb-4 pt-2 px-1 snap-x snap-mandatory md:snap-none scroll-smooth">
         {STAGES.map((stage) => (
           <KanbanColumn
             key={stage}
