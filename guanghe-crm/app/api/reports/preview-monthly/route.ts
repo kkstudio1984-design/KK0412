@@ -9,6 +9,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest } from 'next/server'
 import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns'
+import { fetchClientsHealthSnapshot } from '@/lib/queries'
 
 export async function GET(req: NextRequest) {
   try {
@@ -69,6 +70,9 @@ export async function GET(req: NextRequest) {
         .gte('signed_at', startISO)
         .lte('signed_at', endISO),
     ])
+
+    // 即時健康度快照（不限月份，是「現在」這個時點的狀態）
+    const healthSnapshot = await fetchClientsHealthSnapshot()
 
     const sumAmount = (rows: Array<{ amount: number }> | null | undefined) =>
       (rows || []).reduce((acc, r) => acc + (r.amount || 0), 0)
@@ -169,6 +173,27 @@ export async function GET(req: NextRequest) {
       <h2 style="font-size:14px;margin:28px 0 12px;color:#78716c;font-weight:600;letter-spacing:0.5px;">本月到期合約</h2>
       <p style="margin:0;font-size:14px;line-height:1.9;color:#1c1917;">${expiredContractNames.join('、')}${contractsExpiredCount > 10 ? `⋯⋯ 等 ${contractsExpiredCount} 份` : ''}</p>
       ` : ''}
+
+      <h2 style="font-size:14px;margin:32px 0 12px;color:#78716c;font-weight:600;letter-spacing:0.5px;">客戶健康度（即時快照）</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 12px;">
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px;">
+          <p style="margin:0 0 4px;color:#166534;font-size:11px;font-weight:600;letter-spacing:0.5px;">健康</p>
+          <p style="margin:0;font-size:22px;font-weight:700;color:#15803d;">${healthSnapshot.totals.healthy}<span style="font-size:13px;font-weight:400;color:#78716c;"> 家</span></p>
+        </div>
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px;">
+          <p style="margin:0 0 4px;color:#92400e;font-size:11px;font-weight:600;letter-spacing:0.5px;">注意</p>
+          <p style="margin:0;font-size:22px;font-weight:700;color:#b45309;">${healthSnapshot.totals.attention}<span style="font-size:13px;font-weight:400;color:#78716c;"> 家</span></p>
+        </div>
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px;">
+          <p style="margin:0 0 4px;color:#991b1b;font-size:11px;font-weight:600;letter-spacing:0.5px;">危險</p>
+          <p style="margin:0;font-size:22px;font-weight:700;color:#b91c1c;">${healthSnapshot.totals.risk}<span style="font-size:13px;font-weight:400;color:#78716c;"> 家</span></p>
+        </div>
+      </div>
+      ${healthSnapshot.risk.length > 0 ? `
+      <p style="margin:0 0 6px;color:#78716c;font-size:13px;font-weight:600;">需立刻聯繫的危險客戶（${healthSnapshot.risk.length} 家）：</p>
+      <p style="margin:0 0 16px;font-size:13px;line-height:1.9;color:#991b1b;">${healthSnapshot.risk.slice(0, 12).map(r => r.clientName).join('、')}${healthSnapshot.risk.length > 12 ? `⋯⋯ 等 ${healthSnapshot.risk.length} 家` : ''}</p>
+      ` : ''}
+      <p style="margin:0 0 24px;font-size:12px;color:#a8a29e;font-style:italic;">健康度依逾期、升級層級、KYC 卡關、合約到期、拒簽紀錄即時計算，反映本月最後一天的客戶池狀態。</p>
 
       <div style="margin:36px 0 16px;padding:18px;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;">
         <p style="margin:0;color:#92400e;font-size:13px;line-height:1.7;">
