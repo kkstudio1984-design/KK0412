@@ -166,6 +166,7 @@ export async function fetchClient(id: string): Promise<ClientDetail | null> {
       signingTokenExpiresAt: (ct as any).signing_token_expires_at ?? null,
       signedAt: (ct as any).signed_at ?? null,
       signerName: (ct as any).signer_name ?? null,
+      rejectReason: (ct as any).reject_reason ?? null,
     })),
     mailRecords: (c.mail_records || []).map((m: MailRecordRow): MailRecord => ({
       id: m.id,
@@ -911,5 +912,6 @@ export async function fetchAllContracts(): Promise<ContractWithClient[]> {
     signingTokenExpiresAt: ct.signing_token_expires_at ?? null,
     signedAt: ct.signed_at ?? null,
     signerName: ct.signer_name ?? null,
+    rejectReason: ct.reject_reason ?? null,
   }))
 }

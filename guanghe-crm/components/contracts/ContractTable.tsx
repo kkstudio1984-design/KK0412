@@ -234,15 +234,46 @@ export default function ContractTable({ contracts }: Props) {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className="inline-block px-2 py-0.5 rounded text-xs font-medium"
-                        style={{
-                          background: (SIGNING_STYLES[c.signingStatus ?? '未發送'] ?? SIGNING_STYLES['未發送']).bg,
-                          color: (SIGNING_STYLES[c.signingStatus ?? '未發送'] ?? SIGNING_STYLES['未發送']).color,
-                        }}
-                      >
-                        {c.signingStatus ?? '未發送'}
-                      </span>
+                      {(() => {
+                        const sLabel = c.signingStatus ?? '未發送'
+                        const sStyle = SIGNING_STYLES[sLabel] ?? SIGNING_STYLES['未發送']
+                        const expired = sLabel === '待簽署' && !!c.signingTokenExpiresAt && new Date(c.signingTokenExpiresAt) < new Date()
+                        const tooltip = sLabel === '已拒絕' && c.rejectReason
+                          ? `拒絕原因：${c.rejectReason}`
+                          : expired
+                            ? '簽署連結已過 72 小時失效，請重新發送'
+                            : undefined
+                        return (
+                          <span className="inline-flex items-center gap-1" title={tooltip}>
+                            <span
+                              className="inline-block px-2 py-0.5 rounded text-xs font-medium"
+                              style={{ background: sStyle.bg, color: sStyle.color }}
+                            >
+                              {sLabel}
+                            </span>
+                            {expired && (
+                              <span
+                                className="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium"
+                                style={{
+                                  background: 'rgba(251,146,60,0.12)',
+                                  color: '#fb923c',
+                                  border: '1px solid rgba(251,146,60,0.35)',
+                                }}
+                              >
+                                ⚠️ 過期
+                              </span>
+                            )}
+                            {sLabel === '已拒絕' && c.rejectReason && (
+                              <span
+                                className="text-[10px]"
+                                style={{ color: '#666', cursor: 'help' }}
+                              >
+                                💬
+                              </span>
+                            )}
+                          </span>
+                        )
+                      })()}
                     </td>
                   </tr>
                 )

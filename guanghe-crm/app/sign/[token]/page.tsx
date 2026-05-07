@@ -39,6 +39,8 @@ export default function SignPage() {
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState<'signed' | 'rejected' | null>(null)
   const [hasSignature, setHasSignature] = useState(false)
+  const [rejectMode, setRejectMode] = useState(false)
+  const [rejectReason, setRejectReason] = useState('')
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const padRef = useRef<SignaturePad | null>(null)
@@ -111,7 +113,12 @@ export default function SignPage() {
       const res = await fetch(`/api/sign/${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ signerName: signerName.trim(), action, signatureImage }),
+        body: JSON.stringify({
+          signerName: signerName.trim(),
+          action,
+          signatureImage,
+          rejectReason: action === 'reject' ? rejectReason.trim() : null,
+        }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error || '操作失敗'); return }
@@ -328,38 +335,85 @@ export default function SignPage() {
               </span>
             </label>
 
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              {(() => {
-                const disabled = submitting || !agreed || !signerName.trim() || !hasSignature
-                return (
+            {rejectMode ? (
+              <div>
+                <label style={{ display: 'block', color: '#666', fontSize: '0.75rem', marginBottom: '0.4rem' }}>
+                  拒絕原因（選填，限 500 字）
+                </label>
+                <textarea
+                  value={rejectReason}
+                  onChange={e => setRejectReason(e.target.value.slice(0, 500))}
+                  placeholder="例：條款需要再協商、合約期間希望調整、其他⋯"
+                  rows={3}
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    background: '#0a0a0a', border: '1px solid #2a2a2a', color: '#e8e6e3',
+                    borderRadius: '8px', padding: '0.6rem 0.75rem', fontSize: '0.875rem',
+                    outline: 'none', resize: 'vertical', marginBottom: '0.75rem',
+                    fontFamily: 'inherit',
+                  }}
+                />
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
                   <button
-                    onClick={() => handleAction('sign')}
-                    disabled={disabled}
+                    onClick={() => handleAction('reject')}
+                    disabled={submitting}
                     style={{
                       flex: 1, padding: '0.75rem', borderRadius: '8px', fontSize: '0.875rem',
-                      fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer',
-                      background: disabled ? '#2a2a2a' : 'linear-gradient(to right, #f59e0b, #d97706)',
-                      color: disabled ? '#555' : '#0a0a0a',
-                      border: 'none',
+                      fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer',
+                      background: submitting ? '#2a2a2a' : '#f87171',
+                      color: submitting ? '#555' : '#0a0a0a', border: 'none',
                     }}
                   >
-                    {submitting ? '處理中...' : '✍️ 確認簽署'}
+                    {submitting ? '處理中...' : '確認拒絕簽署'}
                   </button>
-                )
-              })()}
-              <button
-                onClick={() => handleAction('reject')}
-                disabled={submitting}
-                style={{
-                  padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.875rem',
-                  cursor: submitting ? 'not-allowed' : 'pointer',
-                  background: 'transparent', color: '#f87171',
-                  border: '1px solid rgba(248,113,113,0.3)',
-                }}
-              >
-                拒絕
-              </button>
-            </div>
+                  <button
+                    onClick={() => { setRejectMode(false); setRejectReason('') }}
+                    disabled={submitting}
+                    style={{
+                      padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.875rem',
+                      cursor: submitting ? 'not-allowed' : 'pointer',
+                      background: 'transparent', color: '#888',
+                      border: '1px solid #2a2a2a',
+                    }}
+                  >
+                    返回填寫
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                {(() => {
+                  const disabled = submitting || !agreed || !signerName.trim() || !hasSignature
+                  return (
+                    <button
+                      onClick={() => handleAction('sign')}
+                      disabled={disabled}
+                      style={{
+                        flex: 1, padding: '0.75rem', borderRadius: '8px', fontSize: '0.875rem',
+                        fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer',
+                        background: disabled ? '#2a2a2a' : 'linear-gradient(to right, #f59e0b, #d97706)',
+                        color: disabled ? '#555' : '#0a0a0a',
+                        border: 'none',
+                      }}
+                    >
+                      {submitting ? '處理中...' : '✍️ 確認簽署'}
+                    </button>
+                  )
+                })()}
+                <button
+                  onClick={() => setRejectMode(true)}
+                  disabled={submitting}
+                  style={{
+                    padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.875rem',
+                    cursor: submitting ? 'not-allowed' : 'pointer',
+                    background: 'transparent', color: '#f87171',
+                    border: '1px solid rgba(248,113,113,0.3)',
+                  }}
+                >
+                  拒絕
+                </button>
+              </div>
+            )}
 
             <p style={{ color: '#444', fontSize: '0.7rem', textAlign: 'center', marginTop: '1rem', margin: '1rem 0 0' }}>
               簽署後將記錄您的 IP 位址及時間作為電子證明 · 此連結於 72 小時後失效

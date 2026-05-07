@@ -145,6 +145,7 @@ export type Contract = {
   signingTokenExpiresAt: string | null
   signedAt: string | null
   signerName: string | null
+  rejectReason: string | null
 }
 
 // ── Offboarding ───────────────────────────────────────

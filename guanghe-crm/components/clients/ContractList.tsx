@@ -54,6 +54,11 @@ const DEPOSIT_STYLE: Record<string, { color: string; bg: string; border: string 
   '已退': { color: '#38bdf8', bg: 'rgba(56,189,248,0.1)',   border: 'rgba(56,189,248,0.3)' },
 }
 
+// ── 簽署 token 是否已過期（僅 '待簽署' 才檢查）─────────────
+function isTokenExpired(signingStatus: SigningStatus | null | undefined, expiresAt: string | null): boolean {
+  return signingStatus === '待簽署' && !!expiresAt && new Date(expiresAt) < new Date()
+}
+
 // ── 合約狀態（顯示在卡片右上角）─────────────────────────────
 function getContractBadge(endDate: string): { label: string; color: string; bg: string } {
   const today = new Date()
@@ -193,6 +198,7 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
         signingTokenExpiresAt: ct.signing_token_expires_at ?? ct.signingTokenExpiresAt ?? null,
         signedAt:              ct.signed_at              ?? ct.signedAt              ?? null,
         signerName:            ct.signer_name            ?? ct.signerName            ?? null,
+        rejectReason:          ct.reject_reason          ?? ct.rejectReason          ?? null,
       })))
       toast.success(`合約已建立，自動產生 ${data.paymentsCreated} 筆繳款記錄`)
       setShowModal(false)
@@ -241,6 +247,7 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
             const daysLeft = differenceInDays(new Date(ct.endDate), new Date())
             const signing  = SIGNING_STYLE[ct.signingStatus ?? '未發送']
             const signingLabel = ct.signingStatus ?? '未發送'
+            const tokenExpired = isTokenExpired(ct.signingStatus, ct.signingTokenExpiresAt)
             return (
               <div key={ct.id} className="rounded-lg p-4" style={{ border: '1px solid #2a2a2a', background: '#0f0f0f' }}>
                 {/* Header row */}
@@ -269,24 +276,33 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
                 </div>
 
                   {/* Signing status */}
-                  <div className="flex items-center gap-1.5 mt-2">
+                  <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                     <span className="text-xs px-2 py-0.5 rounded-full font-medium"
                       style={{ background: signing.bg, color: signing.color, border: `1px solid ${signing.border}` }}>
                       {signingLabel === '未發送' ? '未發送簽署' : signingLabel === '待簽署' ? '⏳ 待簽署' : signingLabel === '已簽署' ? '✓ 已簽署' : '✕ 已拒絕'}
                     </span>
+                    {tokenExpired && (
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+                        title="簽署連結已過 72 小時失效，請重新發送"
+                        style={{ background: 'rgba(251,146,60,0.12)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.35)' }}>
+                        ⚠️ 連結已過期
+                      </span>
+                    )}
                     {(signingLabel === '未發送' || signingLabel === '待簽署' || signingLabel === '已拒絕') && ct.signingStatus !== '已簽署' && (
                       <button
                         onClick={() => handleSendSign(ct.id)}
                         disabled={sendingSign === ct.id}
                         className="text-xs px-2 py-0.5 rounded-md"
                         style={{
-                          background: 'rgba(217,119,6,0.1)', color: '#d97706',
-                          border: '1px solid rgba(217,119,6,0.25)',
+                          background: tokenExpired ? 'rgba(251,146,60,0.18)' : 'rgba(217,119,6,0.1)',
+                          color: tokenExpired ? '#fb923c' : '#d97706',
+                          border: `1px solid ${tokenExpired ? 'rgba(251,146,60,0.5)' : 'rgba(217,119,6,0.25)'}`,
                           cursor: sendingSign === ct.id ? 'not-allowed' : 'pointer',
                           opacity: sendingSign === ct.id ? 0.6 : 1,
+                          fontWeight: tokenExpired ? 600 : 400,
                         }}
                       >
-                        {sendingSign === ct.id ? '發送中...' : signingLabel === '待簽署' ? '重新發送' : '發送簽署連結'}
+                        {sendingSign === ct.id ? '發送中...' : tokenExpired ? '🔁 重新發送（已過期）' : signingLabel === '待簽署' ? '重新發送' : '發送簽署連結'}
                       </button>
                     )}
                     {signingLabel === '待簽署' && (
@@ -310,6 +326,15 @@ export default function ContractList({ clientId, serviceType, monthlyFee, initia
                       </span>
                     )}
                   </div>
+
+                  {/* 已拒絕：顯示原因（若客戶有填寫）─────────── */}
+                  {signingLabel === '已拒絕' && ct.rejectReason && (
+                    <div className="mt-2 px-3 py-2 rounded-md text-xs"
+                      style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.18)', color: '#b0aca6' }}>
+                      <span style={{ color: '#f87171', fontWeight: 600, marginRight: '0.4rem' }}>拒絕原因：</span>
+                      {ct.rejectReason}
+                    </div>
+                  )}
 
                 {/* Details grid */}
                 <div className="grid grid-cols-2 gap-y-1.5 gap-x-4 text-xs" style={{ color: '#888' }}>

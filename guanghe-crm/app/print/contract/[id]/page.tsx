@@ -31,7 +31,7 @@ export default async function PrintContractPage({ params }: { params: Promise<{ 
     <div className="min-h-screen bg-white text-black">
       {/* No-print toolbar */}
       <div className="print:hidden fixed top-4 right-4 flex gap-2 z-50">
-        <PrintButton />
+        <PrintButton filename={`合約-GH-${contract.id.slice(0, 8).toUpperCase()}-${org?.name || '客戶'}`} />
         <a href={`/clients/${contract.space_client_id}`} className="px-4 py-2 rounded-lg text-sm font-medium bg-stone-200 text-stone-700 hover:bg-stone-300">
           返回
         </a>
@@ -44,7 +44,7 @@ export default async function PrintContractPage({ params }: { params: Promise<{ 
         }
       `}</style>
 
-      <div className="max-w-3xl mx-auto px-10 py-16 font-sans">
+      <div data-pdf-target className="max-w-3xl mx-auto px-10 py-16 font-sans">
         {/* Header */}
         <div className="border-b-2 border-stone-900 pb-6 mb-8">
           <div className="flex items-center gap-3 mb-4">
