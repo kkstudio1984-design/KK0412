@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { formatNTD } from '@/lib/utils'
-import { fetchDashboard } from '@/lib/queries'
+import { fetchDashboard, fetchClientsHealthSnapshot } from '@/lib/queries'
 import Link from 'next/link'
 import PageHeader from '@/components/ui/PageHeader'
 import nextDynamic from 'next/dynamic'
@@ -17,7 +17,10 @@ const ESCALATION_COLORS: Record<string, string> = {
 }
 
 export default async function DashboardPage() {
-  const data = await fetchDashboard()
+  const [data, healthSnapshot] = await Promise.all([
+    fetchDashboard(),
+    fetchClientsHealthSnapshot(),
+  ])
   const fireCount = data.urgentMail.length + data.kycOverdue.length + data.followUpToday.length + data.overduePayments.length + data.kycRenewalDue.length + data.contractExpiringSoon.length
 
   return (
@@ -143,6 +146,74 @@ export default async function DashboardPage() {
             </div>
           </div>
         )}
+      </section>
+
+      {/* Tier 1.5: 客戶健康度（早期預警） */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-sm font-bold text-orange-600 uppercase tracking-widest">客戶健康度</h2>
+          <span className="text-xs text-gray-400">誰需要主動聯繫？</span>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">健康 {healthSnapshot.totals.healthy}</span>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">注意 {healthSnapshot.totals.attention}</span>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">危險 {healthSnapshot.totals.risk}</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* 危險（紅）— 立刻聯繫 */}
+          <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+            <h3 className="text-xs font-semibold text-red-600 uppercase tracking-widest mb-3">危險客戶（立刻聯繫）</h3>
+            {healthSnapshot.risk.length === 0 ? (
+              <p className="text-sm text-gray-300">無</p>
+            ) : (
+              <div className="space-y-2">
+                {healthSnapshot.risk.slice(0, 8).map((r) => (
+                  <Link
+                    key={r.clientId}
+                    href={`/clients/${r.clientId}`}
+                    className="flex items-center justify-between gap-3 text-sm py-1 hover:bg-red-50 rounded px-1 -mx-1 transition"
+                    title={r.health.suggestion}
+                  >
+                    <span className="text-gray-800 truncate">{r.clientName}</span>
+                    <span className="flex items-center gap-2 flex-shrink-0">
+                      <span className="text-xs text-gray-400 truncate max-w-[160px]">{r.health.factors[0]?.label || '—'}</span>
+                      <span className="text-xs font-semibold text-red-600 tabular-nums">{r.health.score}</span>
+                    </span>
+                  </Link>
+                ))}
+                {healthSnapshot.risk.length > 8 && (
+                  <p className="text-xs text-gray-400 pt-2">⋯ 還有 {healthSnapshot.risk.length - 8} 位</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* 注意（黃）— 本週內聯繫 */}
+          <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+            <h3 className="text-xs font-semibold text-amber-600 uppercase tracking-widest mb-3">注意客戶（本週內聯繫）</h3>
+            {healthSnapshot.attention.length === 0 ? (
+              <p className="text-sm text-gray-300">無</p>
+            ) : (
+              <div className="space-y-2">
+                {healthSnapshot.attention.slice(0, 8).map((r) => (
+                  <Link
+                    key={r.clientId}
+                    href={`/clients/${r.clientId}`}
+                    className="flex items-center justify-between gap-3 text-sm py-1 hover:bg-amber-50 rounded px-1 -mx-1 transition"
+                    title={r.health.suggestion}
+                  >
+                    <span className="text-gray-800 truncate">{r.clientName}</span>
+                    <span className="flex items-center gap-2 flex-shrink-0">
+                      <span className="text-xs text-gray-400 truncate max-w-[160px]">{r.health.factors[0]?.label || '—'}</span>
+                      <span className="text-xs font-semibold text-amber-600 tabular-nums">{r.health.score}</span>
+                    </span>
+                  </Link>
+                ))}
+                {healthSnapshot.attention.length > 8 && (
+                  <p className="text-xs text-gray-400 pt-2">⋯ 還有 {healthSnapshot.attention.length - 8} 位</p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </section>
 
       {/* Tier 2: 生存層 */}

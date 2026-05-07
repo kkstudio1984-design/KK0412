@@ -11,9 +11,11 @@ import ClientTimeline from '@/components/clients/ClientTimeline'
 import IncidentList from '@/components/clients/IncidentList'
 import ChangeNotifications from '@/components/clients/ChangeNotifications'
 import EmailTemplatePicker from '@/components/clients/EmailTemplatePicker'
+import HealthCard from '@/components/clients/HealthCard'
 import { fetchClient } from '@/lib/queries'
 import { formatNTD } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/server'
+import { computeHealthScore } from '@/lib/health-score'
 
 export default async function ClientDetailPage({
   params,
@@ -127,6 +129,26 @@ export default async function ClientDetailPage({
       <div className="space-y-4">
         {/* 區塊 A — 基本資料 */}
         <ClientInfo client={client} />
+
+        {/* 區塊 A.5 — 客戶健康度 */}
+        <HealthCard health={computeHealthScore({
+          stage: client.stage,
+          payments: (client.payments || []).map(p => ({
+            status: p.status ?? null,
+            escalation_level: p.escalationLevel ?? null,
+            due_date: p.dueDate ?? null,
+            paid_at: p.paidAt ?? null,
+          })),
+          contracts: (client.contracts || []).map(c => ({
+            end_date: c.endDate,
+            signing_status: c.signingStatus,
+          })),
+          kycChecks: (client.kycChecks || []).map(k => ({
+            status: k.status,
+            checked_at: k.checkedAt,
+          })),
+          clientUpdatedAt: client.updatedAt,
+        })} />
 
         {/* 區塊 B — KYC（僅借址登記） */}
         {client.serviceType === '借址登記' && (

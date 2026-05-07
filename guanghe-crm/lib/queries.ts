@@ -915,3 +915,71 @@ export async function fetchAllContracts(): Promise<ContractWithClient[]> {
     rejectReason: ct.reject_reason ?? null,
   }))
 }
+
+// ── 客戶健康度快照 ──────────────────────────────────────────
+// 一次撈所有非結案／流失客戶 + 相關 payments / contracts / kyc，
+// 在 JS 端套 computeHealthScore，回傳需主動聯繫的列表。
+import { computeHealthScore, type HealthScore } from './health-score'
+
+export interface ClientHealthRow {
+  clientId: string
+  clientName: string
+  stage: string
+  health: HealthScore
+}
+
+export async function fetchClientsHealthSnapshot(): Promise<{
+  attention: ClientHealthRow[]
+  risk: ClientHealthRow[]
+  totals: { healthy: number; attention: number; risk: number; closed: number }
+}> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('space_clients')
+    .select(`
+      id, stage, updated_at,
+      organization:organizations(name),
+      payments(status, escalation_level, due_date, paid_at),
+      contracts(end_date, signing_status),
+      kyc_checks(status, checked_at)
+    `)
+    .not('stage', 'in', '("已結案","已流失")')
+
+  if (error) {
+    console.error('[fetchClientsHealthSnapshot]', error)
+    return { attention: [], risk: [], totals: { healthy: 0, attention: 0, risk: 0, closed: 0 } }
+  }
+
+  const rows: ClientHealthRow[] = []
+  const totals = { healthy: 0, attention: 0, risk: 0, closed: 0 }
+
+  for (const c of (data || []) as any[]) {
+    const health = computeHealthScore({
+      stage: c.stage,
+      payments: c.payments || [],
+      contracts: c.contracts || [],
+      kycChecks: c.kyc_checks || [],
+      clientUpdatedAt: c.updated_at,
+    })
+    totals[health.level]++
+
+    if (health.level === 'attention' || health.level === 'risk') {
+      rows.push({
+        clientId: c.id,
+        clientName: c.organization?.name || '未知',
+        stage: c.stage,
+        health,
+      })
+    }
+  }
+
+  // 按分數升冪（最危險的在最上）
+  rows.sort((a, b) => a.health.score - b.health.score)
+
+  return {
+    attention: rows.filter(r => r.health.level === 'attention'),
+    risk: rows.filter(r => r.health.level === 'risk'),
+    totals,
+  }
+}
