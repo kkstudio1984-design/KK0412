@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
 
+import Link from 'next/link'
 import { fetchStudents } from '@/lib/queries'
 import { formatNTD } from '@/lib/utils'
 import PageHeader from '@/components/ui/PageHeader'
@@ -34,6 +35,14 @@ export default async function StudentsPage() {
       <PageHeader
         title="學員管理"
         subtitle="身障者 AI 就業 skill 計畫"
+        action={
+          <Link
+            href="/students/new"
+            className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 text-sm font-semibold px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all"
+          >
+            + 新增學員
+          </Link>
+        }
       />
 
       {/* Stats */}
@@ -60,8 +69,13 @@ export default async function StudentsPage() {
       {students.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-100 p-12 text-center shadow-sm">
           <p className="text-sm text-gray-500 mb-2">尚未登錄任何學員</p>
-          <p className="text-xs text-gray-400">第一位學員 A 可由 Supabase Studio 新增，或等下一輪做 /students/new 表單後再加</p>
-          <p className="text-xs text-gray-400 mt-3">至少必填：code、display_name、status=培訓中、cohort=2026-Q2</p>
+          <p className="text-xs text-gray-400 mb-4">第一位學員可從右上角「+ 新增學員」開始</p>
+          <Link
+            href="/students/new"
+            className="inline-block bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 text-sm font-semibold px-5 py-2 rounded-lg shadow-sm"
+          >
+            + 新增第一位學員
+          </Link>
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
