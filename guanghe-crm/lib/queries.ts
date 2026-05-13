@@ -1098,3 +1098,74 @@ export async function fetchBreakevenProgress() {
     daysInMonth: differenceInDays(endOfMonth(now), startOfMonth(now)) + 1,
   }
 }
+
+// ── 學員管理（身障 AI 就業 skill 計畫）─────────────────
+// 對應 migration 023_students.sql
+
+export type StudentStatus = '培訓中' | '實習中' | '執業中' | '暫停中' | '離開'
+
+export interface Student {
+  id: string
+  code: string
+  displayName: string
+  cohort: string | null
+  status: StudentStatus
+  trainingProgressStep: number
+  computerSkillLevel: number | null
+  mentalStability: string | null
+  publicConsent: boolean
+  workOutputConsent: boolean
+  stipendMonthly: number
+  incomeMonthlyEstimated: number
+  joinedAt: string | null
+  graduatedAt: string | null
+  notes: string | null
+  createdAt: string
+}
+
+interface StudentRow {
+  id: string
+  code: string
+  display_name: string
+  cohort: string | null
+  status: StudentStatus
+  training_progress_step: number
+  computer_skill_level: number | null
+  mental_stability: string | null
+  public_consent: boolean
+  work_output_consent: boolean
+  stipend_monthly: number
+  income_monthly_estimated: number
+  joined_at: string | null
+  graduated_at: string | null
+  notes: string | null
+  created_at: string
+}
+
+export async function fetchStudents(): Promise<Student[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('students')
+    .select('id, code, display_name, cohort, status, training_progress_step, computer_skill_level, mental_stability, public_consent, work_output_consent, stipend_monthly, income_monthly_estimated, joined_at, graduated_at, notes, created_at')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return ((data || []) as StudentRow[]).map((s) => ({
+    id: s.id,
+    code: s.code,
+    displayName: s.display_name,
+    cohort: s.cohort,
+    status: s.status,
+    trainingProgressStep: s.training_progress_step,
+    computerSkillLevel: s.computer_skill_level,
+    mentalStability: s.mental_stability,
+    publicConsent: s.public_consent,
+    workOutputConsent: s.work_output_consent,
+    stipendMonthly: s.stipend_monthly,
+    incomeMonthlyEstimated: s.income_monthly_estimated,
+    joinedAt: s.joined_at,
+    graduatedAt: s.graduated_at,
+    notes: s.notes,
+    createdAt: s.created_at,
+  }))
+}

@@ -13,6 +13,7 @@ const navItems = [
   { href: '/sales/sponsorships', label: 'ESG 贊助', icon: '♻', color: '#0ea5e9' },
   { href: '/finance', label: '財務總覽', icon: '¥', color: '#10b981' },
   { href: '/training', label: '教育訓練', icon: '◉', color: '#ec4899' },
+  { href: '/students', label: '學員管理', icon: '🌱', color: '#ec4899' },
   { href: '/partners', label: '夥伴管理', icon: '♿', color: '#ec4899' },
   { href: '/ai-strategy', label: 'AI 戰略', icon: '⚡', color: '#8b5cf6' },
   { href: '/knowledge', label: '知識庫', icon: '📚', color: '#8b5cf6' },
