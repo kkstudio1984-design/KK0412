@@ -28,7 +28,6 @@ const QUICK_PAGES = [
   { name: 'AI 戰略', href: '/ai-strategy', icon: '⚡', group: '頁面' },
   { name: '儀表板', href: '/dashboard', icon: '◈', group: '頁面' },
   { name: '月報表', href: '/reports', icon: '📊', group: '頁面' },
-  { name: '地址風險', href: '/address-risk', icon: '⚠', group: '頁面' },
 ]
 
 export default function CommandPalette() {

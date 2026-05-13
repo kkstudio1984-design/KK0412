@@ -19,15 +19,15 @@ const navItems = [
   { href: '/dashboard', label: '儀表板', icon: '◈', color: '#d97706' },
   { href: '/reports', label: '月報表', icon: '📊', color: '#10b981' },
   { href: '/calendar', label: '日曆', icon: '📅', color: '#f59e0b' },
-  { href: '/address-risk', label: '地址風險', icon: '⚠', color: '#d97706' },
   { href: '/visitors', label: '訪客登記', icon: '🚪', color: '#0ea5e9' },
-  { href: '/seats', label: '座位管理', icon: '🪑', color: '#d97706' },
 ]
 
 const adminItems = [
   { href: '/admin/users', label: '使用者管理', icon: '👥', color: '#f59e0b' },
   { href: '/admin/audit', label: '操作軌跡', icon: '📋', color: '#f59e0b' },
   { href: '/admin/email-templates', label: 'Email 範本', icon: '📧', color: '#f59e0b' },
+  { href: '/seats', label: '座位管理（停用中）', icon: '🪑', color: '#78716c' },
+  { href: '/address-risk', label: '地址風險（停用中）', icon: '⚠', color: '#78716c' },
 ]
 
 interface Props {
