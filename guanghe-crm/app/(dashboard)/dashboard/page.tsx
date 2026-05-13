@@ -1,7 +1,14 @@
 export const dynamic = 'force-dynamic'
 
 import { formatNTD } from '@/lib/utils'
-import { fetchDashboard, fetchClientsHealthSnapshot } from '@/lib/queries'
+import {
+  fetchDashboard,
+  fetchClientsHealthSnapshot,
+  fetchCashWarning,
+  fetchBreakevenProgress,
+  BREAKEVEN_TARGET_NTD,
+  CASH_WARNING_LINE_NTD,
+} from '@/lib/queries'
 import Link from 'next/link'
 import PageHeader from '@/components/ui/PageHeader'
 import nextDynamic from 'next/dynamic'
@@ -17,11 +24,14 @@ const ESCALATION_COLORS: Record<string, string> = {
 }
 
 export default async function DashboardPage() {
-  const [data, healthSnapshot] = await Promise.all([
+  const [data, healthSnapshot, cashWarning, breakeven] = await Promise.all([
     fetchDashboard(),
     fetchClientsHealthSnapshot(),
+    fetchCashWarning(),
+    fetchBreakevenProgress(),
   ])
-  const fireCount = data.urgentMail.length + data.kycOverdue.length + data.followUpToday.length + data.overduePayments.length + data.kycRenewalDue.length + data.contractExpiringSoon.length
+  const cashCriticalFire = cashWarning.status === 'critical' ? 1 : 0
+  const fireCount = data.urgentMail.length + data.kycOverdue.length + data.followUpToday.length + data.overduePayments.length + data.kycRenewalDue.length + data.contractExpiringSoon.length + cashCriticalFire
 
   return (
     <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
@@ -146,6 +156,52 @@ export default async function DashboardPage() {
             </div>
           </div>
         )}
+
+        {/* 現金警戒（PRD 2.0 五腳營運：4 個月固定成本警戒線 NT$730,000） */}
+        <div className={`mt-4 rounded-xl border p-5 shadow-sm ${
+          cashWarning.status === 'critical' ? 'bg-red-50 border-red-200' :
+          cashWarning.status === 'caution' ? 'bg-amber-50 border-amber-200' :
+          cashWarning.status === 'no_data' ? 'bg-gray-50 border-gray-200' :
+          'bg-white border-gray-100'
+        }`}>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-500">現金警戒</h3>
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                cashWarning.status === 'critical' ? 'bg-red-100 text-red-700 border-red-200' :
+                cashWarning.status === 'caution' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                cashWarning.status === 'no_data' ? 'bg-gray-100 text-gray-600 border-gray-200' :
+                'bg-green-50 text-green-700 border-green-200'
+              }`}>
+                {cashWarning.status === 'critical' ? '🔴 危險' :
+                 cashWarning.status === 'caution' ? '🟡 注意' :
+                 cashWarning.status === 'no_data' ? '— 尚無盤點' :
+                 '🟢 安全'}
+              </span>
+            </div>
+            <span className="text-[11px] text-gray-400">警戒線 {formatNTD(CASH_WARNING_LINE_NTD)}（4 個月固定成本）</span>
+          </div>
+          {cashWarning.status === 'no_data' ? (
+            <p className="mt-3 text-sm text-gray-500">尚未建立任何現金盤點，請至 /finance/cash 新增第一筆。</p>
+          ) : (
+            <div className="mt-3 flex items-end justify-between gap-4 flex-wrap">
+              <div>
+                <p className={`text-2xl font-bold ${
+                  cashWarning.status === 'critical' ? 'text-red-600' :
+                  cashWarning.status === 'caution' ? 'text-amber-600' :
+                  'text-gray-900'
+                }`}>{formatNTD(cashWarning.current)}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  約可撐 <span className="font-medium text-gray-700">{cashWarning.bufferDays} 天</span>
+                  {cashWarning.reconciledAt && (
+                    <span className="text-gray-400">　·　最後盤點 {cashWarning.reconciledAt}</span>
+                  )}
+                </p>
+              </div>
+              <Link href="/finance/cash" className="text-xs text-amber-600 hover:text-amber-700">查看明細 →</Link>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Tier 1.5: 客戶健康度（早期預警） */}
@@ -232,6 +288,54 @@ export default async function DashboardPage() {
           <h2 className="text-sm font-bold text-amber-600 uppercase tracking-widest">生存層</h2>
           <span className="text-xs text-gray-400">錢夠不夠活？</span>
         </div>
+
+        {/* 月損益平衡進度（PRD 2.0 五腳營運：月損益平衡點 NT$182,520） */}
+        <div className={`mb-4 rounded-xl border p-5 shadow-sm ${
+          breakeven.status === 'achieved' ? 'bg-green-50 border-green-200' :
+          breakeven.status === 'on-track' ? 'bg-amber-50 border-amber-200' :
+          'bg-red-50 border-red-200'
+        }`}>
+          <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-500">月損益平衡進度</h3>
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                breakeven.status === 'achieved' ? 'bg-green-100 text-green-700 border-green-200' :
+                breakeven.status === 'on-track' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                'bg-red-100 text-red-700 border-red-200'
+              }`}>
+                {breakeven.status === 'achieved' ? '✓ 已達標' :
+                 breakeven.status === 'on-track' ? '⏳ 進度中' : '⚠ 落後'}
+              </span>
+            </div>
+            <span className="text-[11px] text-gray-400">
+              目標 {formatNTD(BREAKEVEN_TARGET_NTD)}　·　月已過 {breakeven.daysIntoMonth}/{breakeven.daysInMonth} 天
+            </span>
+          </div>
+          <div className="flex items-end justify-between gap-4 flex-wrap mb-3">
+            <div>
+              <p className={`text-2xl font-bold ${
+                breakeven.status === 'achieved' ? 'text-green-600' :
+                breakeven.status === 'on-track' ? 'text-amber-600' :
+                'text-red-600'
+              }`}>{formatNTD(breakeven.monthlyRevenue)} <span className="text-sm font-medium text-gray-500">({breakeven.progressPct}%)</span></p>
+              <p className="text-xs text-gray-500 mt-1">
+                {breakeven.gap > 0
+                  ? <>距達標還缺 <span className="font-medium text-gray-700">{formatNTD(breakeven.gap)}</span></>
+                  : <>已超過目標 <span className="font-medium text-green-700">{formatNTD(breakeven.monthlyRevenue - BREAKEVEN_TARGET_NTD)}</span></>
+                }
+              </p>
+            </div>
+            <Link href="/finance/revenue" className="text-xs text-amber-600 hover:text-amber-700">查看營收明細 →</Link>
+          </div>
+          <div className="h-3 bg-white/60 rounded-full relative overflow-hidden border border-white">
+            <div className={`absolute left-0 top-0 bottom-0 rounded-full transition-all ${
+              breakeven.status === 'achieved' ? 'bg-gradient-to-r from-green-400 to-green-500' :
+              breakeven.status === 'on-track' ? 'bg-gradient-to-r from-amber-400 to-amber-500' :
+              'bg-gradient-to-r from-red-400 to-red-500'
+            }`} style={{ width: `${Math.min(100, breakeven.progressPct)}%` }} />
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
           <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">本月應收</p>
