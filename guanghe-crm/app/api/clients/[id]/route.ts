@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import type { KycCheckRow } from '@/lib/db-types'
+import { CLIENT_TYPES, LEG_TYPES } from '@/lib/leg-types'
 
 // GET /api/clients/[id] — 完整資料（含 KYC + payments）
 export async function GET(
@@ -84,7 +85,8 @@ export async function PATCH(
 
     // Update organization fields if provided
     if (body.orgName || body.contactName || body.contactPhone ||
-        body.contactEmail || body.contactLine || body.taxId || body.source) {
+        body.contactEmail || body.contactLine || body.taxId || body.source ||
+        body.clientType !== undefined || body.legType !== undefined) {
       // First get org_id
       const { data: sc } = await supabase
         .from('space_clients')
@@ -101,6 +103,16 @@ export async function PATCH(
         if (body.contactLine !== undefined) orgUpdate.contact_line = body.contactLine
         if (body.taxId !== undefined) orgUpdate.tax_id = body.taxId
         if (body.source !== undefined) orgUpdate.source = body.source
+        if (body.clientType !== undefined) {
+          orgUpdate.client_type = (CLIENT_TYPES as readonly string[]).includes(body.clientType)
+            ? body.clientType
+            : 'other'
+        }
+        if (body.legType !== undefined) {
+          orgUpdate.leg_type = (LEG_TYPES as readonly string[]).includes(body.legType)
+            ? body.legType
+            : 'other'
+        }
 
         const { error } = await supabase
           .from('organizations')

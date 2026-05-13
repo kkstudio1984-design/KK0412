@@ -31,6 +31,12 @@ export default function ClientInfo({ client }: Props) {
     contactEmail: client.organization.contactEmail ?? '',
     contactLine: client.organization.contactLine ?? '',
     source: client.organization.source as Source,
+    clientType: ((CLIENT_TYPES as readonly string[]).includes(client.organization.clientType ?? '')
+      ? client.organization.clientType
+      : 'other') as ClientType,
+    legType: ((LEG_TYPES as readonly string[]).includes(client.organization.legType ?? '')
+      ? client.organization.legType
+      : 'other') as LegType,
     plan: client.plan ?? '',
     monthlyFee: String(client.monthlyFee),
     nextAction: client.nextAction ?? '',
@@ -56,6 +62,8 @@ export default function ClientInfo({ client }: Props) {
           contactEmail: form.contactEmail,
           contactLine: form.contactLine,
           source: form.source,
+          clientType: form.clientType,
+          legType: form.legType,
           plan: form.plan,
           monthlyFee: form.monthlyFee,
           nextAction: form.nextAction,
@@ -207,6 +215,38 @@ export default function ClientInfo({ client }: Props) {
           <label className={labelCls}>服務類型</label>
           <p className="text-sm text-gray-700">{client.serviceType}</p>
         </div>
+
+        {/* 客戶類型（五腳分類） */}
+        {editing && (
+          <div>
+            <label className={labelCls}>客戶類型（五腳分類）</label>
+            <select
+              className={`${inputCls} bg-white`}
+              value={form.clientType}
+              onChange={(e) => set('clientType', e.target.value)}
+            >
+              {CLIENT_TYPES.map((t) => (
+                <option key={t} value={t}>{CLIENT_TYPE_LABELS[t]}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* 業務腳（交易分類） */}
+        {editing && (
+          <div>
+            <label className={labelCls}>業務腳（交易分類）</label>
+            <select
+              className={`${inputCls} bg-white`}
+              value={form.legType}
+              onChange={(e) => set('legType', e.target.value)}
+            >
+              {LEG_TYPES.map((t) => (
+                <option key={t} value={t}>{LEG_TYPE_LABELS[t]}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* 方案 */}
         <div>
