@@ -1017,3 +1017,84 @@ export async function fetchClientsHealthSnapshot(): Promise<{
     totals,
   }
 }
+
+// ── Operational KPIs（對齊 PRD 2.0 五腳營運模型）────────────────
+// 月損益平衡點 NT$182,520（PRD 2.0）
+// 現金警戒線 NT$730,000（4 個月固定成本，PRD 2.0）
+export const BREAKEVEN_TARGET_NTD = 182_520
+export const CASH_WARNING_LINE_NTD = 730_000
+
+export type CashWarningStatus = 'safe' | 'caution' | 'critical' | 'no_data'
+export type BreakevenStatus = 'achieved' | 'on-track' | 'behind'
+
+export async function fetchCashWarning() {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('cash_reconciliations')
+    .select('actual_balance, reconciliation_date')
+    .order('reconciliation_date', { ascending: false })
+    .limit(1)
+
+  const latest = (data || [])[0] as { actual_balance: number; reconciliation_date: string } | undefined
+  if (!latest) {
+    return {
+      current: 0,
+      warningLine: CASH_WARNING_LINE_NTD,
+      status: 'no_data' as CashWarningStatus,
+      reconciledAt: null,
+      bufferDays: 0,
+    }
+  }
+
+  const current = latest.actual_balance
+  let status: CashWarningStatus
+  if (current >= CASH_WARNING_LINE_NTD) status = 'safe'
+  else if (current >= CASH_WARNING_LINE_NTD * 0.5) status = 'caution'
+  else status = 'critical'
+
+  // 4 個月固定成本 = $730,000 → 1 個月 ≈ $182,500
+  const monthlyBurn = CASH_WARNING_LINE_NTD / 4
+  const bufferDays = monthlyBurn > 0 ? Math.round((current / monthlyBurn) * 30) : 0
+
+  return {
+    current,
+    warningLine: CASH_WARNING_LINE_NTD,
+    status,
+    reconciledAt: latest.reconciliation_date,
+    bufferDays,
+  }
+}
+
+export async function fetchBreakevenProgress() {
+  const supabase = await createClient()
+  const now = new Date()
+  const startStr = format(startOfMonth(now), 'yyyy-MM-dd')
+  const endStr = format(endOfMonth(now), 'yyyy-MM-dd')
+
+  const { data } = await supabase
+    .from('revenue_records')
+    .select('amount')
+    .eq('status', '已收')
+    .gte('revenue_date', startStr)
+    .lte('revenue_date', endStr)
+
+  const monthlyRevenue = ((data || []) as { amount: number }[]).reduce((sum, r) => sum + r.amount, 0)
+  const progressPct = BREAKEVEN_TARGET_NTD > 0
+    ? Math.round((monthlyRevenue / BREAKEVEN_TARGET_NTD) * 1000) / 10
+    : 0
+
+  let status: BreakevenStatus
+  if (monthlyRevenue >= BREAKEVEN_TARGET_NTD) status = 'achieved'
+  else if (monthlyRevenue >= BREAKEVEN_TARGET_NTD * 0.6) status = 'on-track'
+  else status = 'behind'
+
+  return {
+    monthlyRevenue,
+    target: BREAKEVEN_TARGET_NTD,
+    progressPct,
+    status,
+    gap: Math.max(0, BREAKEVEN_TARGET_NTD - monthlyRevenue),
+    daysIntoMonth: differenceInDays(now, startOfMonth(now)) + 1,
+    daysInMonth: differenceInDays(endOfMonth(now), startOfMonth(now)) + 1,
+  }
+}
