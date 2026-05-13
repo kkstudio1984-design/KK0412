@@ -24,6 +24,8 @@ export type OrganizationRow = {
   representative_id_number: string | null
   org_type: string
   source: Source
+  client_type: string  // migration 022
+  leg_type: string     // migration 024
   notes: string | null
   created_at: string
   updated_at: string

@@ -5,6 +5,16 @@ import toast from 'react-hot-toast'
 import { ClientDetail, SOURCES, Source } from '@/lib/types'
 import { formatDate } from '@/lib/utils'
 import { CanEdit } from '@/components/providers/RoleProvider'
+import {
+  CLIENT_TYPES,
+  CLIENT_TYPE_LABELS,
+  CLIENT_TYPE_COLORS,
+  LEG_TYPES,
+  LEG_TYPE_LABELS,
+  LEG_TYPE_COLORS,
+  type ClientType,
+  type LegType,
+} from '@/lib/leg-types'
 
 interface Props {
   client: ClientDetail
@@ -106,7 +116,27 @@ export default function ClientInfo({ client }: Props) {
           {editing ? (
             <input className={inputCls} value={form.orgName} onChange={(e) => set('orgName', e.target.value)} />
           ) : (
-            <p className="text-sm text-gray-900 font-medium">{client.organization.name}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-sm text-gray-900 font-medium">{client.organization.name}</p>
+              {(() => {
+                const ct = (client.organization.clientType || 'other') as ClientType
+                const lt = (client.organization.legType || 'other') as LegType
+                const ctValid = (CLIENT_TYPES as readonly string[]).includes(ct)
+                const ltValid = (LEG_TYPES as readonly string[]).includes(lt)
+                return (
+                  <>
+                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${ctValid ? CLIENT_TYPE_COLORS[ct] : CLIENT_TYPE_COLORS.other}`} title="客戶類型（migration 022）">
+                      {ctValid ? CLIENT_TYPE_LABELS[ct] : '其他／未分類'}
+                    </span>
+                    {lt !== 'other' && (
+                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${ltValid ? LEG_TYPE_COLORS[lt] : LEG_TYPE_COLORS.other}`} title="業務腳分類（migration 024）">
+                        {ltValid ? LEG_TYPE_LABELS[lt] : '未分類'}
+                      </span>
+                    )}
+                  </>
+                )
+              })()}
+            </div>
           )}
         </div>
 

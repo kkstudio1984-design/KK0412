@@ -73,6 +73,8 @@ export type Organization = {
   contactEmail: string | null
   contactLine: string | null
   source: Source
+  clientType?: string  // migration 022 — 客戶類型（五腳分類）。optional 直到所有 mapping 點都接好
+  legType?: string     // migration 024 — 業務腳分類（跨腳交易層）。同上
   notes: string | null
   createdAt: string
   updatedAt: string
