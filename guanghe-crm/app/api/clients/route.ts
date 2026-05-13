@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { KYC_CHECK_TYPES } from '@/lib/types'
+import { CLIENT_TYPES, LEG_TYPES, type ClientType, type LegType } from '@/lib/leg-types'
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET /api/clients — 看板用，含 hasOverduePayment
@@ -31,12 +32,20 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const {
       name, taxId, contactName, contactPhone, contactEmail, contactLine, source, orgNotes,
+      clientType, legType,
       serviceType, plan, monthlyFee, notes,
     } = body
 
     if (!name || !contactName || !serviceType) {
       return NextResponse.json({ error: '缺少必填欄位' }, { status: 400 })
     }
+
+    const safeClientType: ClientType = (CLIENT_TYPES as readonly string[]).includes(clientType)
+      ? (clientType as ClientType)
+      : 'other'
+    const safeLegType: LegType = (LEG_TYPES as readonly string[]).includes(legType)
+      ? (legType as LegType)
+      : 'other'
 
     // Create organization
     const { data: org, error: orgError } = await supabase
@@ -50,6 +59,8 @@ export async function POST(req: NextRequest) {
         contact_line: contactLine || null,
         source: source || '其他',
         notes: orgNotes || null,
+        client_type: safeClientType,
+        leg_type: safeLegType,
       })
       .select()
       .single()

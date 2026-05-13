@@ -5,6 +5,14 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { SOURCES, Source, ServiceType } from '@/lib/types'
 import { useRole } from '@/components/providers/RoleProvider'
+import {
+  CLIENT_TYPES,
+  CLIENT_TYPE_LABELS,
+  LEG_TYPES,
+  LEG_TYPE_LABELS,
+  type ClientType,
+  type LegType,
+} from '@/lib/leg-types'
 
 export default function ClientForm() {
   const router = useRouter()
@@ -20,6 +28,8 @@ export default function ClientForm() {
     contactEmail: '',
     contactLine: '',
     source: '自來客' as Source,
+    clientType: 'other' as ClientType,
+    legType: 'other' as LegType,
     orgNotes: '',
     // 空間服務
     serviceType: '借址登記' as ServiceType,
@@ -162,6 +172,40 @@ export default function ClientForm() {
             >
               {SOURCES.map((s) => (
                 <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              客戶類型
+              <span className="ml-1 text-xs text-gray-400">（五腳分類）</span>
+            </label>
+            <select
+              value={form.clientType}
+              onChange={(e) => set('clientType', e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+              style={{ color: '#111', background: '#fff' }}
+            >
+              {CLIENT_TYPES.map((t) => (
+                <option key={t} value={t}>{CLIENT_TYPE_LABELS[t]}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              業務腳
+              <span className="ml-1 text-xs text-gray-400">（交易分類）</span>
+            </label>
+            <select
+              value={form.legType}
+              onChange={(e) => set('legType', e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+              style={{ color: '#111', background: '#fff' }}
+            >
+              {LEG_TYPES.map((t) => (
+                <option key={t} value={t}>{LEG_TYPE_LABELS[t]}</option>
               ))}
             </select>
           </div>
