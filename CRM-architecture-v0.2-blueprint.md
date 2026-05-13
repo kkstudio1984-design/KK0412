@@ -112,6 +112,65 @@ v1 的一級導航是「按系統模組分」（M1 空間 / M2 專案 / M3 銷�
 | **bpo_compliance_reports** | 身權法 38 條合規報告 | 🟢 低 | 真的有員工要報時 |
 | **academy_subsidies** | 學院產投補助送件追蹤 | 🟢 低 | 真的送件時 |
 
+### 2.2b 五管視角缺口盤點（2026-05-13 補入）
+
+以一個公司的「產／銷／人／發／財」五管視角檢視 CRM v1，**現況極度傾斜**：銷管與財管做到 80-85%，但**產管、人管、研發管全部低於 40%**。v1 是「銷售型 CRM」，要轉成「五腳營運平台」必須補上下面 20 個缺口。
+
+| 完整度 | 五管 | 評語 |
+|------|----|------|
+| 🟢 85% | 銷 | M3 Sales、合約、收款、拒簽分析齊全 |
+| 🟢 80% | 財 | 收支、現金、補助齊，缺預算管理與現金流預測 |
+| 🟡 40% | 產 | 有 M2 Projects 撐著，但缺工單流程、SLA、產能規劃 |
+| 🟡 35% | 人 | **完全沒學員管理、講師管理、員工管理** |
+| 🔴 25% | 發 | M6 AI Strategy 是雛形，但缺產品版本管理、點子庫、實驗紀錄 |
+
+#### P0：身障 AI skill 計畫上線前必須補的 4 個缺口
+
+| 缺口 | 屬於哪管 | 為什麼 P0 |
+|------|------|---------|
+| **students 表（學員管理模組）** | 人 | skill 計畫的承載容器、partners 表裝不下 |
+| **work_orders 表（作業工單系統）** | 產 | 任務接案 → 處理 → QC → 交付 → 結算 5 道工序 |
+| **product_versions 表（產品版本管理）** | 發 | Claude Skill v1.0/v1.1/v2.0 changelog，IP 資產化 |
+| **receivables_overview view（應收帳款全景）** | 財 | 月費 BPO 上線後每天必看 |
+
+#### P1：CRM v2 五腳重組要補的 8 個缺口
+
+| 缺口 | 屬於哪管 | 預估時間 |
+|------|------|--------|
+| instructors 表（講師管理） | 人 | 1 天 |
+| employees 表（正式員工管理） | 人 | 1.5 天 |
+| sales_funnel view（客戶旅程漏斗） | 銷 | 0.5 天 |
+| quotes 表（報價單／提案管理） | 銷 | 1.5 天 |
+| service_sla 表（SLA／服務交付追蹤） | 產 | 1 天 |
+| capacity_plan view（產能規劃） | 產 | 0.5 天 |
+| budget_actual view（預算 vs 實際支出） | 財 | 0.5 天 |
+| cash_forecast view（現金流預測 30/60/90 天） | 財 | 1 天 |
+
+#### P2：規模化後再補的 8 個缺口
+
+| 缺口 | 屬於哪管 |
+|------|------|
+| 行銷內容資產庫（IG／FB／Podcast／SEO 累積與成效） | 銷 |
+| 媒體曝光紀錄 | 銷 |
+| 點子庫／創新提案 | 發 |
+| 實驗紀錄（MVP 嘗試、A/B test、失敗案例） | 發 |
+| 競品分析 | 發 |
+| IP／授權管理（Claude Skill 版權） | 發 |
+| 股東報告／投資人簡報 | 財 |
+| 稅務／發票管理深化 | 財 |
+
+#### 對應的 migration 與實作優先級
+
+| Migration | 內容 | 階段 |
+|-----------|------|------|
+| 023 | students 表（P0 #1） | **本週 / B 任務** |
+| 024 | 9 張表加 leg_type（原藍圖階段四，併入） | 階段三後段 |
+| 025 | work_orders + service_sla（P0 #2 + P1） | skill 計畫接到第一個客戶前 |
+| 026 | product_versions（P0 #3） | Claude Skill v1.0 release 前 |
+| 027 | tenders + tender_milestones | 第二腳啟動時 |
+| 028 | instructors + employees | 招到第一位正職時 |
+| 029 | quotes 表 | ESG 訓練包正式銷售時 |
+
 ### 2.3 跨腳通用的「五腳分類」欄位設計
 
 **設計模式**：在 `organizations`、`leads`、`contracts`、`payments`、`revenue_records`、`expenses`、`projects`、`courses`、`knowledge_docs` 共 9 張表加同一個 `leg_type` 欄位（TEXT + CHECK constraint）。
