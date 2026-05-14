@@ -1173,3 +1173,76 @@ export async function fetchStudents(): Promise<Student[]> {
     createdAt: s.created_at,
   }))
 }
+
+// 學員津貼承諾預測（給 dashboard 救火層用）
+// 邏輯：把「培訓中」「實習中」的月津貼加總，乘以 2 就是未來 60 天承諾 outflow
+// 對照 cash_reconciliations 最新餘額 → 算出夠不夠付
+export type StipendStatus = 'safe' | 'caution' | 'critical' | 'no_data'
+
+export async function fetchStudentStipendCommitment() {
+  const supabase = await createClient()
+
+  const { data: students } = await supabase
+    .from('students')
+    .select('status, stipend_monthly')
+    .in('status', ['培訓中', '實習中'])
+
+  const activeStudents = (students || []) as { status: string; stipend_monthly: number }[]
+  const activeCount = activeStudents.length
+  const monthlyCommitment = activeStudents.reduce((sum, s) => sum + (s.stipend_monthly || 0), 0)
+  const next60DaysCommitment = monthlyCommitment * 2
+
+  // 抓最新現金餘額（沿用 fetchCashWarning 的資料源）
+  const { data: cashData } = await supabase
+    .from('cash_reconciliations')
+    .select('actual_balance, reconciliation_date')
+    .order('reconciliation_date', { ascending: false })
+    .limit(1)
+
+  const latestCash = (cashData || [])[0] as
+    | { actual_balance: number; reconciliation_date: string }
+    | undefined
+
+  if (activeCount === 0) {
+    return {
+      activeCount: 0,
+      monthlyCommitment: 0,
+      next60DaysCommitment: 0,
+      currentCash: latestCash?.actual_balance ?? 0,
+      cashBalanceAfter60Days: latestCash?.actual_balance ?? 0,
+      gap: 0,
+      status: 'no_data' as StipendStatus,
+      reconciledAt: latestCash?.reconciliation_date ?? null,
+    }
+  }
+
+  const currentCash = latestCash?.actual_balance ?? 0
+  const cashBalanceAfter60Days = currentCash - next60DaysCommitment
+  const gap = Math.max(0, next60DaysCommitment - currentCash)
+
+  // 警示等級：
+  //   critical = 60 天內現金不夠付津貼（gap > 0）
+  //   caution  = 60 天後餘額 < 1.5 個月津貼（剩餘 buffer 不到下一輪的 1.5 倍）
+  //   safe     = 60 天後餘額 >= 1.5 個月津貼
+  let status: StipendStatus
+  if (!latestCash) {
+    status = 'no_data'
+  } else if (gap > 0) {
+    status = 'critical'
+  } else if (cashBalanceAfter60Days < monthlyCommitment * 1.5) {
+    status = 'caution'
+  } else {
+    status = 'safe'
+  }
+
+  return {
+    activeCount,
+    monthlyCommitment,
+    next60DaysCommitment,
+    currentCash,
+    cashBalanceAfter60Days,
+    gap,
+    status,
+    reconciledAt: latestCash?.reconciliation_date ?? null,
+  }
+}

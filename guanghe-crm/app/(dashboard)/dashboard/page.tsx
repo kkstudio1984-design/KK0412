@@ -6,6 +6,7 @@ import {
   fetchClientsHealthSnapshot,
   fetchCashWarning,
   fetchBreakevenProgress,
+  fetchStudentStipendCommitment,
   BREAKEVEN_TARGET_NTD,
   CASH_WARNING_LINE_NTD,
 } from '@/lib/queries'
@@ -24,14 +25,16 @@ const ESCALATION_COLORS: Record<string, string> = {
 }
 
 export default async function DashboardPage() {
-  const [data, healthSnapshot, cashWarning, breakeven] = await Promise.all([
+  const [data, healthSnapshot, cashWarning, breakeven, stipend] = await Promise.all([
     fetchDashboard(),
     fetchClientsHealthSnapshot(),
     fetchCashWarning(),
     fetchBreakevenProgress(),
+    fetchStudentStipendCommitment(),
   ])
   const cashCriticalFire = cashWarning.status === 'critical' ? 1 : 0
-  const fireCount = data.urgentMail.length + data.kycOverdue.length + data.followUpToday.length + data.overduePayments.length + data.kycRenewalDue.length + data.contractExpiringSoon.length + cashCriticalFire
+  const stipendCriticalFire = stipend.status === 'critical' ? 1 : 0
+  const fireCount = data.urgentMail.length + data.kycOverdue.length + data.followUpToday.length + data.overduePayments.length + data.kycRenewalDue.length + data.contractExpiringSoon.length + cashCriticalFire + stipendCriticalFire
 
   return (
     <div className="px-6 py-8 max-w-5xl mx-auto space-y-8">
@@ -200,6 +203,74 @@ export default async function DashboardPage() {
               </div>
               <Link href="/finance/cash" className="text-xs text-amber-600 hover:text-amber-700">查看明細 →</Link>
             </div>
+          )}
+        </div>
+
+        {/* 學員津貼承諾（PRD 2.0 五腳營運：身障 AI 就業 skill 計畫的固定 outflow） */}
+        <div className={`mt-4 rounded-xl border p-5 shadow-sm ${
+          stipend.status === 'critical' ? 'bg-red-50 border-red-200' :
+          stipend.status === 'caution' ? 'bg-amber-50 border-amber-200' :
+          stipend.status === 'no_data' ? 'bg-gray-50 border-gray-200' :
+          'bg-white border-gray-100'
+        }`}>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-gray-500">學員津貼承諾</h3>
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                stipend.status === 'critical' ? 'bg-red-100 text-red-700 border-red-200' :
+                stipend.status === 'caution' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                stipend.status === 'no_data' ? 'bg-gray-100 text-gray-600 border-gray-200' :
+                'bg-green-50 text-green-700 border-green-200'
+              }`}>
+                {stipend.status === 'critical' ? '🔴 60 天內現金不足' :
+                 stipend.status === 'caution' ? '🟡 剩餘 buffer 偏低' :
+                 stipend.status === 'no_data' ? '— 尚無活躍學員' :
+                 '🟢 安全'}
+              </span>
+            </div>
+            <span className="text-[11px] text-gray-400">未來 60 天的固定 outflow</span>
+          </div>
+          {stipend.status === 'no_data' ? (
+            <p className="mt-3 text-sm text-gray-500">
+              尚未登錄培訓中或實習中的學員。
+              <Link href="/students/new" className="text-amber-600 hover:text-amber-700 ml-1">新增第一位學員 →</Link>
+            </p>
+          ) : (
+            <>
+              <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-xs text-gray-500">活躍學員</p>
+                  <p className="text-lg font-bold text-gray-900 mt-0.5">{stipend.activeCount} 位</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">每月承諾</p>
+                  <p className="text-lg font-bold text-gray-900 mt-0.5">{formatNTD(stipend.monthlyCommitment)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">未來 60 天承諾</p>
+                  <p className={`text-lg font-bold mt-0.5 ${
+                    stipend.status === 'critical' ? 'text-red-600' :
+                    stipend.status === 'caution' ? 'text-amber-600' :
+                    'text-gray-900'
+                  }`}>{formatNTD(stipend.next60DaysCommitment)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">{stipend.gap > 0 ? '現金缺口' : '60 天後餘額'}</p>
+                  <p className={`text-lg font-bold mt-0.5 ${
+                    stipend.gap > 0 ? 'text-red-600' :
+                    stipend.cashBalanceAfter60Days < stipend.monthlyCommitment * 1.5 ? 'text-amber-600' :
+                    'text-green-600'
+                  }`}>
+                    {stipend.gap > 0 ? `- ${formatNTD(stipend.gap)}` : formatNTD(stipend.cashBalanceAfter60Days)}
+                  </p>
+                </div>
+              </div>
+              <p className="mt-3 text-xs text-gray-400">
+                {stipend.reconciledAt ? `現金資料最後盤點：${stipend.reconciledAt}` : '尚未盤點現金，金額以 0 計算'}
+                <span className="mx-2">·</span>
+                <Link href="/students" className="text-amber-600 hover:text-amber-700">學員管理 →</Link>
+              </p>
+            </>
           )}
         </div>
       </section>
