@@ -45,7 +45,7 @@ export default async function PrintConsentPage({ params }: { params: Promise<{ i
 
         <section className="text-sm space-y-4 text-stone-800 leading-relaxed">
           <p>
-            本人同意提供個人資料予 <strong>光合創學有限公司</strong>（以下稱「本公司」），
+            本人同意提供個人資料予 <strong>光合創學股份有限公司</strong>（以下稱「本公司」），
             並同意本公司依《個人資料保護法》及相關法令之規定，於下列範圍內蒐集、處理及利用本人之個人資料：
           </p>
 

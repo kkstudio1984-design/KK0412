@@ -64,7 +64,7 @@ export default async function PrintContractPage({ params }: { params: Promise<{ 
           <div className="grid grid-cols-2 gap-8 text-sm">
             <div>
               <p className="text-xs text-stone-500 mb-1">出租方（甲方）</p>
-              <p className="font-semibold">光合創學有限公司</p>
+              <p className="font-semibold">光合創學股份有限公司</p>
               <p className="text-stone-700 mt-1">三院空間</p>
             </div>
             <div>
@@ -126,7 +126,7 @@ export default async function PrintContractPage({ params }: { params: Promise<{ 
         {/* Signatures */}
         <section className="mt-16 grid grid-cols-2 gap-8 text-sm">
           <div>
-            <p className="font-bold mb-6">甲方：光合創學有限公司</p>
+            <p className="font-bold mb-6">甲方：光合創學股份有限公司</p>
             <p className="text-stone-600 text-xs mb-2">負責人簽章：</p>
             <div className="border-b border-stone-900 h-12" />
           </div>

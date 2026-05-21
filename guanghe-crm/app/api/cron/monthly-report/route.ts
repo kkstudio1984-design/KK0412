@@ -161,7 +161,7 @@ export async function GET(req: NextRequest) {
     </div>
 
     <p style="text-align:center;color:#a8a29e;font-size:11px;margin-top:24px;">
-      光合創學有限公司 · 此信由系統自動寄送
+      光合創學股份有限公司 · 此信由系統自動寄送
     </p>
   </div>
 </body>
