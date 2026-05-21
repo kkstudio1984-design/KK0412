@@ -200,7 +200,7 @@ export default async function PrintSubsidyReconciliationPage({
         </section>
 
         <p className="mt-12 text-xs text-stone-400 text-center">
-          光合創學有限公司 · 身心障礙者就業服務機構
+          光合創學股份有限公司 · 身心障礙者就業服務機構
         </p>
       </div>
     </div>

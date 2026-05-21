@@ -235,7 +235,7 @@ function buildContractCopyHtml(c: any): string {
         <tr>
           <td style="vertical-align:top;width:50%;padding-right:16px;">
             <p style="margin:0 0 4px;color:#78716c;font-size:11px;">出租方（甲方）</p>
-            <p style="margin:0;font-weight:600;">光合創學有限公司</p>
+            <p style="margin:0;font-weight:600;">光合創學股份有限公司</p>
             <p style="margin:4px 0 0;color:#57534e;">三院空間</p>
           </td>
           <td style="vertical-align:top;width:50%;">
@@ -275,7 +275,7 @@ function buildContractCopyHtml(c: any): string {
       <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;">
         <tr>
           <td style="vertical-align:bottom;width:50%;padding-right:16px;">
-            <p style="margin:0 0 24px;font-weight:600;">甲方：光合創學有限公司</p>
+            <p style="margin:0 0 24px;font-weight:600;">甲方：光合創學股份有限公司</p>
             <p style="margin:0 0 4px;color:#78716c;font-size:11px;">負責人簽章：</p>
             <div style="border-bottom:1px solid #1c1917;height:32px;"></div>
           </td>
@@ -298,7 +298,7 @@ function buildContractCopyHtml(c: any): string {
     </div>
 
     <p style="text-align:center;color:#a8a29e;font-size:11px;margin-top:16px;">
-      光合創學有限公司 · 此信由系統自動寄送
+      光合創學股份有限公司 · 此信由系統自動寄送
     </p>
   </div>
 </body>
