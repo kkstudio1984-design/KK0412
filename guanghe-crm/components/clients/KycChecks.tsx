@@ -32,8 +32,24 @@ export default function KycChecks({ clientId, initialChecks, beneficialOwnerVeri
   const [overrideTarget, setOverrideTarget] = useState<string | null>(null)
   const [overrideReason, setOverrideReason] = useState('')
   const [renewing, setRenewing] = useState(false)
+  const [autoRunning, setAutoRunning] = useState(false)
 
   const passedCount = checks.filter((c) => c.status === '通過').length
+
+  const handleAutoRun = async () => {
+    setAutoRunning(true)
+    try {
+      const res = await fetch(`/api/kyc/auto-check/${clientId}`, { method: 'POST' })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || 'request failed')
+      toast.success(`自動查核完成：${json.passed} 通過 / ${json.flagged} 異常 / ${json.pending} 待查`)
+      router.refresh()
+    } catch (e) {
+      toast.error(`自動查核失敗：${e instanceof Error ? e.message : 'unknown'}`)
+    } finally {
+      setAutoRunning(false)
+    }
+  }
 
   const daysSince = beneficialOwnerVerifiedAt
     ? Math.floor((Date.now() - new Date(beneficialOwnerVerifiedAt).getTime()) / (1000 * 60 * 60 * 24))
@@ -106,13 +122,25 @@ export default function KycChecks({ clientId, initialChecks, beneficialOwnerVeri
     <div className="bg-white rounded-xl border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-5">
         <h2 className="font-semibold text-gray-800">KYC 查核</h2>
-        <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${
-          passedCount === 5
-            ? 'text-green-700 bg-green-50 border-green-200'
-            : 'text-yellow-700 bg-yellow-50 border-yellow-200'
-        }`}>
-          {passedCount} / 5 通過
-        </span>
+        <div className="flex items-center gap-2">
+          {canEdit && (
+            <button
+              onClick={handleAutoRun}
+              disabled={autoRunning}
+              title="自動查商工登記（g0v API）、其他四項標待查"
+              className="text-xs font-medium px-2.5 py-1 rounded-full border border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {autoRunning ? '查核中⋯' : '一鍵自動查'}
+            </button>
+          )}
+          <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${
+            passedCount === 5
+              ? 'text-green-700 bg-green-50 border-green-200'
+              : 'text-yellow-700 bg-yellow-50 border-yellow-200'
+          }`}>
+            {passedCount} / 5 通過
+          </span>
+        </div>
       </div>
 
       {needsRenewal && (
