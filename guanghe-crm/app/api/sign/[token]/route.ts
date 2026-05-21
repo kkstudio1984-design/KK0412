@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendInlineEmail } from '@/lib/email-transactional'
 import { format } from 'date-fns'
+import { COMPANY_NAME, COMPANY_TAX_ID, COMPANY_ADDRESS, COMPANY_REP_NAME, COMPANY_FOOTER_ONE_LINE } from '@/lib/company'
 
 export async function GET(
   _req: NextRequest,
@@ -235,10 +236,10 @@ function buildContractCopyHtml(c: any): string {
         <tr>
           <td style="vertical-align:top;width:50%;padding-right:16px;">
             <p style="margin:0 0 4px;color:#78716c;font-size:11px;">出租方（甲方）</p>
-            <p style="margin:0;font-weight:600;">光合創學股份有限公司</p>
-            <p style="margin:4px 0 0;color:#57534e;">統一編號：60350883</p>
-            <p style="margin:2px 0 0;color:#57534e;">登記地址：臺北市大安區和平東路三段 280 號 2 樓之一</p>
-            <p style="margin:2px 0 0;color:#57534e;">代表人：楊宜霖</p>
+            <p style="margin:0;font-weight:600;">${COMPANY_NAME}</p>
+            <p style="margin:4px 0 0;color:#57534e;">統一編號：${COMPANY_TAX_ID}</p>
+            <p style="margin:2px 0 0;color:#57534e;">登記地址：${COMPANY_ADDRESS}</p>
+            <p style="margin:2px 0 0;color:#57534e;">代表人：${COMPANY_REP_NAME}</p>
           </td>
           <td style="vertical-align:top;width:50%;">
             <p style="margin:0 0 4px;color:#78716c;font-size:11px;">承租方（乙方）</p>
@@ -277,7 +278,7 @@ function buildContractCopyHtml(c: any): string {
       <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;">
         <tr>
           <td style="vertical-align:bottom;width:50%;padding-right:16px;">
-            <p style="margin:0 0 24px;font-weight:600;">甲方：光合創學股份有限公司</p>
+            <p style="margin:0 0 24px;font-weight:600;">甲方：${COMPANY_NAME}</p>
             <p style="margin:0 0 4px;color:#78716c;font-size:11px;">負責人簽章：</p>
             <div style="border-bottom:1px solid #1c1917;height:32px;"></div>
           </td>
@@ -300,7 +301,7 @@ function buildContractCopyHtml(c: any): string {
     </div>
 
     <p style="text-align:center;color:#a8a29e;font-size:11px;margin-top:16px;">
-      光合創學股份有限公司 · 統編 60350883 · 臺北市大安區和平東路三段 280 號 2 樓之一 · 此信由系統自動寄送
+      ${COMPANY_FOOTER_ONE_LINE} · 此信由系統自動寄送
     </p>
   </div>
 </body>
