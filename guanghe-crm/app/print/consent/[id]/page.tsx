@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
 import PrintButton from '@/components/print/PrintButton'
+import { COMPANY_NAME, COMPANY_CONSENT_HEADER } from '@/lib/company'
 
 export default async function PrintConsentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -41,12 +42,12 @@ export default async function PrintConsentPage({ params }: { params: Promise<{ i
           </div>
           <h1 className="text-2xl font-bold text-stone-900">個人資料蒐集、處理及利用同意書</h1>
           <p className="text-sm text-stone-600 mt-2">依據《個人資料保護法》第 8 條告知義務</p>
-          <p className="text-xs text-stone-500 mt-3">蒐集機構：光合創學股份有限公司｜統一編號 60350883｜臺北市大安區和平東路三段 280 號 2 樓之一｜代表人 楊宜霖</p>
+          <p className="text-xs text-stone-500 mt-3">{COMPANY_CONSENT_HEADER}</p>
         </div>
 
         <section className="text-sm space-y-4 text-stone-800 leading-relaxed">
           <p>
-            本人同意提供個人資料予 <strong>光合創學股份有限公司</strong>（以下稱「本公司」），
+            本人同意提供個人資料予 <strong>{COMPANY_NAME}</strong>（以下稱「本公司」），
             並同意本公司依《個人資料保護法》及相關法令之規定，於下列範圍內蒐集、處理及利用本人之個人資料：
           </p>
 

@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
 import PrintButton from '@/components/print/PrintButton'
+import { COMPANY_NAME, COMPANY_TAX_ID, COMPANY_ADDRESS, COMPANY_REP_NAME } from '@/lib/company'
 
 export default async function PrintContractPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -64,10 +65,10 @@ export default async function PrintContractPage({ params }: { params: Promise<{ 
           <div className="grid grid-cols-2 gap-8 text-sm">
             <div>
               <p className="text-xs text-stone-500 mb-1">出租方（甲方）</p>
-              <p className="font-semibold">光合創學股份有限公司</p>
-              <p className="text-stone-700 mt-1">統一編號：60350883</p>
-              <p className="text-stone-700">登記地址：臺北市大安區和平東路三段 280 號 2 樓之一</p>
-              <p className="text-stone-700">代表人：楊宜霖</p>
+              <p className="font-semibold">{COMPANY_NAME}</p>
+              <p className="text-stone-700 mt-1">統一編號：{COMPANY_TAX_ID}</p>
+              <p className="text-stone-700">登記地址：{COMPANY_ADDRESS}</p>
+              <p className="text-stone-700">代表人：{COMPANY_REP_NAME}</p>
             </div>
             <div>
               <p className="text-xs text-stone-500 mb-1">承租方（乙方）</p>
@@ -128,7 +129,7 @@ export default async function PrintContractPage({ params }: { params: Promise<{ 
         {/* Signatures */}
         <section className="mt-16 grid grid-cols-2 gap-8 text-sm">
           <div>
-            <p className="font-bold mb-6">甲方：光合創學股份有限公司</p>
+            <p className="font-bold mb-6">甲方：{COMPANY_NAME}</p>
             <p className="text-stone-600 text-xs mb-2">負責人簽章：</p>
             <div className="border-b border-stone-900 h-12" />
           </div>

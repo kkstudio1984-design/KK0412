@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
 import PrintButton from '@/components/print/PrintButton'
+import { COMPANY_NAME, COMPANY_RECEIPT_SUBTITLE } from '@/lib/company'
 
 export default async function PrintReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -51,8 +52,8 @@ export default async function PrintReceiptPage({ params }: { params: Promise<{ i
             <div className="w-12 h-12 rounded-lg bg-amber-500 flex items-center justify-center text-white font-bold text-xl">光</div>
             <div>
               <p className="text-xs text-stone-500">Guanghe</p>
-              <p className="text-lg font-bold text-stone-900">光合創學股份有限公司</p>
-              <p className="text-[10px] text-stone-500 mt-0.5">統一編號：60350883｜臺北市大安區和平東路三段 280 號 2 樓之一</p>
+              <p className="text-lg font-bold text-stone-900">{COMPANY_NAME}</p>
+              <p className="text-[10px] text-stone-500 mt-0.5">{COMPANY_RECEIPT_SUBTITLE}</p>
             </div>
           </div>
           <div className="text-right">
@@ -126,7 +127,7 @@ export default async function PrintReceiptPage({ params }: { params: Promise<{ i
         <section className="mt-16 grid grid-cols-2 gap-8">
           <div>
             <p className="text-xs text-stone-500 mb-8">開立單位</p>
-            <p className="font-bold">光合創學股份有限公司</p>
+            <p className="font-bold">{COMPANY_NAME}</p>
             <p className="text-sm text-stone-600 mt-1">公司用印：</p>
             <div className="mt-2 border border-stone-300 rounded-lg h-20" />
           </div>

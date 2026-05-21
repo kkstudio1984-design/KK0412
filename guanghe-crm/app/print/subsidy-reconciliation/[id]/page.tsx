@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
 import PrintButton from '@/components/print/PrintButton'
+import { COMPANY_FOOTER_ONE_LINE } from '@/lib/company'
 
 export default async function PrintSubsidyReconciliationPage({
   params,
@@ -200,7 +201,7 @@ export default async function PrintSubsidyReconciliationPage({
         </section>
 
         <p className="mt-12 text-xs text-stone-400 text-center">
-          光合創學股份有限公司 · 統編 60350883 · 臺北市大安區和平東路三段 280 號 2 樓之一 · 身心障礙者就業服務機構
+          {COMPANY_FOOTER_ONE_LINE} · 身心障礙者就業服務機構
         </p>
       </div>
     </div>
