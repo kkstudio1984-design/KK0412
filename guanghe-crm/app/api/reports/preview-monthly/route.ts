@@ -205,7 +205,7 @@ export async function GET(req: NextRequest) {
     </div>
 
     <p style="text-align:center;color:#a8a29e;font-size:11px;margin-top:24px;">
-      光合創學股份有限公司 · 此頁由系統即時產生（${format(today, 'yyyy/MM/dd HH:mm')}）
+      光合創學股份有限公司 · 統編 60350883 · 臺北市大安區和平東路三段 280 號 2 樓之一 · 此頁由系統即時產生（${format(today, 'yyyy/MM/dd HH:mm')}）
     </p>
   </div>
 </body>

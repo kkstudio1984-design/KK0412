@@ -52,6 +52,7 @@ export default async function PrintReceiptPage({ params }: { params: Promise<{ i
             <div>
               <p className="text-xs text-stone-500">Guanghe</p>
               <p className="text-lg font-bold text-stone-900">光合創學股份有限公司</p>
+              <p className="text-[10px] text-stone-500 mt-0.5">統一編號：60350883｜臺北市大安區和平東路三段 280 號 2 樓之一</p>
             </div>
           </div>
           <div className="text-right">

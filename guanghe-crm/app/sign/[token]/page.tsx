@@ -216,6 +216,9 @@ export default function SignPage() {
             <div>
               <p style={{ color: '#555', fontSize: '0.7rem', margin: '0 0 0.25rem' }}>出租方（甲方）</p>
               <p style={{ color: '#e8e6e3', fontSize: '0.85rem', fontWeight: 500, margin: 0 }}>光合創學股份有限公司</p>
+              <p style={{ color: '#888', fontSize: '0.7rem', margin: '0.15rem 0 0' }}>統編：60350883</p>
+              <p style={{ color: '#888', fontSize: '0.7rem', margin: '0.1rem 0 0' }}>臺北市大安區和平東路三段 280 號 2 樓之一</p>
+              <p style={{ color: '#888', fontSize: '0.7rem', margin: '0.1rem 0 0' }}>代表人：楊宜霖</p>
             </div>
             <div>
               <p style={{ color: '#555', fontSize: '0.7rem', margin: '0 0 0.25rem' }}>承租方（乙方）</p>

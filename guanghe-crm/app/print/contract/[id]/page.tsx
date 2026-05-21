@@ -65,7 +65,9 @@ export default async function PrintContractPage({ params }: { params: Promise<{ 
             <div>
               <p className="text-xs text-stone-500 mb-1">出租方（甲方）</p>
               <p className="font-semibold">光合創學股份有限公司</p>
-              <p className="text-stone-700 mt-1">三院空間</p>
+              <p className="text-stone-700 mt-1">統一編號：60350883</p>
+              <p className="text-stone-700">登記地址：臺北市大安區和平東路三段 280 號 2 樓之一</p>
+              <p className="text-stone-700">代表人：楊宜霖</p>
             </div>
             <div>
               <p className="text-xs text-stone-500 mb-1">承租方（乙方）</p>

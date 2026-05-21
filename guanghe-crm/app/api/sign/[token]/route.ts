@@ -236,7 +236,9 @@ function buildContractCopyHtml(c: any): string {
           <td style="vertical-align:top;width:50%;padding-right:16px;">
             <p style="margin:0 0 4px;color:#78716c;font-size:11px;">出租方（甲方）</p>
             <p style="margin:0;font-weight:600;">光合創學股份有限公司</p>
-            <p style="margin:4px 0 0;color:#57534e;">三院空間</p>
+            <p style="margin:4px 0 0;color:#57534e;">統一編號：60350883</p>
+            <p style="margin:2px 0 0;color:#57534e;">登記地址：臺北市大安區和平東路三段 280 號 2 樓之一</p>
+            <p style="margin:2px 0 0;color:#57534e;">代表人：楊宜霖</p>
           </td>
           <td style="vertical-align:top;width:50%;">
             <p style="margin:0 0 4px;color:#78716c;font-size:11px;">承租方（乙方）</p>
@@ -298,7 +300,7 @@ function buildContractCopyHtml(c: any): string {
     </div>
 
     <p style="text-align:center;color:#a8a29e;font-size:11px;margin-top:16px;">
-      光合創學股份有限公司 · 此信由系統自動寄送
+      光合創學股份有限公司 · 統編 60350883 · 臺北市大安區和平東路三段 280 號 2 樓之一 · 此信由系統自動寄送
     </p>
   </div>
 </body>
