@@ -41,6 +41,7 @@ export default async function PrintConsentPage({ params }: { params: Promise<{ i
           </div>
           <h1 className="text-2xl font-bold text-stone-900">個人資料蒐集、處理及利用同意書</h1>
           <p className="text-sm text-stone-600 mt-2">依據《個人資料保護法》第 8 條告知義務</p>
+          <p className="text-xs text-stone-500 mt-3">蒐集機構：光合創學股份有限公司｜統一編號 60350883｜臺北市大安區和平東路三段 280 號 2 樓之一｜代表人 楊宜霖</p>
         </div>
 
         <section className="text-sm space-y-4 text-stone-800 leading-relaxed">
