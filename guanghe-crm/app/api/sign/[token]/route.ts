@@ -4,6 +4,7 @@ import { sendInlineEmail } from '@/lib/email-transactional'
 import { format } from 'date-fns'
 import { COMPANY_NAME, COMPANY_TAX_ID, COMPANY_ADDRESS, COMPANY_REP_NAME, COMPANY_FOOTER_ONE_LINE } from '@/lib/company'
 import { hashContract, hashSignature, estimateSignatureBytes } from '@/lib/contract-audit'
+import { notifyWebhook } from '@/lib/notify-webhook'
 
 export async function GET(
   _req: NextRequest,
@@ -217,6 +218,24 @@ export async function POST(
       } catch (mailErr) {
         console.error('[sign] failed to send reject notification email:', mailErr)
       }
+    }
+
+    // ── 推訊息給內部營運（LINE / Slack / Discord）──
+    // 失敗不影響主流程；沒設 NOTIFY_WEBHOOK_URL 時自動 skip。
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guanghe-crm.vercel.app'
+      await notifyWebhook({
+        event: action === 'reject' ? 'contract_rejected' : 'contract_signed',
+        title: action === 'reject'
+          ? `合約被拒簽`
+          : `合約已簽署`,
+        message: signerName
+          ? `簽署人：${signerName}${trimmedReason ? `（拒簽原因：${trimmedReason}）` : ''}`
+          : (trimmedReason || '查看詳情'),
+        link: `${baseUrl}/contracts/${contract.id}`,
+      })
+    } catch (notifyErr) {
+      console.error('[sign] failed to push webhook notification:', notifyErr)
     }
 
     return NextResponse.json({ ok: true, status: newStatus })
