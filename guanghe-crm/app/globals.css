@@ -3,12 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --bg-base: #0a0a0a;
-  --bg-surface: #111111;
-  --bg-elevated: #1a1a1a;
-  --bg-hover: #222222;
-  --border: #252525;
-  --border-light: #1e1e1e;
+  /* 深色主題底色提亮一階（2026-05-22）— 從漆黑 #0a0a0a 升級到 zinc-900 系列，
+     視覺壓迫感減少、保留 dark mode feel、文字對比仍足夠。 */
+  --bg-base: #18181b;
+  --bg-surface: #232328;
+  --bg-elevated: #2e2e34;
+  --bg-hover: #3a3a42;
+  --border: #3f3f46;
+  --border-light: #2e2e34;
   --text-primary: #e8e6e3;
   --text-secondary: #b0aca6;
   --text-tertiary: #706c66;
