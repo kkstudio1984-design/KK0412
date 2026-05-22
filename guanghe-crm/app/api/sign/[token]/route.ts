@@ -2,6 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendInlineEmail } from '@/lib/email-transactional'
 import { format } from 'date-fns'
+import { COMPANY_NAME, COMPANY_TAX_ID, COMPANY_ADDRESS, COMPANY_REP_NAME, COMPANY_FOOTER_ONE_LINE } from '@/lib/company'
+import { hashContract, hashSignature, estimateSignatureBytes } from '@/lib/contract-audit'
+import { notifyWebhook } from '@/lib/notify-webhook'
 
 export async function GET(
   _req: NextRequest,
@@ -85,6 +88,38 @@ export async function POST(
       .eq('id', contract.id)
 
     if (updateError) throw updateError
+
+    // ── 寫 immutable audit log（電子簽章法佐證）──
+    // 不論 sign / reject 都寫一筆 contract_signing_audit、含合約 hash + 簽名圖 hash + IP + UA。
+    // 失敗不影響簽署主流程（合約已 update 成功）、僅記 console.error。
+    try {
+      const { data: contractSnapshot } = await supabase
+        .from('contracts')
+        .select('id, contract_type, start_date, end_date, monthly_rent, payment_cycle, deposit_amount, leg_type, space_client_id, project_id, lease_terms')
+        .eq('id', contract.id)
+        .single()
+
+      const contractSnapshotHash = contractSnapshot ? hashContract(contractSnapshot as unknown as Record<string, unknown>) : null
+      const signatureImg = action === 'sign' ? signatureImage : null
+      const signatureImageHash = hashSignature(signatureImg)
+      const signatureImageBytes = estimateSignatureBytes(signatureImg)
+      const userAgent = req.headers.get('user-agent') || null
+
+      await supabase.from('contract_signing_audit').insert({
+        contract_id: contract.id,
+        event_type: action === 'reject' ? 'rejected' : 'signed',
+        signer_name: signerName || null,
+        signer_ip: signerIp,
+        signer_user_agent: userAgent,
+        contract_snapshot_hash: contractSnapshotHash,
+        signature_image_hash: signatureImageHash,
+        signature_image_size_bytes: signatureImageBytes,
+        reject_reason: action === 'reject' ? trimmedReason : null,
+        raw_payload: { action, hasSignature: !!signatureImg, signerNameProvided: !!signerName },
+      })
+    } catch (auditErr) {
+      console.error('[sign] failed to write contract_signing_audit:', auditErr)
+    }
 
     // ── 簽署成功時，自動寄一份合約副本給客戶（含手寫簽名圖）──
     // 失敗不影響簽署流程；只記在 console + email_logs。
@@ -185,6 +220,24 @@ export async function POST(
       }
     }
 
+    // ── 推訊息給內部營運（LINE / Slack / Discord）──
+    // 失敗不影響主流程；沒設 NOTIFY_WEBHOOK_URL 時自動 skip。
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://guanghe-crm.vercel.app'
+      await notifyWebhook({
+        event: action === 'reject' ? 'contract_rejected' : 'contract_signed',
+        title: action === 'reject'
+          ? `合約被拒簽`
+          : `合約已簽署`,
+        message: signerName
+          ? `簽署人：${signerName}${trimmedReason ? `（拒簽原因：${trimmedReason}）` : ''}`
+          : (trimmedReason || '查看詳情'),
+        link: `${baseUrl}/contracts/${contract.id}`,
+      })
+    } catch (notifyErr) {
+      console.error('[sign] failed to push webhook notification:', notifyErr)
+    }
+
     return NextResponse.json({ ok: true, status: newStatus })
   } catch (error) {
     return NextResponse.json({ error: '簽署失敗', details: String(error) }, { status: 500 })
@@ -235,8 +288,10 @@ function buildContractCopyHtml(c: any): string {
         <tr>
           <td style="vertical-align:top;width:50%;padding-right:16px;">
             <p style="margin:0 0 4px;color:#78716c;font-size:11px;">出租方（甲方）</p>
-            <p style="margin:0;font-weight:600;">光合創學有限公司</p>
-            <p style="margin:4px 0 0;color:#57534e;">三院空間</p>
+            <p style="margin:0;font-weight:600;">${COMPANY_NAME}</p>
+            <p style="margin:4px 0 0;color:#57534e;">統一編號：${COMPANY_TAX_ID}</p>
+            <p style="margin:2px 0 0;color:#57534e;">登記地址：${COMPANY_ADDRESS}</p>
+            <p style="margin:2px 0 0;color:#57534e;">代表人：${COMPANY_REP_NAME}</p>
           </td>
           <td style="vertical-align:top;width:50%;">
             <p style="margin:0 0 4px;color:#78716c;font-size:11px;">承租方（乙方）</p>
@@ -275,7 +330,7 @@ function buildContractCopyHtml(c: any): string {
       <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;">
         <tr>
           <td style="vertical-align:bottom;width:50%;padding-right:16px;">
-            <p style="margin:0 0 24px;font-weight:600;">甲方：光合創學有限公司</p>
+            <p style="margin:0 0 24px;font-weight:600;">甲方：${COMPANY_NAME}</p>
             <p style="margin:0 0 4px;color:#78716c;font-size:11px;">負責人簽章：</p>
             <div style="border-bottom:1px solid #1c1917;height:32px;"></div>
           </td>
@@ -298,7 +353,7 @@ function buildContractCopyHtml(c: any): string {
     </div>
 
     <p style="text-align:center;color:#a8a29e;font-size:11px;margin-top:16px;">
-      光合創學有限公司 · 此信由系統自動寄送
+      ${COMPANY_FOOTER_ONE_LINE} · 此信由系統自動寄送
     </p>
   </div>
 </body>

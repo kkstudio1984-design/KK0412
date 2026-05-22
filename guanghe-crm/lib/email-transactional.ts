@@ -31,7 +31,11 @@ interface SendResult {
   logId?: string
 }
 
-const FROM = process.env.EMAIL_FROM || 'noreply@guanghe-crm.vercel.app'
+// 不再 fallback 到 vercel.app domain — 那不在 Resend 驗證 list、Resend 會直接拒寄、
+// 且 Vercel 自動 domain 沒 SPF/DKIM 設定、收件方一律進垃圾信。
+// EMAIL_FROM 必須由部署環境設為已在 Resend Dashboard 驗證的自有 domain，例如
+// `光合創學 <noreply@guanghexueshe.com.tw>`。沒設則所有對外信走 skipped 不寄。
+const FROM = process.env.EMAIL_FROM
 
 /**
  * 把 'Hello {{name}}, due {{amount}}' 用 variables 物件替換。
@@ -77,15 +81,17 @@ export async function sendTemplatedEmail(opts: SendOptions): Promise<SendResult>
   const subject = fillTemplate(tmpl.subject, variables)
   const body = fillTemplate(tmpl.body, variables)
 
-  // 3. 沒設 Resend key → 跳過寄送但留記錄（dev / preview 安全網）
+  // 3. 沒設 Resend key 或沒設 EMAIL_FROM → 跳過寄送但留記錄（dev / preview 安全網）
   const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) {
-    console.warn(`[email] RESEND_API_KEY not set — skipping send to ${to} (template=${templateKey})`)
+  const fromAddress = FROM
+  if (!apiKey || !fromAddress) {
+    if (!apiKey) console.warn(`[email] RESEND_API_KEY not set — skipping send to ${to} (template=${templateKey})`)
+    if (!fromAddress) console.error(`[email] EMAIL_FROM not set — refusing to send to ${to} (template=${templateKey}, must be Resend-verified domain)`)
     return await logAndReturn(supabase, {
       to, toName, related, templateKey, subject,
       bodyPreview: body.slice(0, 500),
       status: 'skipped',
-      error: 'RESEND_API_KEY not configured',
+      error: !apiKey ? 'RESEND_API_KEY not configured' : 'EMAIL_FROM not configured',
     })
   }
 
@@ -93,7 +99,7 @@ export async function sendTemplatedEmail(opts: SendOptions): Promise<SendResult>
   try {
     const resend = new Resend(apiKey)
     const { data, error } = await resend.emails.send({
-      from: FROM,
+      from: fromAddress,
       to: toName ? `${toName} <${to}>` : to,
       subject,
       text: body,
@@ -146,20 +152,22 @@ export async function sendInlineEmail(opts: InlineSendOptions): Promise<SendResu
   const previewText = text ?? html.replace(/<[^>]*>/g, '').slice(0, 500)
 
   const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) {
-    console.warn(`[email] RESEND_API_KEY not set — skipping inline send to ${to} (subject=${subject})`)
+  const fromAddress = FROM
+  if (!apiKey || !fromAddress) {
+    if (!apiKey) console.warn(`[email] RESEND_API_KEY not set — skipping inline send to ${to} (subject=${subject})`)
+    if (!fromAddress) console.error(`[email] EMAIL_FROM not set — refusing to inline send to ${to} (subject=${subject}, must be Resend-verified domain)`)
     return await logAndReturn(supabase, {
       to, toName, related, templateKey: logKey || 'inline',
       subject, bodyPreview: previewText.slice(0, 500),
       status: 'skipped',
-      error: 'RESEND_API_KEY not configured',
+      error: !apiKey ? 'RESEND_API_KEY not configured' : 'EMAIL_FROM not configured',
     })
   }
 
   try {
     const resend = new Resend(apiKey)
     const { data, error } = await resend.emails.send({
-      from: FROM,
+      from: fromAddress,
       to: toName ? `${toName} <${to}>` : to,
       subject,
       html,

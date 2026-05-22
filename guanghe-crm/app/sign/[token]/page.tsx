@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { format } from 'date-fns'
 import SignaturePad from 'signature_pad'
+import { COMPANY_NAME, COMPANY_TAX_ID, COMPANY_ADDRESS, COMPANY_REP_NAME } from '@/lib/company'
 
 interface ContractData {
   id: string
@@ -215,7 +216,10 @@ export default function SignPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div>
               <p style={{ color: '#555', fontSize: '0.7rem', margin: '0 0 0.25rem' }}>出租方（甲方）</p>
-              <p style={{ color: '#e8e6e3', fontSize: '0.85rem', fontWeight: 500, margin: 0 }}>光合創學有限公司</p>
+              <p style={{ color: '#e8e6e3', fontSize: '0.85rem', fontWeight: 500, margin: 0 }}>{COMPANY_NAME}</p>
+              <p style={{ color: '#888', fontSize: '0.7rem', margin: '0.15rem 0 0' }}>統編：{COMPANY_TAX_ID}</p>
+              <p style={{ color: '#888', fontSize: '0.7rem', margin: '0.1rem 0 0' }}>{COMPANY_ADDRESS}</p>
+              <p style={{ color: '#888', fontSize: '0.7rem', margin: '0.1rem 0 0' }}>代表人：{COMPANY_REP_NAME}</p>
             </div>
             <div>
               <p style={{ color: '#555', fontSize: '0.7rem', margin: '0 0 0.25rem' }}>承租方（乙方）</p>
@@ -422,7 +426,7 @@ export default function SignPage() {
         )}
 
         <p style={{ textAlign: 'center', color: '#333', fontSize: '0.7rem', marginTop: '2rem' }}>
-          光合創學有限公司 © {new Date().getFullYear()}
+          {COMPANY_NAME} © {new Date().getFullYear()}
         </p>
       </div>
     </div>

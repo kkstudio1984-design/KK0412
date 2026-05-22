@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns'
 import { sendInlineEmail } from '@/lib/email-transactional'
+import { COMPANY_FOOTER_ONE_LINE } from '@/lib/company'
 
 export async function GET(req: NextRequest) {
   // Cron 鑑權（如有設定）
@@ -161,7 +162,7 @@ export async function GET(req: NextRequest) {
     </div>
 
     <p style="text-align:center;color:#a8a29e;font-size:11px;margin-top:24px;">
-      光合創學有限公司 · 此信由系統自動寄送
+      ${COMPANY_FOOTER_ONE_LINE} · 此信由系統自動寄送
     </p>
   </div>
 </body>

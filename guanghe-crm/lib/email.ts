@@ -10,7 +10,9 @@ type NotificationItem = {
 type Severity = 'urgent' | 'warning' | 'info'
 
 const PRODUCTION_URL = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://guanghe-crm.vercel.app'
-const FROM_ADDRESS = process.env.EMAIL_FROM || '光合創學 CRM <onboarding@resend.dev>'
+// 不再 fallback 到 onboarding@resend.dev — 那是 Resend 開發測試地址，會被收件方判定垃圾信、
+// 也會被 Resend 限速。EMAIL_FROM 必須由部署環境設為已在 Resend Dashboard 驗證的自有 domain。
+const FROM_ADDRESS = process.env.EMAIL_FROM
 
 const SEVERITY_ORDER: Severity[] = ['urgent', 'warning', 'info']
 
@@ -26,13 +28,20 @@ function asSeverity(type: string): Severity {
 
 export async function sendDailyDigest(items: NotificationItem[]) {
   const apiKey = process.env.RESEND_API_KEY
+  const fromAddress = FROM_ADDRESS
   const recipients = (process.env.NOTIFICATION_RECIPIENTS || '')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
 
-  if (!apiKey || recipients.length === 0 || items.length === 0) {
-    return { skipped: true, reason: !apiKey ? 'no_api_key' : recipients.length === 0 ? 'no_recipients' : 'no_items' }
+  if (!apiKey || !fromAddress || recipients.length === 0 || items.length === 0) {
+    if (!fromAddress) {
+      console.error('[email] EMAIL_FROM not set — refusing to send daily digest (must be a Resend-verified domain, not onboarding@resend.dev)')
+    }
+    return {
+      skipped: true,
+      reason: !apiKey ? 'no_api_key' : !fromAddress ? 'no_from_address' : recipients.length === 0 ? 'no_recipients' : 'no_items',
+    }
   }
 
   const grouped: Record<Severity, NotificationItem[]> = { urgent: [], warning: [], info: [] }
@@ -82,7 +91,7 @@ export async function sendDailyDigest(items: NotificationItem[]) {
 
   const resend = new Resend(apiKey)
   const { data, error } = await resend.emails.send({
-    from: FROM_ADDRESS,
+    from: fromAddress,
     to: recipients,
     subject,
     html,
