@@ -1,5 +1,6 @@
 // ── Daily Summary Cron ─────────────────────────────────────────
 // 每天 08:00（台北）跑：彙整昨日 24h 關鍵營運指標、寄 HTML email 給光光自己。
+// 對應 vercel.json schedule "0 0 * * *"（UTC 00:00 = 台北 08:00、+8 時差）。
 // 也可手動觸發 ?force=true&date=YYYY-MM-DD 補寄某天。
 //
 // 與 monthly-report 區隔：
@@ -13,6 +14,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { startOfDay, endOfDay, subDays, addDays, format } from 'date-fns'
+import * as Sentry from '@sentry/nextjs'
 import { sendInlineEmail } from '@/lib/email-transactional'
 import { COMPANY_FOOTER_ONE_LINE } from '@/lib/company'
 
@@ -231,6 +233,9 @@ export async function GET(req: NextRequest) {
     })
   } catch (error) {
     console.error('[CRON daily-summary]', error)
+    // 失敗仍回 200 避 Vercel cron retry spam、但同步 Sentry capture
+    // 避免吞錯造成失明（沒 Sentry 報就只能等下次手動 check log）
+    Sentry.captureException(error, { tags: { cron: 'daily-summary' } })
     return NextResponse.json({ error: 'Daily summary failed', details: String(error) }, { status: 200 })
   }
 }
