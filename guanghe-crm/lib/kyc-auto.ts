@@ -202,15 +202,13 @@ export async function runAutoKyc(opts: RunOptions): Promise<RunResult> {
 
   const checks = [registration, judicial, chattel, google, beneficialOwner]
 
-  // 3. Upsert 進 kyc_checks 表
-  // 因為 kyc_checks 沒 unique constraint on (space_client_id, check_type)、用「先 delete 後 insert」確保 idempotency
-  await supabase
-    .from('kyc_checks')
-    .delete()
-    .eq('space_client_id', spaceClientId)
-    .in('check_type', checks.map((c) => c.check_type))
-
-  await supabase.from('kyc_checks').insert(
+  // 3. Upsert 進 kyc_checks 表（atomic）
+  // 改 upsert + onConflict 替代之前的「先 delete 後 insert」邏輯。
+  // 原本邏輯若 delete 成功 + insert 失敗（網路 / RLS / details JSON 太大）
+  // 會永久丟失客戶 5 條既有 KYC 紀錄。
+  // 依賴 migration 028 在 (space_client_id, check_type) 加 UNIQUE constraint、
+  // 由 PostgreSQL 端原子保證 idempotency。
+  const { error: upsertError } = await supabase.from('kyc_checks').upsert(
     checks.map((c) => ({
       space_client_id: spaceClientId,
       check_type: c.check_type,
@@ -219,8 +217,15 @@ export async function runAutoKyc(opts: RunOptions): Promise<RunResult> {
       details: c.details || null,
       data_source: c.data_source || null,
       auto_checked: c.data_source !== 'manual',
-    }))
+    })),
+    { onConflict: 'space_client_id,check_type' }
   )
+
+  if (upsertError) {
+    // 寫入失敗、既有 row 保持完整（不像舊版本會先 delete 再炸）。
+    // 把錯誤往外丟、讓 API route 回 5xx、UI 顯示失敗訊息、客戶不會誤以為已查。
+    throw new Error(`KYC checks upsert failed: ${upsertError.message}`)
+  }
 
   return {
     spaceClientId,
