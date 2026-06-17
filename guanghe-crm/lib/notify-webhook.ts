@@ -2,14 +2,17 @@
 // 對接外部即時訊息服務、重要事件發生時主動推訊息給光光跟 Miu。
 //
 // 設計：service-agnostic — 不綁定特定服務，只要對方支援「POST JSON body」即可。
-// 三家相容：
-//   LINE Notify v2 → 已 deprecated，改用 LINE Messaging API push message
+// 兩家相容：
 //   Slack incoming webhook → POST { text } 到 webhook URL
 //   Discord webhook → POST { content } 到 webhook URL
 //
+// LINE 未實作：LINE Notify v2 已於 2025/3 deprecated、Messaging API push
+// message 需要 channel access token + Authorization header + to (user/group
+// ID)、不適合走通用 webhook 模式。需要 LINE 推送請另寫 lib/notify-line.ts。
+//
 // 環境變數：
 //   NOTIFY_WEBHOOK_URL：webhook endpoint URL
-//   NOTIFY_WEBHOOK_FORMAT：'slack' | 'discord' | 'line'（決定 body 格式）
+//   NOTIFY_WEBHOOK_FORMAT：'slack' | 'discord'（決定 body 格式）
 //
 // Graceful fallback：沒設 env 時靜默 return null、不影響主流程。
 //
@@ -18,7 +21,7 @@
 //   月報寄出完成 / 學員入庫 / cron 失敗
 
 const WEBHOOK_URL = process.env.NOTIFY_WEBHOOK_URL
-const WEBHOOK_FORMAT = (process.env.NOTIFY_WEBHOOK_FORMAT || 'slack') as 'slack' | 'discord' | 'line'
+const WEBHOOK_FORMAT = (process.env.NOTIFY_WEBHOOK_FORMAT || 'slack') as 'slack' | 'discord'
 
 const EVENT_EMOJI: Record<string, string> = {
   contract_signed: '✅',
@@ -68,12 +71,6 @@ export async function notifyWebhook(input: NotifyInput): Promise<NotifyResult | 
   switch (WEBHOOK_FORMAT) {
     case 'discord':
       body = { content: fullMessage.replace(/\*/g, '**') } // Discord 用 ** 粗體
-      break
-    case 'line':
-      // LINE Messaging API push message 格式（需要 Channel access token）
-      body = {
-        messages: [{ type: 'text', text: fullMessage.replace(/\*/g, '') }],
-      }
       break
     case 'slack':
     default:
